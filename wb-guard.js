@@ -6,6 +6,7 @@ sb.auth.getSession().then(function(res){
 var session = res && res.data ? res.data.session : null;
 if(!session){ location.replace("wb-login.html"); return; }
 var uid = session.user.id;
+  var _p=location.pathname; if(_p==="/"||/\/(index\.html)?$/.test(_p)){ return; }
 return sb.from("profiles").select("role,residences").eq("id", uid).single().then(function(p){
 var row = p && p.data ? p.data : {};
 var role = row.role || "";
