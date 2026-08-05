@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Check List Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif;background:#f0f2f5;color:#323130;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.wrap{width:100%;max-width:430px}
+.card{background:#fff;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.1);padding:38px 34px;border-top:4px solid #f5c518}
+.logo-img{display:block;margin:0 auto 16px;max-width:200px;height:auto}
+h1{text-align:center;font-size:22px;font-weight:700;color:#323130;margin-bottom:4px}
+.sub{text-align:center;color:#605e5c;font-size:13px;margin-bottom:24px}
+label{display:block;font-size:12px;font-weight:600;color:#323130;margin-bottom:6px;margin-top:16px}
+input{width:100%;padding:12px 14px;border:1px solid #e1e1e1;border-radius:8px;font-size:14px;font-family:inherit;background:#f8f9fb}
+input:focus{outline:none;border-color:#3fc1c9;box-shadow:0 0 0 2px rgba(63,193,201,.12)}
+button{width:100%;margin-top:24px;padding:13px;border:none;border-radius:8px;background:#3fc1c9;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+button:hover{background:#1a8c94}button:disabled{background:#a19f9d;cursor:not-allowed}
+.msg{margin-top:14px;font-size:13px;text-align:center;min-height:18px}
+.msg.err{color:#d13438}.msg.ok{color:#107c10}
+.note{text-align:center;color:#a19f9d;font-size:11px;margin-top:18px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<img class="logo-img" src="hasc-logo.png" alt="HASC Center"/>
+<h1>Check List Portal</h1>
+<form id="loginForm">
+<label for="email">Email</label>
+<input id="email" type="email" autocomplete="username" required/>
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password" required/>
+<button id="btn" type="submit">Sign In</button>
+<div class="msg" id="msg"></div>
+</form>
+<div class="note">Secure sign-in. Your password is checked by the server, never stored in this page.</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<script>
+var c = window.HASC_CONFIG || {};
+var sb = window.supabase.createClient(c.SUPABASE_URL, c.SUPABASE_ANON_KEY);
+function routeFor(role){ return (role==="residence_manager") ? "wb-checkoff.html" : "wb-today.html"; }
+// On the login page, always start from a clean slate: sign out any
+// leftover session so a new login can never inherit a previous user.
+(async function(){
+  try{ await sb.auth.signOut(); }catch(e){}
+  try{ sessionStorage.removeItem("hasc_role"); sessionStorage.removeItem("hasc_homes"); }catch(e){}
+})();
+document.getElementById("loginForm").addEventListener("submit", async function(ev){
+  ev.preventDefault();
+  var btn = document.getElementById("btn");
+  var msg = document.getElementById("msg");
+  msg.className = "msg err"; msg.textContent = "";
+  btn.disabled = true; btn.textContent = "Signing in…";
+  var email = document.getElementById("email").value.trim();
+  var password = document.getElementById("password").value;
+  try{
+    var r = await sb.auth.signInWithPassword({ email: email, password: password });
+    if(r.error){ throw r.error; }
+    var authEmail = (r.data.user.email || email).toLowerCase();
+    var p = await sb.from("profiles").select("role,residences").ilike("email",authEmail).single();
+    if(p.error || !p.data){ throw new Error("No profile / role found for this account."); }
+    try{ sessionStorage.setItem("hasc_role", p.data.role||""); sessionStorage.setItem("hasc_homes", JSON.stringify(p.data.residences||[])); }catch(e){}
+    location.replace(routeFor(p.data.role));
+  }catch(err){
+    msg.className = "msg err"; msg.textContent = (err && err.message) ? err.message : "Sign in failed.";
+    btn.disabled = false; btn.textContent = "Sign In";
+  }
+});
+</script>
+</body>
+</html>
