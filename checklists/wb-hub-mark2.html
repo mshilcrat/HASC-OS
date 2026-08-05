@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HASC RM Compliance</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<script src="wb-guard.js"></script>
+<style>
+* { box-sizing:border-box; }
+body { margin:0; background:#eef2f5; color:#223038; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+.topbar { background:#fff; border-bottom:3px solid #17a2b8; display:flex; align-items:center; gap:16px; padding:12px 24px; flex-wrap:wrap; }
+.logo { display:flex; align-items:center; gap:9px; }
+.logo-mark { font-weight:800; color:#17a2b8; font-size:20px; letter-spacing:.5px; }
+.page-label { color:#8a97a1; font-size:15px; padding-left:14px; border-left:1px solid #e2e8ec; }
+.navbtns { display:flex; gap:9px; margin-left:4px; }
+.navbtn { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid #dbe3e8; border-radius:9px; padding:7px 14px; font-size:14px; font-weight:600; color:#3a4a54; cursor:pointer; }
+.navbtn:hover { border-color:#17a2b8; color:#17a2b8; }
+.navbtn[disabled] { opacity:.4; cursor:default; }
+.whoami { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.badge { width:36px; height:36px; border-radius:50%; background:#1a9d5a; color:#fff; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.user-name { font-size:14px; color:#445561; }
+.container { max-width:1080px; margin:0 auto; padding:26px 24px 60px; }
+.screen-title { font-size:25px; font-weight:700; margin:0 0 4px; }
+.screen-sub { font-size:15px; color:#6a7b86; margin:0 0 24px; }
+.cubes { display:grid; grid-template-columns:repeat(4,235px); gap:22px; justify-content:start; align-items:stretch; }
+.cube { background:#fff; border:1px solid #edf1f4; border-radius:10px; box-shadow:0 1px 3px rgba(34,48,56,.06); padding:22px 20px 26px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.cube:hover { transform:translateY(-2px); box-shadow:0 8px 18px rgba(34,48,56,.12); border-color:#dfe7ec; }
+.cube-icon { font-size:26px; line-height:1; display:block; margin-bottom:22px; }
+.cube-title { font-weight:700; font-size:15.5px; margin:0 0 8px; color:#1f2d36; }
+.cube-desc { font-size:13.5px; color:#7a8894; line-height:1.55; }
+.callout { background:#fff; border-left:4px solid #17a2b8; border-radius:10px; padding:15px 20px; box-shadow:0 2px 8px rgba(34,48,56,.08); margin-bottom:22px; font-size:14px; color:#3a4a54; line-height:1.5; }
+.callout b { color:#223038; }
+.btn-teal { background:#17a2b8; color:#fff; border:none; border-radius:8px; padding:8px 16px; font-weight:600; font-size:13px; cursor:pointer; }
+.btn-teal:hover { background:#1490a3; }
+.btn-outline { background:#fff; color:#17a2b8; border:1px solid #cfe6ea; border-radius:8px; padding:8px 16px; font-weight:600; font-size:13px; cursor:pointer; }
+.coord { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(34,48,56,.08); margin-bottom:14px; overflow:hidden; }
+.coord-head { display:flex; align-items:center; gap:16px; padding:18px 22px; cursor:pointer; }
+.coord.attention > .coord-head { background:#fdf2f2; }
+.rank { font-size:22px; font-weight:800; color:#c3ccd2; width:40px; flex:0 0 40px; }
+.coord-main { flex:1; }
+.coord-name { font-weight:700; font-size:16px; }
+.attn { color:#d64545; font-weight:700; font-size:12.5px; margin-left:8px; }
+.coord-sub { color:#7a8894; font-size:13px; margin-top:3px; }
+.coord-pct { font-weight:800; font-size:17px; }
+.mini-caret { color:#b3c0c8; margin-left:14px; font-size:13px; transition:transform .15s ease; }
+.coord.open > .coord-head .mini-caret { transform:rotate(90deg); color:#17a2b8; }
+.res { display:flex; align-items:center; gap:12px; padding:13px 22px; border-top:1px solid #f0f3f5; }
+.dot { width:10px; height:10px; border-radius:50%; flex:0 0 10px; }
+.res-name { font-weight:500; }
+.res-staff { color:#95a3ad; font-size:13px; margin-left:auto; }
+.res-pct { font-weight:700; font-size:14px; width:50px; text-align:right; }
+.inp { padding:9px 12px; border:1px solid #d8e0e5; border-radius:8px; background:#fff; font-size:14px; color:#223038; }
+.list { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(34,48,56,.08); overflow:hidden; }
+.empty { padding:26px 20px; color:#7a8894; font-size:14px; text-align:center; }
+.doc-label { font-size:11.5px; font-weight:700; letter-spacing:.9px; color:#9aa7b0; margin:0 0 12px 2px; }
+.doc-bar { display:flex; gap:12px; align-items:center; margin-bottom:18px; flex-wrap:wrap; }
+.search { flex:1; min-width:220px; display:flex; align-items:center; gap:8px; background:#fff; border-radius:10px; padding:9px 14px; box-shadow:0 2px 8px rgba(34,48,56,.06); }
+.search input { border:none; outline:none; flex:1; font-size:14px; background:transparent; color:#223038; }
+.seg { display:flex; background:#e6ebef; border-radius:10px; padding:3px; }
+.seg button { border:none; background:transparent; padding:7px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#5b6b78; cursor:pointer; }
+.seg button.active { background:#fff; color:#17a2b8; box-shadow:0 1px 3px rgba(0,0,0,.08); }
+.folder { background:#fff; border:1px solid #edf1f4; border-radius:12px; box-shadow:0 1px 3px rgba(34,48,56,.06); margin-bottom:12px; overflow:hidden; }
+.folder-head { display:flex; align-items:center; gap:11px; padding:15px 20px; cursor:pointer; }
+.folder-head:hover { background:#fafcfd; }
+.folder-name { font-size:15.5px; font-weight:500; }
+.folder-count { margin-left:auto; color:#9aa7b0; font-size:13px; }
+.folder-caret { color:#b3c0c8; font-size:12px; transition:transform .15s ease; }
+.folder.open .folder-caret { transform:rotate(180deg); color:#17a2b8; }
+.file-row { display:flex; align-items:center; gap:11px; padding:11px 20px 11px 34px; border-top:1px solid #f4f7f9; }
+.file-name { flex:1; font-size:14px; color:#4a5a65; }
+.file-acts { display:flex; gap:8px; flex-shrink:0; }
+.btn-view { background:#fff; color:#17a2b8; border:1px solid #17a2b8; border-radius:7px; padding:7px 18px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; }
+.btn-plain { background:#fff; color:#5b6b78; border:1px solid #dbe3e8; border-radius:7px; padding:7px 15px; font-size:13px; font-weight:500; cursor:pointer; }
+.file-none .file-name { color:#9aa7b0; font-style:italic; }
+.sumbar { display:flex; gap:14px; margin-bottom:16px; }
+.stat { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(34,48,56,.08); padding:16px 20px; flex:1; }
+.stat .n { font-size:26px; font-weight:800; }
+.stat .l { font-size:13px; color:#7a8894; margin-top:2px; }
+.today-row { display:flex; align-items:center; gap:12px; padding:13px 20px; border-bottom:1px solid #f0f3f5; }
+.t-status { margin-left:auto; font-size:13px; font-weight:600; }
+.btn-remind { margin-left:14px; padding:6px 14px; }
+.remind-done { margin-left:14px; font-size:12.5px; font-weight:600; color:#1a9d5a; background:#e4f4ee; border-radius:999px; padding:5px 12px; white-space:nowrap; }
+.sec-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:22px 2px 10px; font-size:13px; font-weight:700; color:#5b6b78; }
+.reset-note { margin-top:14px; font-size:12.5px; color:#9aa7b0; }
+.inbox-bar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+.inbox-meta { font-size:13px; color:#8a97a1; margin:0 2px 14px; }
+.inbox-table { background:#fff; border:1px solid #edf1f4; border-radius:12px; box-shadow:0 1px 3px rgba(34,48,56,.06); overflow-x:auto; }
+.inbox-table table { width:100%; border-collapse:collapse; font-size:14px; }
+.inbox-table th { text-align:left; padding:13px 16px; font-size:11px; letter-spacing:.7px; color:#9aa7b0; font-weight:800; border-bottom:1px solid #edf1f4; background:#fbfcfd; white-space:nowrap; }
+.inbox-table td { padding:13px 16px; border-bottom:1px solid #f4f7f9; vertical-align:middle; }
+.c-staff { font-weight:700; white-space:nowrap; }
+.c-res { color:#5b6b78; white-space:nowrap; }
+.c-date { color:#5b6b78; white-space:nowrap; }
+.c-time { display:block; color:#9aa7b0; font-size:12px; margin-top:2px; }
+.c-note { color:#4a5a65; font-size:13px; }
+.cl-controls { display:flex; gap:22px; flex-wrap:wrap; margin-bottom:18px; }
+.fl { display:block; font-size:12px; color:#7a8894; margin-bottom:6px; font-weight:600; }
+.addcard { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(34,48,56,.08); padding:18px 20px; margin-bottom:20px; }
+.addcard h4 { margin:0 0 14px; font-size:15px; }
+.add-row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+.add-row .inp { flex:1; min-width:150px; }
+.cl-grid { display:grid; grid-template-columns:1fr 120px 1fr; gap:16px; align-items:start; }
+.panel { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(34,48,56,.08); overflow:hidden; }
+.panel-head { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #eef2f5; font-weight:700; font-size:15px; }
+.count { background:#eef2f5; color:#5b6b78; border-radius:999px; padding:2px 11px; font-size:12px; font-weight:700; }
+.panel-body { max-height:470px; overflow:auto; padding:4px 0 10px; }
+.grp { padding:14px 18px 5px; font-size:11px; font-weight:700; letter-spacing:.4px; color:#9aa7b0; }
+.task { display:flex; gap:9px; align-items:center; padding:7px 14px 7px 18px; cursor:pointer; font-size:14px; line-height:1.35; }
+.task:hover { background:#f7f9fb; }
+.task.sel { background:#e7f6f8; }
+.task .mk { flex:0 0 14px; font-weight:700; }
+.task.live .mk { color:#1a9d5a; }
+.task.removed .mk { color:#17a2b8; }
+.task-text { flex:1; }
+.task-tools { display:flex; align-items:center; gap:5px; opacity:0; transition:opacity .12s ease; }
+.task:hover .task-tools, .task.sel .task-tools { opacity:1; }
+.freq-sel { border:1px solid #dbe3e8; border-radius:6px; background:#fff; font-size:11.5px; padding:2px 4px; color:#5b6b78; cursor:pointer; }
+.icon-btn { border:1px solid #dbe3e8; background:#fff; border-radius:6px; width:22px; height:22px; line-height:1; font-size:12px; color:#8a97a1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.icon-btn:hover { border-color:#d64545; color:#d64545; }
+.midbtns { display:flex; flex-direction:column; gap:10px; padding-top:52px; }
+.btn-mid { background:#fff; border:1px solid #d8e0e5; border-radius:8px; padding:9px 6px; font-weight:600; font-size:13px; color:#3a4a54; cursor:pointer; }
+.btn-mid:hover { border-color:#17a2b8; color:#17a2b8; }
+.loading { padding:50px; text-align:center; color:#9aa7b0; font-size:15px; }
+@media (max-width:1080px){ .cubes { grid-template-columns:repeat(3,235px); } }
+@media (max-width:820px){ .cubes { grid-template-columns:repeat(2,235px); } .cl-grid { grid-template-columns:1fr; } .midbtns { flex-direction:row; padding-top:0; justify-content:center; flex-wrap:wrap; } }
+@media (max-width:560px){ .cubes { grid-template-columns:1fr; } }
+
+.res-block{padding:2px 0 8px;border-bottom:1px solid #eef1f4}
+.res-block .res{cursor:default}
+.catrow{display:flex;align-items:center;justify-content:space-between;padding:3px 0 3px 34px;font-size:13px}
+.cat-name{color:#5b6672;text-transform:capitalize}
+.pill.never{background:#fbe9e9;color:#a83232}
+.cl-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid #e6e9ec}
+.cl-row .nm{flex:1 1 auto;font-size:14px;color:#223038;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-row .dot{border-radius:50%;flex:0 0 auto}
+.pill{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px}
+.pill.up{background:#e6f7ee;color:#127a45}
+.pill.behind{background:#fdecec;color:#c0392b}
+.pill.none{background:#f0f2f5;color:#8a94a0}
+
+.c-action{text-align:right;white-space:nowrap}
+.ib-btn{border:1px solid #cfe0e4;background:#fff;color:#17a2b8;border-radius:7px;padding:5px 11px;font-size:12.5px;font-weight:600;cursor:pointer;margin-left:6px}
+.ib-btn:hover{border-color:#17a2b8}
+.ib-handle{color:#5b6b78;border-color:#dbe3e8}
+.ib-handle.done{background:#e4f4ee;color:#127a45;border-color:#bfe6d2}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo"><span class="logo-mark">HASC</span></div>
+  <div class="page-label" id="pageLabel">RM Compliance</div>
+  <div class="navbtns">
+    <button class="navbtn" id="backBtn">&larr; Back</button>
+    <button class="navbtn" id="homeBtn">&#127968; Home</button>
+  </div>
+  <div class="whoami"><div class="badge" id="acBadge">MS</div><div class="user-name" id="acUserName">Michael Shilcrat</div></div>
+</header>
+<main class="container" id="view"><div class="loading">Loading live data…</div></main>
+<script>
+const SB = supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
+const TZ = "America/New_York";
+const FREQS = ["Daily","Weekly","Monthly","Quarterly","Annually"];
+const FREQ_KEYS = { Daily:"daily", Weekly:"weekly", Monthly:"monthly", Quarterly:"quarterly", Annually:"annual" };
+const areas = [
+  { id:"today", icon:"\uD83D\uDCC5", title:"Today", desc:"Which homes signed off today and which are still pending." },
+  { id:"insights", icon:"\uD83D\uDCCA", title:"Insights", desc:"Compliance trends by home and coordinator." },
+  { id:"documents", icon:"\uD83D\uDCC4", title:"Documents", desc:"Grab the latest signed checklist for any home." },
+  { id:"checklists", icon:"\uD83D\uDCCB", title:"Checklists", desc:"Open and manage the checklists behind every residence." },
+  { id:"inbox", icon:"\uD83D\uDCE5", title:"Inbox", desc:"Newly signed documents land here \u2014 mark each Handled once filed." }
+];
+let HOMES=[], COORDS=[], LIBRARY=[], SUBS=[], PROF={};
+function nameFromEmail(e){ var raw=(e==null?"":String(e)).split("@")[0].trim(); var key=raw.toLowerCase(); var NAMES={"jay estes":"Jay Estes","vadim telesh":"Vadim Telesh","isaac serussi":"Isaac Serussi","shlomo":"Shlomo Shadrokh","shlomo s":"Shlomo Shadrokh","eva hoffman":"Eva Hoffman","sonya nasimova":"Sonya Nasimova","esther fischer":"Esther Fischer","bracha klein":"Bracha Klein","sarah nathan":"Sarah Nathan","yehuda osipov":"Yehuda Osipov","rivky bikel":"Rivky Bikel","david kogan":"David Kogan","michal bentes":"Michal Bentes","aj":"Aron Janani","beth hoffman":"Beth Hoffman","anar nisim":"Anar Nisim"}; if(NAMES[key]) return NAMES[key]; return raw.replace(/\b\w/g,function(c){return c.toUpperCase();}); }
+function fmtDate(iso){ if(!iso) return ""; var d=new Date(iso); return (d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear(); }
+  function todayCount(homeName){
+    const byFreq={};
+    (SUBS||[]).forEach(function(s){
+      if(s.home_name!==homeName) return;
+      const cur=byFreq[s.frequency];
+      if(!cur || new Date(s.submitted_at)>new Date(cur.submitted_at)) byFreq[s.frequency]=s;
+    });
+    let d=0,tt=0;
+    Object.keys(byFreq).forEach(function(k){ d+=(byFreq[k].tasks_done||0); tt+=(byFreq[k].tasks_total||0); });
+    return tt? Math.round(d/tt*100):0;
+  }
+async function loadAll(){
+  try{
+    const { data: __s } = await SB.auth.getUser();
+    const __email = __s && __s.user ? __s.user.email : null;
+    if(__email){
+      const { data: __p } = await SB.from("profiles").select("full_name").ilike("email", __email).maybeSingle();
+      const __full = (__p && __p.full_name) ? __p.full_name : "";
+      if(__full){
+        const __first = __full.split(/\\s+/)[0] || __full;
+        const __ini = __full.split(/\\s+/).filter(Boolean).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+        const __b=document.getElementById("acBadge"); if(__b) __b.textContent=__ini;
+        const __n=document.getElementById("acUserName"); if(__n) __n.textContent=__full;
+        const __w=document.getElementById("acWelcome"); if(__w) __w.textContent="Welcome back, "+__first;
+      }
+    }
+  }catch(__e){ console.warn("name load failed", __e); }
+  const [homesR, profR, libR, subR, doneR] = await Promise.all([
+    SB.from("cl_homes").select("home_name,site,rm_email,ac_email"),
+    SB.from("profiles").select("email,full_name,role"),
+    SB.from("cl_library").select("id,frequency,section,task_name,sort_order").order("sort_order"),
+    SB.from("cl_submissions").select("*").order("submitted_at",{ascending:false}),
+    SB.from("cl_done").select("home_name,task_id")
+  ]);
+  (profR.data||[]).forEach(p=>{ if(p.email) PROF[p.email.toLowerCase()]=p; });
+  LIBRARY = libR.data||[];
+  SUBS = subR.data||[];
+  window.__doneByHome = {};
+  (doneR.data||[]).forEach(d=>{ (window.__doneByHome[d.home_name]=window.__doneByHome[d.home_name]||new Set()).add(d.task_id); });
+  HOMES = (homesR.data||[]).map(h=>({ home_name:h.home_name, site:h.site, rm_email:h.rm_email, ac_email:h.ac_email, rm_name:nameFromEmail(h.rm_email), ac_name:nameFromEmail(h.ac_email) }));
+  HOMES.forEach(h=> h.pct = todayCount(h.home_name));
+  const byC={};
+  HOMES.forEach(h=>{ const k=h.ac_name||"Unassigned"; (byC[k]=byC[k]||[]).push(h); });
+  COORDS = Object.keys(byC).map(name=>{ const res=byC[name]; const avg=res.length?Math.round(res.reduce((a,r)=>a+(r.pct||0),0)/res.length):0; return { name, pct:avg, total:res.length, behind:res.filter(r=>(r.pct||0)<70).length, residences:res }; }).sort((a,b)=>a.pct-b.pct);
+}
+function nycParts(){ const f=new Intl.DateTimeFormat('en-US',{ timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'numeric', minute:'2-digit', hour12:true, weekday:'short' }); const p={}; f.formatToParts(new Date()).forEach(x=>p[x.type]=x.value); return p; }
+function nycDateKey(){ const p=nycParts(); return p.year+"-"+p.month+"-"+p.day; }
+function nycTimeLabel(){ const p=nycParts(); return p.hour+":"+p.minute+" "+p.dayPeriod; }
+function nycDateLabel(){ const p=nycParts(); return p.weekday+", "+p.month+"/"+p.day+"/"+p.year+" \u00B7 "+nycTimeLabel()+" ET"; }
+const reminders={ day:nycDateKey(), sent:{} };
+function reminderCheck(){ const d=nycDateKey(); if(reminders.day!==d){ reminders.day=d; reminders.sent={}; } }
+function reminderSent(h){ reminderCheck(); return reminders.sent[h]||null; }
+function reminderMark(h){ reminderCheck(); reminders.sent[h]=nycTimeLabel(); }
+const state={ tab:"home", coord:null, res:null, docSearch:"", docSort:"recent", docOpen:new Set(), docFiles:{}, clHome:null, clFilter:"All frequencies", live:[], removed:[], inSearch:"", inTab:"inbox", sel:new Set() };
+let history=[];
+const view=document.getElementById("view"), pageLabel=document.getElementById("pageLabel"), backBtn=document.getElementById("backBtn"), homeBtn=document.getElementById("homeBtn");
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
+function pctColor(p){ return p>=70?"#1a9d5a":(p>=40?"#c77d16":"#d64545"); }
+function dotColor(p){ return p>=50?"#1a9d5a":"#d64545"; }
+function goTo(t){ history.push(snap()); state.tab=t; state.coord=null; state.res=null; state.sel.clear(); render(); }
+function snap(){ return { tab:state.tab, coord:state.coord, res:state.res, clHome:state.clHome }; }
+function restore(s){ state.tab=s.tab; state.coord=s.coord; state.res=s.res; state.clHome=s.clHome; state.sel.clear(); }
+
+function renderHome(){ let h='<h1 class="screen-title" id="acWelcome">Welcome back, Michael</h1><p class="screen-sub">Choose where you want to go.</p><div class="cubes">'; areas.forEach(a=> h+='<div class="cube" data-tile="'+a.id+'"><div class="cube-icon">'+a.icon+'</div><div class="cube-title">'+esc(a.title)+'</div><div class="cube-desc">'+esc(a.desc)+'</div></div>'); return h+'</div>'; }
+var CL_TYPES=["Daily","Weekly","Weekend","Monthly","Quarterly","Annual"];
+var CL_KEY={Daily:"daily",Weekly:"weekly",Weekend:"weekend",Monthly:"monthly",Quarterly:"quarterly",Annual:"annual"};
+var CL_MAXAGE={Daily:1,Weekly:8,Weekend:8,Monthly:35,Quarterly:95,Annual:370};
+var CL_UNIVERSAL={Daily:1,Weekly:1,Weekend:1};
+function nycDayNum(iso){ var d=iso?new Date(iso):new Date(); var p={}; new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(d).forEach(function(x){ if(x.type!=="literal") p[x.type]=x.value; }); return Math.floor(Date.UTC(+p.year,+p.month-1,+p.day)/86400000); }
+function latestSubDate(homeName,freqKey){ var best=null; (SUBS||[]).forEach(function(s){ if(s.home_name!==homeName) return; if((s.frequency||"").toLowerCase()!==freqKey) return; if(!best||new Date(s.submitted_at)>new Date(best)) best=s.submitted_at; }); return best; }
+function clStatus(type,homeName){ var iso=latestSubDate(homeName,CL_KEY[type]); if(!iso) return {s:"never"}; var age=nycDayNum(null)-nycDayNum(iso); if(age<=CL_MAXAGE[type]) return {s:"up"}; return {s:"behind",date:fmtDate(iso)}; }
+function clScope(type){ if(CL_UNIVERSAL[type]) return HOMES.slice(); var key=CL_KEY[type]; var set={}; (SUBS||[]).forEach(function(s){ if((s.frequency||"").toLowerCase()===key) set[s.home_name]=1; }); return HOMES.filter(function(h){ return set[h.home_name]; }); }
+function insightsByType(){ return CL_TYPES.map(function(type){ var scope=clScope(type); var up=0,late=0; var homes=scope.map(function(h){ var st=clStatus(type,h.home_name); if(st.s==="up") up++; else late++; return {name:h.home_name,st:st}; }); var total=scope.length; var pct=total?Math.round(up/total*100):0; return {type:type,homes:homes,total:total,behind:late,pct:pct}; }).filter(function(r){ return r.total>0; }).sort(function(a,b){ return a.pct-b.pct || CL_TYPES.indexOf(a.type)-CL_TYPES.indexOf(b.type); }); }
+function clDot(s){ return s==="up"?"#1a9d5a":(s==="behind"?"#c77d16":"#d94b4b"); }
+function renderInsights(){
+  var rows=insightsByType();
+  var h='<div class="callout"><b>Checklist compliance</b> \u2014 ranked worst-first, from live checklist data. Click a checklist to expand its residences.</div>';
+  rows.forEach(function(r,i){
+    var open=state.coord===r.type;
+    h+='<div class="coord'+(open?' open':'')+'"><div class="coord-head" data-act="coord" data-id="'+esc(r.type)+'"><div class="rank">#'+(i+1)+'</div><div class="coord-main"><div class="coord-name">'+esc(r.type)+' Checklist</div><div class="coord-sub">'+r.behind+' of '+r.total+' residences behind</div></div><div class="coord-pct" style="color:'+pctColor(r.pct)+'">'+r.pct+'%</div><span class="mini-caret">\u25B8</span></div>';
+    if(open){
+      var mid=Math.ceil(r.homes.length/2), cols=[r.homes.slice(0,mid),null,r.homes.slice(mid)];
+      h+='<div class="cl-grid">';
+      cols.forEach(function(col){
+        if(col===null){ h+='<div></div>'; return; }
+        h+='<div>';
+        col.forEach(function(it){
+          var label=it.st.s==="up"?"Up to date":(it.st.s==="behind"?"Behind \u2014 last "+it.st.date:"Never submitted");
+          h+='<div class="cl-row"><span class="dot" style="width:8px;height:8px;background:'+clDot(it.st.s)+'"></span><span class="nm">'+esc(it.name)+'</span><span class="pill '+it.st.s+'">'+label+'</span></div>';
+        });
+        h+='</div>';
+      });
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  return h;
+}
+let DOCS=[];
+async function loadDocsAll(){
+  if(DOCS.length) return DOCS;
+  const { data } = await SB.from("cl_submissions").select("*").order("submitted_at",{ascending:false});
+  DOCS = data||[];
+  return DOCS;
+}
+function docFileName(s){
+  const dt=s.submitted_at?new Date(s.submitted_at):new Date();
+  const m=('0'+(dt.getMonth()+1)).slice(-2), d=('0'+dt.getDate()).slice(-2), y=dt.getFullYear();
+  const fl=(s.frequency||'Checklist'); const F=fl.charAt(0).toUpperCase()+fl.slice(1);
+  return s.home_name+' \u2013 '+F+' Checklist \u2013 '+m+'-'+d+'-'+y+' ('+(s.tasks_done||0)+'/'+(s.tasks_total||0)+')';
+}
+function buildDocHtml(rec){
+  const e=function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  let tj=rec.tasks_json||{}; if(typeof tj==='string'){ try{ tj=JSON.parse(tj); }catch(x){ tj={}; } }
+  const items=(tj&&tj.items)?tj.items:[];
+  const doneCount=items.filter(function(x){return x.done;}).length, total=items.length;
+  const dt=rec.submitted_at?new Date(rec.submitted_at):new Date();
+  const dateStr=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const timeStr=dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const freqRaw=(tj.frequency||rec.frequency||'Daily'); const freq=freqRaw.charAt(0).toUpperCase()+freqRaw.slice(1);
+  const signer=rec.signature||rec.submitted_by||''; const home=rec.home_name||'';
+  const NAVY='#0c2e34',CY='#3EC5D3',GRN='#1E8E6A',GRAY='#5a6b70',TEAL='#0E7C89';
+  function row(it){
+    const box=it.done?'<span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:'+CY+';position:relative;flex:0 0 auto;"><span style="position:absolute;left:3.5px;top:0;color:#fff;font:bold 13px Arial;">\u2713</span></span>':'<span style="display:inline-block;width:16px;height:16px;border-radius:4px;border:1.5px solid #c4d0d3;flex:0 0 auto;"></span>';
+    const col=it.done?NAVY:'#9aa7ab';
+    const status=it.done?'<span style="color:'+GRN+';font:600 11px Arial;">Done</span>':'<span style="color:#b3bcc0;font:600 11px Arial;">Pending</span>';
+    return '<div style="display:flex;align-items:center;gap:11px;padding:7px 2px;border-bottom:1px solid #f1f5f6;">'+box+'<span style="flex:1;font:14px/1.3 Arial;color:'+col+';">'+e(it.name)+'</span>'+status+'</div>';
+  }
+  const mid=Math.ceil(items.length/2);
+  const colL=items.slice(0,mid).map(row).join(''); const colR=items.slice(mid).map(row).join('');
+  const html='<div style="box-sizing:border-box;width:8.5in;min-height:11in;margin:0 auto;background:#fff;display:flex;flex-direction:column;font-family:Arial,sans-serif;">'
+    +'<div style="background:linear-gradient(135deg,#0c2e34,#0E7C89);padding:26px 46px;display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:18px;"><div style="border-left:2px solid rgba(255,255,255,.3);padding-left:18px;"><div style="font:700 24px Arial;color:#fff;">HASC Center</div><div style="font:600 10px Arial;letter-spacing:2.5px;color:'+CY+';text-transform:uppercase;">Residential Management</div></div></div><div style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font:700 10px Arial;letter-spacing:1.5px;padding:8px 16px;border-radius:20px;">COMPLIANCE RECORD</div></div>'
+    +'<div style="padding:22px 46px 16px;border-bottom:1px solid #e3eaec;display:flex;align-items:flex-end;justify-content:space-between;"><div><div style="font:700 11px Arial;letter-spacing:2.5px;color:'+CY+';text-transform:uppercase;">Signed '+freq+' Compliance Checklist</div><div style="font:700 30px Arial;color:'+NAVY+';margin-top:4px;">'+e(home)+'</div></div><div style="text-align:right;font:12px Arial;color:'+GRAY+';line-height:1.7;"><div style="font:700 22px Arial;color:'+NAVY+';">'+doneCount+' / '+total+'</div><div>items completed</div><div style="margin-top:6px;">'+dateStr+'</div><div>'+timeStr+' \u00B7 '+freq+'</div></div></div>'
+    +'<div style="flex:1;padding:22px 46px;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-content:start;"><div>'+colL+'</div><div>'+colR+'</div></div>'
+    +'<div style="padding:18px 46px;border-top:1px solid #e3eaec;display:flex;align-items:flex-end;justify-content:space-between;"><div><div style="font:italic 28px Georgia,serif;color:'+CY+';line-height:1;">'+e(signer)+'</div><div style="font:700 10px Arial;letter-spacing:1.5px;color:'+GRAY+';margin-top:4px;text-transform:uppercase;">Signature \u00B7 Residence Manager</div></div><div style="text-align:right;font:11px Arial;color:'+GRAY+';">Signed '+dateStr+'<br>'+timeStr+'</div></div>'
+    +'</div>';
+  return '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>'+html+'</body></html>';
+}
+function openDoc(recId, doPrint){
+  const rec=DOCS.find(function(r){ return r.id===recId; }); if(!rec) return;
+  const body=buildDocHtml(rec);
+  const onload=doPrint?' onload="setTimeout(function(){window.print();},300)"':'';
+  const full='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+esc(rec.home_name||'Checklist')+'</title></head><body'+onload+'>'+body+'</body></html>';
+  const url=URL.createObjectURL(new Blob([full],{type:'text/html'}));
+  const w=window.open(url,'_blank'); if(!w) location.href=url;
+}
+function renderDocuments(){
+  let h='<div class="callout"><b>Documents</b> \u2014 every signed checklist, filed by home. Click a file to view or print the full signed record.</div>';
+  h+='<div class="doc-bar"><div class="search"><span>\u2315</span><input type="text" data-doc-search placeholder="Search a home\u2026" value="'+esc(state.docSearch)+'"></div></div>';
+  const q=state.docSearch.trim().toLowerCase();
+  const byHome={}; DOCS.forEach(function(s){ (byHome[s.home_name]=byHome[s.home_name]||[]).push(s); });
+  let homes=Object.keys(byHome).sort(); if(q) homes=homes.filter(function(hn){ return hn.toLowerCase().indexOf(q)>-1; });
+  h+='<div id="docList">';
+  if(!homes.length) h+='<div class="empty">No signed checklists found yet.</div>';
+  homes.forEach(function(hn){ const files=byHome[hn]; const open=state.docOpen.has(hn);
+    h+='<div class="folder'+(open?' open':'')+'"><div class="folder-head" data-doc-folder="'+esc(hn)+'"><span>\uD83D\uDCC1</span><span class="folder-name">'+esc(hn)+'</span><span class="folder-count">'+files.length+' file'+(files.length>1?'s':'')+'</span><span class="folder-caret">\u25BE</span></div>';
+    if(open){ files.forEach(function(s){ h+='<div class="file-row"><span>\uD83D\uDCC4</span><span class="file-name">'+esc(docFileName(s))+'</span><span class="file-acts"><button class="btn-view" data-doc-view="'+esc(s.id)+'">View</button><button class="btn-plain" data-doc-print="'+esc(s.id)+'">Print</button></span></div>'; }); }
+    h+='</div>'; });
+  return h+'</div>';
+}
+
+function renderToday(){
+  reminderCheck();
+  const signed=HOMES.filter(h=>h.pct>=70), pending=HOMES.filter(h=>h.pct<70);
+  const reminded=pending.filter(h=>reminderSent(h.home_name)).length;
+  let h='<div class="callout"><b>Today</b> \u2014 which homes signed off and which are still pending.</div>';
+  h+='<div class="doc-label">'+esc(nycDateLabel())+'</div>';
+  h+='<div class="sumbar"><div class="stat"><div class="n" style="color:#1a9d5a">'+signed.length+'</div><div class="l">At/above 70%</div></div><div class="stat"><div class="n" style="color:#d64545">'+pending.length+'</div><div class="l">Still pending</div></div><div class="stat"><div class="n" style="color:#17a2b8">'+reminded+'</div><div class="l">Reminded today</div></div></div>';
+  if(pending.length){ h+='<div class="sec-head"><span>Still pending</span><button class="btn-outline" data-remind-all>Remind all pending</button></div><div class="list">';
+    pending.forEach(home=>{ const at=reminderSent(home.home_name); h+='<div class="today-row"><span class="dot" style="background:#d64545"></span><span>'+esc(home.home_name)+'</span><span class="t-status" style="color:#d64545">'+home.pct+'%</span>'+(at?'<span class="remind-done">Reminded '+esc(at)+'</span>':'<button class="btn-outline btn-remind" data-remind="'+esc(home.home_name)+'">Remind</button>')+'</div>'; });
+    h+='</div>'; }
+  h+='<div class="sec-head"><span>On track</span></div><div class="list">';
+  signed.forEach(home=>{ h+='<div class="today-row"><span class="dot" style="background:#1a9d5a"></span><span>'+esc(home.home_name)+'</span><span class="t-status" style="color:#1a9d5a">'+home.pct+'%</span></div>'; });
+  h+='</div><div class="reset-note">Reminders reset automatically at midnight, New York time.</div>';
+  return h;
+}
+function inboxVisible(){ const q=state.inSearch.trim().toLowerCase(); return SUBS.filter(s=>{ if(q && ((s.submitted_by||"")+" "+(s.home_name||"")+" "+(s.comments||"")).toLowerCase().indexOf(q)===-1) return false; if(state.inTab==="notes" && !(s.comments&&s.comments.trim())) return false; return true; }); }
+function subHTML(s){
+    var items=[];
+    try{ var tj=(typeof s.tasks_json==="string")?JSON.parse(s.tasks_json):s.tasks_json; if(tj && Array.isArray(tj.items)) items=tj.items; }catch(e){}
+    var rowsHtml=items.map(function(it){ return "<tr><td style=\"width:28px;text-align:center\">"+(it.done?"\u2713":"\u2013")+"</td><td>"+esc(it.name||"")+"</td></tr>"; }).join("");
+    var sig=s.signature? "<img src=\""+esc(s.signature)+"\" style=\"max-height:70px\">" : "<i>(no signature)</i>";
+    return "<!doctype html><html><head><meta charset=\"utf-8\"><title>Signed Checklist</title>"+
+      "<style>body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#223038;margin:40px}h1{font-size:20px;margin:0 0 4px}.meta{color:#5b6672;font-size:13px;margin-bottom:18px}table{width:100%;border-collapse:collapse;font-size:13px}td{padding:6px 8px;border-bottom:1px solid #eef1f4}.sig{margin-top:24px;border-top:1px solid #ddd;padding-top:12px}@page{size:letter;margin:0.5in}@media print{html,body{margin:0!important;padding:0}body>div{transform:scale(0.85);transform-origin:top left;width:117.6%}}</style></head><body>"+
+      "<h1>Signed Checklist \u2014 "+esc(s.home_name||"")+"</h1>"+
+      "<div class=\"meta\">RM: "+esc(nameFromEmail(s.submitted_by))+" &middot; Cycle: "+esc(s.frequency||"")+" &middot; Done: "+(s.tasks_done||0)+"/"+(s.tasks_total||0)+" &middot; Signed: "+fmtDate(s.submitted_at)+"</div>"+
+      "<table><tbody>"+rowsHtml+"</tbody></table>"+
+      (s.comments? "<p><b>Notes:</b> "+esc(s.comments)+"</p>":"")+
+      "<div class=\"sig\"><b>Signature:</b><br>"+sig+"</div>"+
+      "</body></html>";
+  }
+  function openSub(recId, doPrint){
+    var s=(SUBS||[]).find(function(x){ return String(x.id)===String(recId); });
+    if(!s) return;
+    var blob=new Blob([buildDocHtml(s)],{type:"text/html;charset=utf-8"});
+    var url=URL.createObjectURL(blob);
+    var w=window.open(url,"_blank");
+    if(doPrint && w){ setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 500); }
+  }
+  async function setInHandled(recId, val){
+    try{
+      await SB.from("cl_submissions").update({ is_handled: val }).eq("id", recId);
+      var s=(SUBS||[]).find(function(x){ return String(x.id)===String(recId); });
+      if(s) s.is_handled=val;
+      render();
+    }catch(err){ alert("Could not update: "+(err.message||err)); }
+  }
+  function renderInbox(){
+    const q=(state.inSearch||"").toLowerCase();
+    const tab=state.inTab||"inbox";
+    let rows=(SUBS||[]).slice();
+    if(tab==="notes") rows=rows.filter(function(s){ return s.comments && String(s.comments).trim(); });
+    if(tab==="inbox") rows=rows.filter(function(s){ return !s.is_handled; });
+    if(tab==="handled") rows=rows.filter(function(s){ return s.is_handled; });
+    if(q) rows=rows.filter(function(s){ return ((s.submitted_by||"")+" "+(s.home_name||"")+" "+(s.comments||"")).toLowerCase().indexOf(q)>=0; });
+    let h="<div class=\"callout\"><b>Inbox</b> \u2014 recent signed submissions from the homes, live from cl_submissions.</div>";
+    h+="<div class=\"inbox-bar\"><div class=\"search\">\uD83D\uDD0D<input data-in-search placeholder=\"Search RM, residence, or note\u2026\" value=\""+esc(state.inSearch||"")+"\"></div>";
+    h+="<div class=\"seg\"><button data-in-tab=\"inbox\" class=\""+(tab==="inbox"?"active":"")+"\">All</button><button data-in-tab=\"notes\" class=\""+(tab==="notes"?"active":"")+"\">With notes</button><button data-in-tab=\"handled\" class=\""+(tab==="handled"?"active":"")+"\">Handled</button></div></div>";
+    h+="<div class=\"inbox-meta\">"+rows.length+" showing</div>";
+    h+="<div class=\"inbox-table\"><table><thead><tr><th>RM</th><th>RESIDENCE</th><th>CYCLE</th><th>DONE</th><th>SIGNED</th><th>NOTE</th><th style=\"text-align:right\">ACTION</th></tr></thead><tbody>";
+    rows.forEach(function(s){
+      var when=new Date(s.submitted_at);
+      var dateStr=fmtDate(s.submitted_at);
+      var timeStr=when.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+      var handled=!!s.is_handled;
+      h+="<tr>";
+      h+="<td class=\"c-staff\">"+esc(nameFromEmail(s.submitted_by))+"</td>";
+      h+="<td class=\"c-res\">"+esc(s.home_name||"")+"</td>";
+      h+="<td>"+esc(s.frequency||"")+"</td>";
+      h+="<td>"+(s.tasks_done||0)+"/"+(s.tasks_total||0)+"</td>";
+      h+="<td class=\"c-date\">"+dateStr+"<span class=\"c-time\">"+timeStr+"</span></td>";
+      h+="<td class=\"c-note\">"+esc(s.comments||"")+"</td>";
+      h+="<td class=\"c-action\"><button class=\"ib-btn\" data-in-view=\""+s.id+"\">View</button><button class=\"ib-btn\" data-in-print=\""+s.id+"\">Print</button><button class=\"ib-btn ib-handle"+(handled?" done":"")+"\" data-in-handle=\""+s.id+"\">"+(handled?"\u2713 Handled":"Mark handled")+"</button></td>";
+      h+="</tr>";
+    });
+    if(!rows.length) h+="<tr><td colspan=\"7\" class=\"empty\">Nothing here.</td></tr>";
+    h+="</tbody></table></div>";
+    return h;
+  }
+
+// ---------- Checklists: two-panel builder on cl_library ----------
+function freqLabel(fk){ for(const k in FREQ_KEYS){ if(FREQ_KEYS[k]===fk) return k; } return (fk||"").charAt(0).toUpperCase()+(fk||"").slice(1); }
+function ensureCLLoaded(){
+  // Left = active for the selected home; Right = removed (from cl_home_off for that home).
+  const off = state.offSet || new Set();
+  const all = LIBRARY.map(t=>({ id:t.id, freq:freqLabel(t.frequency), section:(t.section||"GENERAL").toUpperCase(), text:t.task_name, _new:false }));
+  state.live = all.filter(t=> !off.has(String(t.id)));
+  state.removed = all.filter(t=> off.has(String(t.id)));
+  state.__clInit = true;
+}
+async function loadHomeOff(){
+  state.offSet = new Set();
+  if(!state.clHome) return;
+  try{ const { data } = await SB.from('cl_home_off').select('task_id').eq('home_name', state.clHome); (data||[]).forEach(r=> state.offSet.add(String(r.task_id))); }catch(e){}
+}
+function groupTasks(tasks){ const order=[], b={}; tasks.forEach(t=>{ if(state.clFilter!=="All frequencies" && t.freq!==state.clFilter) return; const key=t.freq.toUpperCase()+" \u00B7 "+t.section; if(!b[key]){ b[key]=[]; order.push(key); } b[key].push(t); }); return { order, buckets:b }; }
+function panelHTML(title, tasks, side){
+  let h='<div class="panel"><div class="panel-head"><span>'+title+'</span><span class="count">'+tasks.length+'</span></div><div class="panel-body">';
+  const g=groupTasks(tasks); if(!g.order.length) h+='<div class="empty">No tasks here.</div>';
+  g.order.forEach(key=>{ h+='<div class="grp">'+esc(key)+'</div>'; g.buckets[key].forEach(t=>{ const sc=state.sel.has(t.id)?' sel':''; const mk=side==="live"?"\u2713":"+"; const opts=FREQS.map(f=>'<option'+(t.freq===f?" selected":"")+'>'+f+'</option>').join("");
+    h+='<div class="task '+side+sc+'" data-cl-task="'+esc(t.id)+'"><span class="mk">'+mk+'</span><span class="task-text">'+esc(t.text)+'</span><span class="task-tools"><select class="freq-sel" data-cl-freqmove="'+esc(t.id)+'">'+opts+'</select><button class="icon-btn" data-cl-del="'+esc(t.id)+'" title="Delete permanently">\u2715</button></span></div>'; }); });
+  return h+'</div></div>';
+}
+function renderChecklists(){
+  ensureCLLoaded();
+  let h='<div class="callout"><b>Checklists</b> \u2014 the master task library. Left is active; right is removed. Hover a task to change frequency or delete. Deletes save to Supabase (cl_library); moves are per-home layout.</div>';
+  const freqSel=["All frequencies"].concat(FREQS).map(f=>'<option'+(state.clFilter===f?" selected":"")+'>'+f+'</option>').join("");
+  const homeSel = '<option value="">Select a residence\u2026</option>'+HOMES.map(hh=>'<option value="'+esc(hh.home_name)+'"'+(state.clHome===hh.home_name?' selected':'')+'>'+esc(hh.home_name)+'</option>').join('');
+  h+='<div class="cl-controls"><div><label class="fl">Residence</label><select class="inp" data-cl-home>'+homeSel+'</select></div><div><label class="fl">Show tasks</label><select class="inp" data-cl-filter>'+freqSel+'</select></div></div>';
+  h+='<div class="addcard"><h4>+ Add a new task</h4><div class="add-row"><input class="inp" data-cl-name placeholder="Task name"><select class="inp" data-cl-freq>'+FREQS.map(f=>'<option>'+f+'</option>').join("")+'</select><input class="inp" data-cl-section placeholder="Section (optional)"><button class="btn-teal" data-cl-add>Add task</button></div></div>';
+  h+='<div class="cl-grid">'+panelHTML("Active tasks", state.live, "live")+'<div class="midbtns"><button class="btn-mid" data-cl-move="add">\u00AB Add</button><button class="btn-mid" data-cl-move="remove">Remove \u00BB</button><button class="btn-mid" data-cl-move="addall">Add all</button><button class="btn-mid" data-cl-move="removeall">Remove all</button></div>'+panelHTML("Removed", state.removed, "removed")+'</div>';
+  return h;
+}
+function render(){
+  const area=areas.find(a=>a.id===state.tab); pageLabel.textContent=area?area.title:"RM Compliance"; backBtn.disabled=history.length===0; homeBtn.disabled=state.tab==="home";
+  let html="";
+  if(state.tab==="home") html=renderHome();
+  else if(state.tab==="today") html=renderToday();
+  else if(state.tab==="insights") html=renderInsights();
+  else if(state.tab==="documents") html=renderDocuments();
+  else if(state.tab==="checklists") html=renderChecklists();
+  else if(state.tab==="inbox") html=renderInbox();
+  view.innerHTML=html;
+}
+backBtn.addEventListener("click", ()=>{ if(history.length){ restore(history.pop()); render(); } });
+homeBtn.addEventListener("click", ()=>{ if(state.tab!=="home"){ history.push(snap()); state.tab="home"; state.sel.clear(); render(); } });
+document.addEventListener("click", async function(e){
+  const tile=e.target.closest("[data-tile]"); if(tile){ goTo(tile.dataset.tile); return; }
+  const coord=e.target.closest('[data-act="coord"]'); if(coord){ const id=coord.dataset.id; state.coord=(state.coord===id)?null:id; render(); return; }
+  const itab=e.target.closest("[data-in-tab]"); if(itab){ state.inTab=itab.dataset.inTab; render(); return; }
+  const rm=e.target.closest("[data-remind]"); if(rm){ reminderMark(rm.dataset.remind); render(); return; }
+  const rall=e.target.closest("[data-remind-all]"); if(rall){ HOMES.filter(x=>x.pct<70).forEach(x=>reminderMark(x.home_name)); render(); return; }
+  const fold=e.target.closest("[data-doc-folder]"); if(fold){ const n=fold.dataset.docFolder; if(state.docOpen.has(n)) state.docOpen.delete(n); else { state.docOpen.add(n); } render(); return; }
+  const dvw=e.target.closest("[data-doc-view]"); if(dvw){ openDoc(dvw.dataset.docView, false); return; }
+  const dpr=e.target.closest("[data-doc-print]"); if(dpr){ openDoc(dpr.dataset.docPrint, true); return; }
+    const ibv=e.target.closest("[data-in-view]"); if(ibv){ openSub(ibv.dataset.inView, false); return; }
+    const ibp=e.target.closest("[data-in-print]"); if(ibp){ openSub(ibp.dataset.inPrint, true); return; }
+    const ibh=e.target.closest("[data-in-handle]"); if(ibh){ const id=ibh.dataset.inHandle; const cur=(SUBS||[]).find(function(x){return String(x.id)===String(id);}); setInHandled(id, !(cur&&cur.is_handled)); return; }
+  const del=e.target.closest("[data-cl-del]"); if(del){ const id=del.dataset.clDel; if(confirm("Permanently delete this task from the library?")){ await SB.from("cl_library").delete().eq("id",id); state.live=state.live.filter(t=>t.id!==id); state.removed=state.removed.filter(t=>t.id!==id); state.sel.delete(id); render(); } return; }
+  const task=e.target.closest("[data-cl-task]"); if(task){ const id=task.dataset.clTask; if(state.sel.has(id)) state.sel.delete(id); else state.sel.add(id); render(); return; }
+  const add=e.target.closest("[data-cl-add]"); if(add){ const name=(view.querySelector("[data-cl-name]").value||"").trim(); if(name){ const freq=view.querySelector("[data-cl-freq]").value; const section=(view.querySelector("[data-cl-section]").value||"GENERAL").toUpperCase(); const maxSort=LIBRARY.reduce((m,t)=>Math.max(m,t.sort_order||0),0)+1; const { data }=await SB.from("cl_library").insert({ frequency:FREQ_KEYS[freq], section:section, task_name:name, sort_order:maxSort }).select().single(); if(data){ LIBRARY.push(data); state.live.push({ id:data.id, freq:freq, section:section, text:name }); } render(); } return; }
+  const mv=e.target.closest("[data-cl-move]"); if(mv){ const m=mv.dataset.clMove;
+    if(!state.clHome){ alert('Pick a residence first.'); return; }
+    let toRemove=[], toAdd=[];
+    if(m==="addall"){ toAdd = state.removed.map(t=>t.id); }
+    else if(m==="removeall"){ toRemove = state.live.map(t=>t.id); }
+    else if(m==="add"){ toAdd = state.removed.filter(t=>state.sel.has(t.id)).map(t=>t.id); }
+    else if(m==="remove"){ toRemove = state.live.filter(t=>state.sel.has(t.id)).map(t=>t.id); }
+    (async()=>{
+      try{
+        if(toRemove.length){ await SB.from('cl_home_off').insert(toRemove.map(id=>({ home_name: state.clHome, task_id: id }))); }
+        if(toAdd.length){ await SB.from('cl_home_off').delete().eq('home_name', state.clHome).in('task_id', toAdd); }
+      }catch(err){ alert('Save failed: '+(err.message||err)); }
+      state.sel.clear(); await loadHomeOff(); render();
+    })(); return; }
+});
+document.addEventListener("input", function(e){
+  const s=e.target.closest("[data-doc-search]"); if(s){ state.docSearch=s.value; render(); const el=view.querySelector("[data-doc-search]"); if(el){ el.focus(); el.setSelectionRange(el.value.length,el.value.length); } return; }
+  const si=e.target.closest("[data-in-search]"); if(si){ state.inSearch=si.value; render(); const el=view.querySelector("[data-in-search]"); if(el){ el.focus(); el.setSelectionRange(el.value.length,el.value.length); } }
+});
+document.addEventListener("change", async function(e){
+  const fm=e.target.closest("[data-cl-freqmove]"); if(fm){ const id=fm.dataset.clFreqmove; const t=state.live.concat(state.removed).find(x=>x.id===id); if(t){ t.freq=fm.value; await SB.from("cl_library").update({ frequency:FREQ_KEYS[fm.value] }).eq("id",id); } render(); return; }
+  const hsel=e.target.closest("[data-cl-home]"); if(hsel){ state.clHome=hsel.value; state.sel.clear(); (async()=>{ await loadHomeOff(); render(); })(); return; }
+  const filt=e.target.closest("[data-cl-filter]"); if(filt){ state.clFilter=filt.value; render(); return; }
+  const sort=e.target.closest("[data-doc-sort]"); if(sort){ state.docSort=sort.value; render(); return; }
+});
+(async function boot(){ try { await loadAll(); await loadDocsAll(); render(); } catch(err){ view.innerHTML='<div class="loading">Could not load data: '+esc(err.message||err)+'</div>'; console.error(err); } })();
+</script>
+</body>
+</html>
