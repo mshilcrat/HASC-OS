@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HASC Training Library</title>
+<style>
+html,body{margin:0;padding:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a2e;}
+#hM *{box-sizing:border-box;margin:0;padding:0;}
+#hM .hdr{background:#fff;border-bottom:3px solid #3FC1C9;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+#hM .logo-wrap{display:flex;align-items:center;}
+#hM .lib-sub{font-size:13px;font-weight:600;color:#7a8a9a;margin-left:14px;padding-left:14px;border-left:1.5px solid #e0e6ed;}
+#hM .rsw{display:flex;align-items:center;gap:6px;}
+#hM .rlab{font-size:12px;color:#7a8a9a;margin-right:4px;}
+#hM .tbar{background:#fff;border-bottom:1px solid #e0e6ed;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+#hM .sbox{position:relative;flex:1;min-width:180px;max-width:280px;}
+#hM .sbox input{width:100%;padding:7px 12px 7px 32px;border:1.5px solid #dce3ea;border-radius:8px;font-size:13px;outline:none;background:#f8fafc;}
+#hM .sbox .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#8a9ab0;font-size:13px;}
+#hM .fgrp{display:flex;gap:3px;background:#f4f6f9;border-radius:8px;padding:3px;}
+#hM .fbtn{padding:5px 11px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:#5a6a7e;}
+#hM .fbtn.active{background:#fff;color:#1a8c94;box-shadow:0 1px 4px rgba(0,0,0,.12);font-weight:700;}
+#hM .fbtn.miss.active{color:#e53935;}
+#hM .sumb{padding:10px 24px;display:flex;align-items:center;gap:14px;}
+#hM .sumc{font-size:13px;color:#5a6a7e;}
+#hM .badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:12px;}
+#hM .badge.red{background:#ffebee;color:#c62828;}
+#hM .badge.green{background:#e0f5f6;color:#1a8c94;}
+#hM .cnt{padding:8px 24px 60px;max-width:960px;margin:0 auto;}
+#hM .sec-label{font-size:10px;font-weight:800;color:#8a9ab0;text-transform:uppercase;letter-spacing:1px;padding:16px 4px 6px;}
+#hM .rc{background:#fff;border-radius:12px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.07);overflow:hidden;border:1.5px solid #e8edf2;}
+#hM .rh{padding:13px 18px;display:flex;align-items:center;cursor:pointer;gap:10px;}
+#hM .chev{color:#8a9ab0;transition:transform .2s;font-size:13px;flex-shrink:0;display:inline-block;}
+#hM .rc.open .rh .chev{transform:rotate(90deg);}
+#hM .rn{font-size:15px;font-weight:700;flex:1;}
+#hM .hb{display:flex;height:8px;border-radius:4px;overflow:hidden;width:110px;flex-shrink:0;background:#edf0f4;gap:1px;}
+#hM .hs{border-radius:2px;}
+#hM .hs.p{background:#3FC1C9;}
+#hM .hs.m{background:#e53935;}
+#hM .cmiss{font-size:11px;font-weight:700;color:#e53935;background:#ffebee;padding:2px 8px;border-radius:10px;flex-shrink:0;}
+#hM .cok{font-size:11px;font-weight:600;color:#1a8c94;background:#e0f5f6;padding:2px 8px;border-radius:10px;flex-shrink:0;}
+#hM .rb{display:none;border-top:1px solid #edf0f4;}
+#hM .rc.open .rb{display:block;}
+#hM .ts{border-bottom:1px solid #edf0f4;}
+#hM .ts:last-child{border-bottom:none;}
+#hM .th{padding:10px 18px 10px 36px;display:flex;align-items:center;gap:10px;background:#f8fafc;cursor:pointer;}
+#hM .tt{font-size:13px;font-weight:600;color:#2e4057;flex:1;}
+#hM .mb{display:flex;height:5px;width:65px;border-radius:3px;overflow:hidden;gap:1px;background:#e0e6ed;}
+#hM .tchev{color:#b0bec5;font-size:11px;transition:transform .15s;display:inline-block;}
+#hM .ts.open .tchev{transform:rotate(90deg);}
+#hM .stab{display:none;padding:4px 18px 10px 36px;}
+#hM .ts.open .stab{display:block;}
+#hM .ch{display:flex;padding:4px 0 5px;border-bottom:1px solid #edf0f4;gap:10px;}
+#hM .ch div{font-size:10px;font-weight:700;color:#8a9ab0;text-transform:uppercase;letter-spacing:.5px;}
+#hM .sr{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #f0f4f8;gap:10px;}
+#hM .sr:last-child{border-bottom:none;}
+#hM .sr.hide{display:none;}
+#hM .sn{font-size:13px;font-weight:500;flex:1;min-width:90px;}
+#hM .sro{font-size:11px;color:#8a9ab0;width:120px;flex-shrink:0;}
+#hM .sb2{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;width:60px;text-align:center;}
+#hM .sb2.portal{background:#e0f5f6;color:#1a8c94;}
+#hM .sb2.missing{background:#ffebee;color:#c62828;}
+#hM .sd{font-size:11px;color:#8a9ab0;width:90px;flex-shrink:0;}
+#hM .cert{font-size:11px;color:#2196F3;font-weight:600;flex-shrink:0;}
+#hM .ncert{font-size:11px;color:#cdd5df;flex-shrink:0;}
+#hM .loading{padding:40px;text-align:center;color:#8a9ab0;font-size:14px;}
+#hM .errbox{margin:20px 24px;padding:14px 18px;background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;color:#a36000;font-size:13px;}
+</style>
+</head>
+<body>
+<div id="hM"><div class="hdr"><div style="display:flex;align-items:center"><div class="logo-wrap"><img src="hasc-logo.png" alt="HASC Center" style="height:38px;display:block"></div><span class="lib-sub">Training Library</span><a href="javascript:history.back()" style="margin-left:auto;text-decoration:none;border:1px solid #d6dce2;background:#fff;border-radius:7px;padding:7px 14px;font-size:13px;color:#2b3a45">← Back</a><a href="index.html" style="margin-left:8px;text-decoration:none;border:1px solid #d6dce2;background:#fff;border-radius:7px;padding:7px 14px;font-size:13px;color:#2b3a45">🏠 Home</a></div><div class="rsw"><span class="rlab">Live data · read-only</span></div></div><div class="tbar"><div class="sbox"><span class="si">🔍</span><input type="text" id="hascSearch" placeholder="Search staff name…"></div><div class="fgrp"><button class="fbtn active" data-f="all">All</button><button class="fbtn" data-f="pass">Passed</button><button class="fbtn miss" data-f="fail">Failed ⚠</button></div></div><div class="sumb" id="hascSum"></div><div class="cnt" id="hascCnt"><div class="loading">Loading live training records…</div></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<script>
+var state={filter:"all",search:""};
+var ov=document.getElementById("hM");
+var DATA=[];
+var sb=window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
+function groupCerts(rows){
+  var byRes={};
+  rows.forEach(function(c){
+    if(c.is_archived===true) return;
+    var res=(c.residence||"(No residence)").toString().trim();
+    var title=(c.individual_name?(c.individual_name+(c.certificate?(" — "+c.certificate):"")):"General Training").toString().trim();
+    if(!byRes[res]) byRes[res]={name:res,trainings:{}};
+    if(!byRes[res].trainings[title]) byRes[res].trainings[title]={id:res+"|"+title,title:title,staff:[]};
+    var status=(c.passed===true||c.passed==="true")?"pass":"fail";
+    byRes[res].trainings[title].staff.push({
+      name:c.dsp_name||c.nurse_email||"—",
+      role:c.dsp_title||"—",
+      status:status,
+      date:c.completed_at?new Date(c.completed_at).toLocaleDateString():"—",
+      score:(c.score!=null?c.score:"—")
+    });
+  });
+  return Object.keys(byRes).sort().map(function(rk){
+    var r=byRes[rk];
+    return {id:rk,name:r.name,trainings:Object.keys(r.trainings).map(function(tk){return r.trainings[tk];})};
+  });
+}
+function stats(res){var p=0,m=0;res.trainings.forEach(function(t){t.staff.forEach(function(s){if(s.status==="pass")p++;else m++;});});return{p:p,m:m,tot:p+m};}
+function hbar(s){if(!s.tot)return"";var pct=function(v){return Math.round(v/s.tot*100)};return "<div class=\"hb\">"+(s.p?"<div class=\"hs p\" style=\"width:"+pct(s.p)+"%\"></div>":"")+(s.m?"<div class=\"hs m\" style=\"width:"+pct(s.m)+"%\"></div>":"")+"</div>";}
+function renderCard(res){
+  var s=stats(res);
+  var chip=s.m>0?"<span class=\"cmiss\">⚠ "+s.m+" failed</span>":"<span class=\"cok\">✓ All passed</span>";
+  var trHTML=res.trainings.map(function(t){
+    var tp=t.staff.filter(function(x){return x.status==="pass"}).length;
+    var tm=t.staff.filter(function(x){return x.status==="fail"}).length;
+    var tot=tp+tm;
+    var mb=tot?"<div class=\"mb\">"+(tp?"<div class=\"hs p\" style=\"width:"+Math.round(tp/tot*100)+"%\"></div>":"")+(tm?"<div class=\"hs m\" style=\"width:"+Math.round(tm/tot*100)+"%\"></div>":"")+"</div>":"";
+    var rows=t.staff.map(function(sf){
+      var cert=sf.status==="pass"?"<span class=\"cert\">📄 "+sf.score+"</span>":"<span class=\"ncert\">"+sf.score+"</span>";
+      return "<div class=\"sr\" data-nm=\""+(sf.name||"").toString().toLowerCase()+"\" data-st=\""+sf.status+"\"><div class=\"sn\">"+sf.name+"</div><div class=\"sro\">"+sf.role+"</div><div class=\"sb2 "+(sf.status==="pass"?"portal":"missing")+"\">"+(sf.status==="pass"?"Pass":"Fail")+"</div><div class=\"sd\">"+sf.date+"</div>"+cert+"</div>";
+    }).join("");
+    return "<div class=\"ts\" data-tid=\""+t.id+"\"><div class=\"th\"><span class=\"tchev\">▶</span><div class=\"tt\">"+t.title+"</div>"+mb+(tm?"<span style=\"font-size:11px;color:#e53935;font-weight:700;\">"+tm+" failed</span>":"")+"</div><div class=\"stab\"><div class=\"ch\"><div style=\"flex:1\">DSP Name</div><div style=\"width:120px\">Role</div><div style=\"width:60px\">Status</div><div style=\"width:90px\">Date</div><div>Score</div></div>"+rows+"</div></div>";
+  }).join("");
+  return "<div class=\"rc\" data-rid=\""+res.id+"\"><div class=\"rh\"><span class=\"chev\">▶</span><div class=\"rn\">"+res.name+"</div>"+hbar(s)+chip+"</div><div class=\"rb\">"+trHTML+"</div></div>";
+}
+function render(){
+  var cnt=document.getElementById("hascCnt");
+  if(!DATA.length){cnt.innerHTML="<div class=\"loading\">No training records found.</div>";updateSummary();return;}
+  var html="<div class=\"sec-label\">🏠 Residence Trainings</div>";
+  DATA.forEach(function(res){html+=renderCard(res);});
+  cnt.innerHTML=html;bindCards();applyFilters();
+}
+function applyFilters(){
+  var q=state.search.toLowerCase();
+  ov.querySelectorAll(".sr").forEach(function(row){
+    var nm=(row.getAttribute("data-nm")||"");var st2=row.getAttribute("data-st");var vis=true;
+    if(q&&nm.indexOf(q)<0)vis=false;
+    if(state.filter!=="all"&&st2!==state.filter)vis=false;
+    row.classList.toggle("hide",!vis);
+  });
+  updateSummary();
+}
+function updateSummary(){
+  var tm=0,tt=0;DATA.forEach(function(r){var s=stats(r);tm+=s.m;tt+=s.tot;});
+  document.getElementById("hascSum").innerHTML="<span class=\"sumc\">"+DATA.length+" residence"+(DATA.length!==1?"s":"")+" · "+tt+" training records</span>"+(tm>0?"<span class=\"badge red\">⚠ "+tm+" failed</span>":"<span class=\"badge green\">✓ All passed</span>");
+}
+function bindCards(){
+  ov.querySelectorAll(".rh").forEach(function(h){h.onclick=function(){h.parentNode.classList.toggle("open");};});
+  ov.querySelectorAll(".th").forEach(function(h){h.onclick=function(){h.parentNode.classList.toggle("open");};});
+}
+ov.querySelectorAll(".fbtn").forEach(function(b){b.onclick=function(){state.filter=b.getAttribute("data-f");ov.querySelectorAll(".fbtn").forEach(function(x){x.classList.remove("active")});b.classList.add("active");applyFilters();};});
+document.getElementById("hascSearch").oninput=function(e){state.search=e.target.value;applyFilters();};
+(async function load(){
+  try{
+    var resp=await sb.from("certificates").select("residence,dsp_name,dsp_title,individual_name,score,passed,completed_at,nurse_email,certificate,is_archived").order("completed_at",{ascending:false});
+    if(resp.error){document.getElementById("hascCnt").innerHTML="<div class=\"errbox\">Could not load data: "+resp.error.message+"</div>";return;}
+    DATA=groupCerts(resp.data||[]);
+    render();
+  }catch(e){
+    document.getElementById("hascCnt").innerHTML="<div class=\"errbox\">Error loading data: "+e.message+"</div>";
+  }
+})();
+</script>
+</body>
+</html>
