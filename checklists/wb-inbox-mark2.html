@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HASC — Inbox</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<script src="wb-guard.js"></script>
+  <script>
+    if(window.supabase && window.HASC_CONFIG && !window.__hascClient){
+      window.__hascClient = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
+    }
+  </script>
+  
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;background:#f7f8fa;color:#1a2b3c}
+  header{background:#fff;border-bottom:3px solid #f2b705;padding:14px 22px;display:flex;align-items:center;gap:14px}
+  header .logo{font-weight:800;color:#0aa6b7;letter-spacing:.5px}
+  nav{background:#fff;border-bottom:1px solid #e5e8ec;padding:0 22px;display:flex;gap:22px}
+  nav a{padding:14px 2px;color:#5a6b7c;text-decoration:none;font-size:15px;border-bottom:3px solid transparent}
+  nav a.active{color:#0f7c8a;border-bottom-color:#0aa6b7;font-weight:600}
+  main{max-width:820px;margin:24px auto;padding:0 22px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#6b7a89;margin:0 0 22px;font-size:14px}
+  .msg{background:#fff;border:1px solid #e5e8ec;border-radius:12px;padding:16px 18px;margin-bottom:12px}
+  .msg .top{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px;font-size:13px;color:#6b7a89}
+  .msg .home{font-weight:700;color:#0f7c8a}
+  .msg .body{font-size:15px;white-space:pre-wrap;line-height:1.45}
+  .empty,.loading{background:#fff;border:1px solid #e5e8ec;border-radius:12px;padding:40px;text-align:center;color:#6b7a89}
+</style>
+</head>
+<body>
+<header><span class="logo">HASC CENTER</span></header>
+<nav>
+  <a href="wb-hub-mark2.html">Home</a>
+  <a href="wb-today-mark2.html">Today</a>
+  <a href="wb-insights-mark2.html">Insights</a>
+  <a href="wb-documents-mark2.html">Documents</a>
+  <a href="wb-checklists-mark2.html">Checklists</a>
+  <a href="wb-inbox-mark2.html" class="active">Inbox</a>
+</nav>
+<main>
+  <h1>Inbox</h1>
+  <p class="sub">Recent notes left on checklist submissions</p>
+  <div id="wrap"><div class="loading">Loading…</div></div>
+</main>
+<script>
+(async function(){
+  const wrap=document.getElementById('wrap');
+  try{
+    const c = window.__hascClient;
+    if(!c){wrap.innerHTML='<div class="empty">No data connection.</div>';return;}
+    const {data,error} = await c.from('cl_submissions').select('home_name,submitted_by,submitted_at,comments').not('comments','is',null).order('submitted_at',{ascending:false}).limit(100);
+    if(error) throw error;
+    const msgs=(data||[]).filter(d=>d.comments && d.comments.trim().length);
+    if(!msgs.length){wrap.innerHTML='<div class="empty">No notes yet.</div>';return;}
+    wrap.innerHTML=msgs.map(m=>{
+      const dt=m.submitted_at?new Date(m.submitted_at).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
+      return '<div class="msg"><div class="top"><span class="home">'+esc(m.home_name||'—')+'</span><span>'+esc(dt)+'</span></div>'+
+        '<div class="body">'+esc(m.comments.trim())+'</div>'+
+        '<div class="top" style="margin-top:8px;margin-bottom:0">— '+esc(m.submitted_by||'Unknown')+'</div></div>';
+    }).join('');
+  }catch(e){wrap.innerHTML='<div class="empty">Error: '+esc(e.message||String(e))+'</div>';}
+  function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+})();
+</script>
+</body>
+</html>
