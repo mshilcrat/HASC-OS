@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HASC — Checklists</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<script src="wb-guard.js"></script>
+  <script>
+    if(window.supabase && window.HASC_CONFIG && !window.__hascClient){
+      window.__hascClient = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
+    }
+  </script>
+  
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;background:#f7f8fa;color:#1a2b3c}
+  header{background:#fff;border-bottom:3px solid #f2b705;padding:14px 22px;display:flex;align-items:center;gap:14px}
+  header .logo{font-weight:800;color:#0aa6b7;letter-spacing:.5px}
+  nav{background:#fff;border-bottom:1px solid #e5e8ec;padding:0 22px;display:flex;gap:22px}
+  nav a{padding:14px 2px;color:#5a6b7c;text-decoration:none;font-size:15px;border-bottom:3px solid transparent}
+  nav a.active{color:#0f7c8a;border-bottom-color:#0aa6b7;font-weight:600}
+  main{max-width:1000px;margin:24px auto;padding:0 22px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#6b7a89;margin:0 0 22px;font-size:14px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:26px}
+  .card{background:#fff;border:1px solid #e5e8ec;border-radius:12px;padding:16px}
+  .card .n{font-size:26px;font-weight:800;color:#0f7c8a}
+  .card .l{font-size:13px;color:#6b7a89;margin-top:4px}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e8ec;border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid #eef1f4;font-size:14px}
+  th{background:#fafbfc;color:#5a6b7c;font-weight:600}
+  td.num,th.num{text-align:center}
+  tr:last-child td{border-bottom:none}
+  .empty,.loading{color:#6b7a89;padding:20px}
+</style>
+</head>
+<body>
+<header><span class="logo">HASC CENTER</span></header>
+<nav>
+  <a href="wb-hub-mark2.html">Home</a>
+  <a href="wb-today-mark2.html">Today</a>
+  <a href="wb-insights-mark2.html">Insights</a>
+  <a href="wb-documents-mark2.html">Documents</a>
+  <a href="wb-checklists-mark2.html" class="active">Checklists</a>
+  <a href="wb-inbox-mark2.html">Inbox</a>
+</nav>
+<main>
+  <h1>Checklists</h1>
+  <p class="sub">Tasks defined per home, by frequency</p>
+  <div class="cards" id="cards"><div class="loading">Loading…</div></div>
+  <div id="wrap"></div>
+</main>
+<script>
+(async function(){
+  const wrap=document.getElementById('wrap'), cards=document.getElementById('cards');
+  try{
+    const c = window.__hascClient;
+    if(!c){cards.innerHTML='';wrap.innerHTML='<div class="empty">No data connection.</div>';return;}
+    const {data,error} = await c.from('cl_tasks').select('home_name,frequency');
+    if(error) throw error;
+    if(!data || !data.length){cards.innerHTML='';wrap.innerHTML='<div class="empty">No checklist tasks on record.</div>';return;}
+    const freqs=[], byHome={}, byFreq={};
+    data.forEach(t=>{const f=t.frequency||'Other';if(freqs.indexOf(f)<0)freqs.push(f);
+      byHome[t.home_name]=byHome[t.home_name]||{};byHome[t.home_name][f]=(byHome[t.home_name][f]||0)+1;
+      byFreq[f]=(byFreq[f]||0)+1;});
+    freqs.sort();
+    cards.innerHTML=card(data.length,'Total tasks')+card(Object.keys(byHome).length,'Homes')+freqs.map(f=>card(byFreq[f],f)).join('');
+    const homes=Object.keys(byHome).sort();
+    const head='<tr><th>Home</th>'+freqs.map(f=>'<th class="num">'+f+'</th>').join('')+'<th class="num">Total</th></tr>';
+    const rows=homes.map(h=>{let tot=0;const cells=freqs.map(f=>{const n=byHome[h][f]||0;tot+=n;return '<td class="num">'+(n||'—')+'</td>';}).join('');
+      return '<tr><td>'+esc(h)+'</td>'+cells+'<td class="num"><strong>'+tot+'</strong></td></tr>';}).join('');
+    wrap.innerHTML='<table><thead>'+head+'</thead><tbody>'+rows+'</tbody></table>';
+  }catch(e){cards.innerHTML='';wrap.innerHTML='<div class="empty">Error: '+esc(e.message||String(e))+'</div>';}
+  function card(n,l){return '<div class="card"><div class="n">'+n+'</div><div class="l">'+esc(l)+'</div></div>';}
+  function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+})();
+</script>
+</body>
+</html>
