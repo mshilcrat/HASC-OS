@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HASC — Insights</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<script src="wb-guard.js"></script>
+  <script>
+    if(window.supabase && window.HASC_CONFIG && !window.__hascClient){
+      window.__hascClient = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
+    }
+  </script>
+  
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;background:#f7f8fa;color:#1a2b3c}
+  header{background:#fff;border-bottom:3px solid #f2b705;padding:14px 22px;display:flex;align-items:center;gap:14px}
+  header .logo{font-weight:800;color:#0aa6b7;letter-spacing:.5px}
+  nav{background:#fff;border-bottom:1px solid #e5e8ec;padding:0 22px;display:flex;gap:22px}
+  nav a{padding:14px 2px;color:#5a6b7c;text-decoration:none;font-size:15px;border-bottom:3px solid transparent}
+  nav a.active{color:#0f7c8a;border-bottom-color:#0aa6b7;font-weight:600}
+  main{max-width:1000px;margin:24px auto;padding:0 22px}
+  h1{font-size:22px;margin:0 0 4px}
+  .sub{color:#6b7a89;margin:0 0 22px;font-size:14px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:26px}
+  .card{background:#fff;border:1px solid #e5e8ec;border-radius:12px;padding:18px}
+  .card .n{font-size:30px;font-weight:800;color:#0f7c8a}
+  .card .l{font-size:13px;color:#6b7a89;margin-top:4px}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e8ec;border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid #eef1f4;font-size:14px}
+  th{background:#fafbfc;color:#5a6b7c;font-weight:600}
+  tr:last-child td{border-bottom:none}
+  .bar{height:8px;background:#eef1f4;border-radius:6px;overflow:hidden;width:120px;display:inline-block;vertical-align:middle;margin-right:8px}
+  .bar>span{display:block;height:100%;background:#0aa6b7}
+  .loading{color:#6b7a89;padding:20px}
+</style>
+</head>
+<body>
+<header><span class="logo">HASC CENTER</span></header>
+<nav>
+  <a href="wb-hub-mark2.html">Home</a>
+  <a href="wb-today-mark2.html">Today</a>
+  <a href="wb-insights-mark2.html" class="active">Insights</a>
+  <a href="wb-documents-mark2.html">Documents</a>
+  <a href="wb-checklists-mark2.html">Checklists</a>
+  <a href="wb-inbox-mark2.html">Inbox</a>
+</nav>
+<main>
+  <h1>Insights</h1>
+  <p class="sub">Compliance by area coordinator — last 7 days</p>
+  <div class="cards" id="cards"><div class="loading">Loading…</div></div>
+  <table id="tbl" style="display:none">
+    <thead><tr><th>Area Coordinator</th><th>Homes</th><th>Submitted (7d)</th><th>Avg completion</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <p class="loading" id="err" style="display:none;color:#b00"></p>
+</main>
+<script>
+(async function(){
+  try{
+    const c = window.__hascClient;
+    if(!c){document.getElementById('err').style.display='block';document.getElementById('err').textContent='No data connection.';return;}
+    const since = new Date(Date.now()-7*864e5).toISOString();
+    const {data:homes,error:he} = await c.from('cl_homes').select('home_name,ac_email');
+    if(he) throw he;
+    const {data:subs,error:se} = await c.from('cl_submissions').select('home_name,submitted_at,tasks_done,tasks_total').gte('submitted_at',since);
+    if(se) throw se;
+    const homeAc={}; homes.forEach(h=>homeAc[h.home_name]=h.ac_email||'(unassigned)');
+    const stats={};
+    homes.forEach(h=>{const a=h.ac_email||'(unassigned)';(stats[a]=stats[a]||{homes:0,sub:new Set(),pct:[]}).homes++;});
+    subs.forEach(s=>{const a=homeAc[s.home_name];if(!a||!stats[a])return;stats[a].sub.add(s.home_name);if(s.tasks_total)stats[a].pct.push(s.tasks_done/s.tasks_total);});
+    let totHomes=0,totSub=new Set(),allPct=[];
+    const rows=Object.keys(stats).sort().map(a=>{const st=stats[a];totHomes+=st.homes;st.sub.forEach(x=>totSub.add(x));allPct=allPct.concat(st.pct);
+      const pct=st.pct.length?Math.round(st.pct.reduce((x,y)=>x+y,0)/st.pct.length*100):null;
+      return {ac:a.replace('@hasccenter.org',''),homes:st.homes,sub:st.sub.size,pct};});
+    const avgAll=allPct.length?Math.round(allPct.reduce((x,y)=>x+y,0)/allPct.length*100):0;
+    document.getElementById('cards').innerHTML=
+      card(totHomes,'Total homes')+card(totSub.size,'Homes active (7d)')+card(subs.length,'Submissions (7d)')+card(avgAll+'%','Avg completion');
+    const tb=document.querySelector('#tbl tbody');
+    tb.innerHTML=rows.map(r=>'<tr><td>'+r.ac+'</td><td>'+r.homes+'</td><td>'+r.sub+' / '+r.homes+'</td><td>'+(r.pct==null?'—':bar(r.pct))+'</td></tr>').join('');
+    document.getElementById('tbl').style.display='';
+  }catch(e){document.getElementById('cards').innerHTML='';document.getElementById('err').style.display='block';document.getElementById('err').textContent='Error: '+(e.message||e);}
+  function card(n,l){return '<div class="card"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';}
+  function bar(p){return '<span class="bar"><span style="width:'+p+'%"></span></span>'+p+'%';}
+})();
+</script>
+</body>
+</html>
