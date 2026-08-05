@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HASC Center — Certificate Inbox</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+  body{background:#f4f6f9;color:#1a1a2e;}
+  .hdr{background:#fff;border-bottom:3px solid #3FC1C9;padding:0 24px;display:flex;align-items:center;height:56px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+  .logo{height:38px;display:block;}
+  .lib-sub{font-size:13px;font-weight:600;color:#7a8a9a;margin-left:14px;padding-left:14px;border-left:1.5px solid #e0e6ed;}
+  .spacer{flex:1;}
+  .btn{background:#fff;border:1.5px solid #e0e6ed;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;color:#444;margin-left:8px;text-decoration:none;}
+  .btn:hover{background:#f6f9fb;}
+  .btn.logout{color:#c0392b;border-color:#f0c8c2;}
+  .tbar{background:#fff;border-bottom:1px solid #e0e6ed;padding:12px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .sbox{position:relative;flex:1;min-width:180px;max-width:280px;}
+  .sbox input{width:100%;padding:7px 12px 7px 32px;border:1.5px solid #dce3ea;border-radius:8px;font-size:13px;outline:none;background:#f8fafc;}
+  .sbox .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#8a9ab0;font-size:13px;}
+  .fbtn{padding:5px 11px;border-radius:6px;border:none;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:#5a6a7e;}
+  .fbtn.active{background:#fff;color:#1a8c94;box-shadow:0 1px 4px rgba(0,0,0,.12);font-weight:700;}
+  .fgrp{display:flex;gap:4px;background:#eef3f7;padding:3px;border-radius:8px;}
+  select.filt{padding:6px 10px;border:1.5px solid #dce3ea;border-radius:8px;font-size:13px;background:#f8fafc;color:#5a6a7e;}
+  .sumc{font-size:13px;color:#5a6a7e;padding:12px 24px 0;}
+  .wrap{padding:16px 24px;max-width:1000px;}
+  .tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e7ebf0;border-radius:10px;overflow:hidden;}
+  .tbl th{text-align:left;font-size:10px;font-weight:800;color:#8a9ab0;text-transform:uppercase;letter-spacing:1px;padding:12px 16px;background:#f6f9fb;border-bottom:1px solid #e7ebf0;}
+  .tbl td{padding:11px 16px;font-size:13px;border-top:1px solid #eef3f7;}
+  .tbl tr:first-child td{border-top:none;}
+  .nm-cell{font-weight:700;}
+  .res-pass{color:#1a8c94;font-weight:700;}
+  .res-fail{color:#c0392b;font-weight:700;}
+  .act{display:flex;gap:6px;justify-content:flex-end;}
+  .mini{padding:5px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e0e6ed;background:#fff;cursor:pointer;}
+  .mini.view{color:#1a8c94;border-color:#bfe6ea;}
+  .mini.handle{color:#1a8c94;border-color:#bfe6ea;background:#eafcfd;font-weight:700;}
+  .mini.undo{color:#5a6a7e;}
+  .done-tag{color:#8a9ab0;font-size:12px;font-weight:600;}
+  .loading{padding:40px;text-align:center;color:#8a9ab0;}
+  .errbox{margin:20px 0;padding:14px 18px;background:#fff3e0;border:1px solid #ffcc80;border-radius:10px;color:#a36000;font-size:13px;}
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;overflow:auto;}
+  .ov.show{display:flex;}
+  .cert{background:#fff;width:720px;max-width:100%;padding:18px;border:14px double #b8b8b8;}
+  .cert .inner{border:1px solid #d8d8d8;padding:40px 50px;text-align:center;}
+  .cert h1{font-family:Georgia,'Times New Roman',serif;letter-spacing:8px;font-size:38px;color:#2b2b2b;font-weight:400;}
+  .cert .oc{font-family:Georgia,serif;letter-spacing:4px;font-size:13px;color:#555;margin-top:4px;}
+  .cert .ct{font-size:13px;color:#666;margin:26px 0 6px;}
+  .cert .nm{font-family:Georgia,serif;font-size:30px;color:#1a1a2e;margin-bottom:18px;}
+  .cert .cbody{font-size:13px;color:#444;line-height:1.7;max-width:460px;margin:0 auto;}
+  .cert .att{font-size:13px;color:#444;line-height:1.7;max-width:460px;margin:14px auto 0;font-style:italic;}
+  .cert .att .sig-att{display:block;margin-top:6px;color:#16b3c6;font-style:normal;font-size:12px;white-space:nowrap;}
+  .cert .logo{height:54px;margin:8px auto 0;}
+  .cert .sigs{display:flex;justify-content:space-between;margin-top:48px;}
+  .cert .sig{width:45%;}
+  .cert .sig .sn{font-family:'Brush Script MT',cursive;font-size:22px;font-style:italic;border-bottom:1px solid #333;padding-bottom:2px;margin-bottom:4px;}
+  .cert .sig .rn2{font-size:12px;font-weight:700;color:#222;}
+  .cert .sig .ro{font-size:11px;color:#666;}
+  .modbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;}
+  @media print{body *{visibility:hidden;}.ov,.ov *{visibility:visible;}.ov{position:absolute;inset:0;background:#fff;}.modbar{display:none;}}
+</style>
+</head>
+<body>
+  <div class="hdr">
+    <img class="logo" src="hasc-logo.png" alt="HASC Center">
+    <span class="lib-sub">Certificate Inbox</span>
+            <a href="javascript:history.back()" style="text-decoration:none;border:1px solid #d6dce2;background:#fff;border-radius:7px;padding:7px 14px;font-size:13px;color:#2b3a45;margin-left:14px">&larr; Back</a>
+       <a href="/" style="text-decoration:none;border:1px solid #d6dce2;background:#fff;border-radius:7px;padding:7px 14px;font-size:13px;color:#2b3a45;margin-left:8px">&#127968; Home</a>
+    <span class="spacer"></span>
+    <a class="btn" href="/wb-certificates">Certificates</a>
+    <button class="btn logout" id="logoutBtn">Log out</button>
+  </div>
+  <div class="tbar">
+    <div class="sbox"><span class="si">&#128269;</span><input id="search" placeholder="Search name, residence, or training..."></div>
+    <div class="fgrp">
+      <button class="fbtn active" data-tab="inbox">Inbox</button>
+      <button class="fbtn" data-tab="done">Done</button>
+      <button class="fbtn" data-tab="all">All</button>
+    </div>
+    <select class="filt" id="fres"><option value="">All residences</option></select>
+    <select class="filt" id="fresult"><option value="">All results</option><option value="pass">Passed</option><option value="fail">Failed</option></select>
+  </div>
+  <div class="sumc" id="summary"></div>
+  <div class="wrap">
+    <div id="content"><div class="loading">Loading certificates&hellip;</div></div>
+  </div>
+
+  <div class="ov" id="certOv">
+    <div>
+      <div class="modbar">
+        <button class="btn" id="printBtn">&#128424; Print / Save PDF</button>
+        <button class="btn" id="closeBtn">Close</button>
+      </div>
+      <div id="certHolder"></div>
+    </div>
+  </div>
+
+<script>
+  const sb = supabase.createClient(HASC_CONFIG.SUPABASE_URL, HASC_CONFIG.SUPABASE_ANON_KEY);
+  let ROWS = [];
+  const state = { tab:'inbox', q:'', res:'', result:'' };
+  const $ = id => document.getElementById(id);
+  const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const fmtDate = d => { if(!d) return ''; const x=new Date(d); return (x.getMonth()+1)+'/'+x.getDate()+'/'+x.getFullYear(); };
+
+  async function load(){
+    const { data, error } = await sb
+      .from('certificates')
+      .select('id,dsp_name,individual_name,certificate,attestation,attested_at,residence,completed_at,score,passed,is_archived,is_handled')
+      .order('completed_at', { ascending:false });
+    if(error){ $('content').innerHTML = '<div class="errbox">Could not load certificates: '+esc(error.message)+'</div>'; return; }
+    ROWS = (data||[]).map(r => ({
+              id:r.id, name:r.dsp_name||'', training:r.individual_name||'', residence:r.residence||'',
+      date:fmtDate(r.completed_at), score:r.score, passed:r.passed, result:r.passed?'Pass':'Fail',
+      handled:!!r.is_handled, attestation:r.attestation, attestedAt:r.attested_at
+    }));
+    const opts = [...new Set(ROWS.map(r=>r.residence).filter(Boolean))].sort();
+    $('fres').innerHTML = '<option value="">All residences</option>' + opts.map(o=>'<option>'+esc(o)+'</option>').join('');
+    render();
+  }
+
+  function visible(){
+    return ROWS.filter(r => {
+      if(state.tab==='inbox' && r.handled) return false;
+      if(state.tab==='done' && !r.handled) return false;
+      if(state.res && r.residence!==state.res) return false;
+      if(state.result==='pass' && !r.passed) return false;
+      if(state.result==='fail' && r.passed) return false;
+      if(state.q){ const h=(r.name+' '+r.residence+' '+r.training).toLowerCase(); if(!h.includes(state.q.toLowerCase())) return false; }
+      return true;
+    });
+  }
+
+  function render(){
+    const rows = visible();
+    const body = rows.map(r => '<tr data-id="'+r.id+'">'
+      + '<td class="nm-cell">'+esc(r.name)+'</td>'
+      + '<td>'+esc(r.residence)+'</td>'
+      + '<td>'+esc(r.training)+'</td>'
+      + '<td>'+r.date+'</td>'
+      + '<td class="'+(r.passed?'res-pass':'res-fail')+'">'+r.result+'</td>'
+      + '<td><div class="act">'
+        + '<button class="mini view" data-act="view">View</button>'
+        + '<button class="mini view" data-act="print">Print</button>'
+        + (r.handled
+            ? '<span class="done-tag">&#10003; Handled</span> <button class="mini undo" data-act="undo">Undo</button>'
+            : '<button class="mini handle" data-act="handle">&#10003; Handled</button>')
+      + '</div></td></tr>').join('');
+    $('content').innerHTML = rows.length
+      ? '<table class="tbl"><thead><tr><th>Staff</th><th>Residence</th><th>Training</th><th>Date</th><th>Result</th><th style="text-align:right">Action</th></tr></thead><tbody>'+body+'</tbody></table>'
+      : '<div class="loading">Nothing here.</div>';
+    const inboxN = ROWS.filter(r=>!r.handled).length, doneN = ROWS.filter(r=>r.handled).length;
+    $('summary').textContent = rows.length+' showing \u00b7 '+inboxN+' in inbox \u00b7 '+doneN+' done';
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===state.tab));
+  }
+
+  function certHTML(r){
+    return '<div class="cert"><div class="inner">'
+      + '<h1>CERTIFICATE</h1>'
+      + '<div class="oc">OF TRAINING COMPLETION</div>'
+      + '<img class="logo" src="hasc-logo.png" alt="HASC Center">'
+      + '<div class="ct">This certifies that</div>'
+      + '<div class="nm">'+esc(r.name)+'</div>'
+      + '<div class="cbody">has successfully completed the '+esc(r.training)+' \u00b7 '+r.date+'<br>'
+        + '<span style="white-space:nowrap">HASC Center training for '+esc(r.residence)+'.</span><br>'
+        + 'Certificate ID: '+r.id+'.<br>Final Result: '+r.result+'.</div>'
+      + '<div class="att">\u201cI certify that I watched the training video in full and was given the opportunity to ask questions.\u201d'
+        + '<span class="sig-att">\u2713 Electronically attested by '+esc(r.name)+' on '+(fmtDate(r.attestedAt)||r.date)+'</span></div>'
+      + '<div class="sigs">'
+        + '<div class="sig"><div class="sn">Aryeh Samuelson</div><div class="rn2">Aryeh Samuelson</div><div class="ro">Director of Staff Training</div></div>'
+        + '<div class="sig"><div class="sn">Avi Sacks</div><div class="rn2">Avi Sacks</div><div class="ro">Chief Operating Officer</div></div>'
+      + '</div></div></div>';
+  }
+
+  function openCert(r){ $('certHolder').innerHTML = certHTML(r); $('certOv').classList.add('show'); $('printBtn').onclick = () => window.print(); }
+
+  async function setHandled(id, val){
+    const r = ROWS.find(x=>x.id==id); if(!r) return;
+    const prev = r.handled; r.handled = val; render();
+    const { error } = await sb.from('certificates').update({ is_handled: val }).eq('id', id);
+    if(error){ r.handled = prev; render(); alert('Could not save: '+error.message); }
+  }
+
+  $('content').addEventListener('click', e => {
+    const btn = e.target.closest('[data-act]'); if(!btn) return;
+    const id = e.target.closest('tr').dataset.id;
+    const r = ROWS.find(x=>x.id==id); if(!r) return;
+    const act = btn.dataset.act;
+    if(act==='view'){ openCert(r); }
+    else if(act==='print'){ openCert(r); setTimeout(()=>window.print(), 150); }
+    else if(act==='handle'){ setHandled(id, true); }
+    else if(act==='undo'){ setHandled(id, false); }
+  });
+  $('closeBtn').onclick = () => $('certOv').classList.remove('show');
+  $('certOv').addEventListener('click', e => { if(e.target===$('certOv')) $('certOv').classList.remove('show'); });
+  $('search').addEventListener('input', e => { state.q = e.target.value; render(); });
+  $('fres').addEventListener('change', e => { state.res = e.target.value; render(); });
+  $('fresult').addEventListener('change', e => { state.result = e.target.value; render(); });
+  document.querySelectorAll('.fbtn').forEach(b => b.addEventListener('click', () => { state.tab = b.dataset.tab; render(); }));
+  $('logoutBtn').onclick = async () => { try{ await sb.auth.signOut(); }catch(e){} location.href = '/'; };
+
+  load();
+</script>
+</body>
+</html>
