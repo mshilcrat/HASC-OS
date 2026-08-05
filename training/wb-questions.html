@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HASC – Questions</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f4;color:#2b3a45}
+  #app{margin:0 auto;min-height:100vh}
+  .topbar{background:#fff;border-bottom:3px solid #16b3c6}
+  .hdr{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:14px 20px;flex-wrap:wrap}
+  .hdr img{height:42px;display:block}
+  .hdr .right{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .hdr .uname{color:#5a6773;font-size:14px}
+  .btn-signout{border:1px solid #d6dce2;background:#fff;border-radius:7px;padding:7px 14px;font-size:13px;cursor:pointer}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+  .tabs{display:flex;gap:24px;border-bottom:1px solid #e2e7ec;padding:14px 4px 0;flex-wrap:wrap}
+  .tab{padding-bottom:12px;color:#7a8794;font-weight:700;font-size:15px;text-decoration:none}
+  .tab.active{border-bottom:3px solid #16b3c6;color:#16b3c6;font-weight:800}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:24px;margin:22px 0}
+  .h1{font-weight:800;font-size:20px;margin-bottom:6px}
+  .sub{color:#7a8794;font-size:14px;margin-bottom:20px}
+  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .seg{padding:9px 16px;border-radius:9px;background:#eef0f3;color:#5a6773;font-weight:700;font-size:14px;cursor:pointer;border:none}
+  .seg.on{background:#16b3c6;color:#fff}
+  .search{flex:1;min-width:200px;padding:10px 12px;border:1px solid #d6dce2;border-radius:9px;font-size:14px}
+  .qrow{border:1px solid #e7ebef;border-radius:12px;padding:16px;margin-bottom:12px;background:#fff}
+  .qtop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .qname{font-weight:800;font-size:15px}
+  .badge{font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .badge.open{background:#fdecea;color:#c0392b}
+  .badge.done{background:#eafaf4;color:#1296a6}
+  .qmeta{color:#8593a0;font-size:12px}
+  .qtext{margin:8px 0 12px;font-size:14px;line-height:1.5}
+  .acts{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{border:1px solid #d6dce2;background:#fff;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn.primary{background:#16b3c6;color:#fff;border-color:#16b3c6}
+  .empty{text-align:center;color:#8593a0;padding:40px 0;font-size:15px}
+  #devToggle{position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid #d6dce2;border-radius:22px;box-shadow:0 3px 12px rgba(0,0,0,.18);padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;z-index:50}
+  body.mobile #app{max-width:412px;box-shadow:0 0 0 1px #c6cfd6}
+  body.mobile .hdr{flex-direction:column;align-items:flex-start;gap:10px}
+  body.mobile .hdr .right{margin-left:0}
+  body.mobile .tabs{gap:14px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar"><div class="hdr">
+    <img src="hasc-logo.png" alt="HASC Center">
+    <div class="right"><a href="javascript:history.back()" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">← Back</a><a href="index.html" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">🏠 Home</a><span class="uname" id="uname">…</span><button class="btn-signout" id="signout">Sign Out</button></div>
+  </div></div>
+  <div class="wrap">
+    <div class="tabs">
+      <a class='tab' href='/wb-setup'>📋 Setup Training</a>
+      <a class='tab' href='/wb-library'>📚 Training Library</a>
+      <a class='tab' href='/wb-certificates'>🏆 Certificates</a>
+      <a class='tab active' href='/wb-questions'>💬 Questions</a>
+    </div>
+    <div class="card">
+      <div class="h1">💬 Staff Questions</div>
+      <div class="sub">Questions submitted by staff during training. Mark them resolved once you've followed up.</div>
+      <div class="filters">
+        <button class="seg on" id="fOpen" type="button">Open</button>
+        <button class="seg" id="fDone" type="button">Resolved</button>
+        <button class="seg" id="fAll" type="button">All</button>
+        <input class="search" id="search" placeholder="Search name, residence, or question…">
+      </div>
+      <div id="list"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
+</div>
+<div id="devToggle">🖥️ PC</div>
+<script>
+const sb = supabase.createClient(HASC_CONFIG.SUPABASE_URL, HASC_CONFIG.SUPABASE_ANON_KEY);
+let ALL=[], filter='open';
+const listEl=document.getElementById('list'), searchEl=document.getElementById('search');
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function isResolved(q){return q.is_resolved===true || q.resolved===true;}
+function fmt(d){if(!d)return '';try{return new Date(d).toLocaleDateString();}catch(e){return '';}}
+function render(){
+  let rows=ALL.slice();
+  if(filter==='open')rows=rows.filter(q=>!isResolved(q));
+  else if(filter==='done')rows=rows.filter(q=>isResolved(q));
+  const term=searchEl.value.trim().toLowerCase();
+  if(term)rows=rows.filter(q=>((q.dsp_name||'')+' '+(q.residence||'')+' '+(q.question_text||'')).toLowerCase().includes(term));
+  if(!rows.length){listEl.innerHTML='<div class="empty">No questions to show.</div>';return;}
+  listEl.innerHTML=rows.map(q=>{
+    const done=isResolved(q);
+    const phone=q.callback_phone||q.dsp_phone||'';
+    return '<div class="qrow"><div class="qtop"><span class="qname">'+esc(q.dsp_name||'Unknown')+'</span>'+
+      '<span class="badge '+(done?'done':'open')+'">'+(done?'Resolved':'Open')+'</span>'+
+      '<span class="qmeta">'+esc(q.residence||'')+(phone?' · '+esc(phone):'')+(q.created_at?' · '+fmt(q.created_at):'')+'</span></div>'+
+      '<div class="qtext">'+esc(q.question_text||'(no question text)')+'</div>'+
+      '<div class="acts">'+(done?'<button class="btn" data-reopen="'+q.id+'">Reopen</button>':'<button class="btn primary" data-resolve="'+q.id+'">Mark Resolved</button>')+
+      (phone?'<a class="btn" href="tel:'+esc(phone)+'">Call</a>':'')+'</div></div>';
+  }).join('');
+}
+async function setResolved(id, val){
+  const {error}=await sb.from('dsp_questions').update({is_resolved:val, resolved:val, resolved_at:val?new Date().toISOString():null}).eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  const q=ALL.find(x=>x.id===id);if(q){q.is_resolved=val;q.resolved=val;}render();
+}
+listEl.addEventListener('click',e=>{
+  const r=e.target.getAttribute('data-resolve');const o=e.target.getAttribute('data-reopen');
+  if(r)setResolved(r,true);if(o)setResolved(o,false);
+});
+document.getElementById('fOpen').onclick=function(){filter='open';setSeg(this);render();};
+document.getElementById('fDone').onclick=function(){filter='done';setSeg(this);render();};
+document.getElementById('fAll').onclick=function(){filter='all';setSeg(this);render();};
+function setSeg(el){document.querySelectorAll('.seg').forEach(s=>s.classList.remove('on'));el.classList.add('on');}
+searchEl.addEventListener('input',render);
+const dt=document.getElementById('devToggle');let mob=false;
+dt.onclick=()=>{mob=!mob;document.body.classList.toggle('mobile',mob);dt.innerHTML=mob?'📱 Mobile':'🖥️ PC';window.scrollTo(0,0);};
+sb.auth.getUser().then(({data})=>{const u=data&&data.user;document.getElementById('uname').textContent=u?(u.email||'Signed in'):'Not signed in';});
+document.getElementById('signout').onclick=async()=>{await sb.auth.signOut();location.href='wb-login.html';};
+async function load(){
+  const {data,error}=await sb.from('dsp_questions').select('*').order('created_at',{ascending:false});
+  if(error){listEl.innerHTML='<div class="empty">Error: '+esc(error.message)+'</div>';return;}
+  ALL=data||[];render();
+}
+load();
+</script>
+</body>
+</html>
