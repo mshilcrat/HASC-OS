@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HASC Center - DSP Training</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
+.header{background:#fff;border-bottom:3px solid #16b3c6;padding:10px 24px;display:flex;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.container{max-width:800px;margin:32px auto;phadding:0 16px}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:32px;margin-bottom:24px}
+.card h2{font-size:1.2rem;font-weight:700;margin-bottom:16px;color:#hf1a202c}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border-radius:8px;font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:#16b3c6;color:#fff}.btn-primary:hover{background:#1296a6}
+.btn-success{background:#16b3c6;color:#fff}.btn-success:hover{background:#1296a6}
+.btn-secondary{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}
+  .alert{padding:12px 16px;border-radius:8px;font-size:.9rem;margin-bottom:16px}
+.alert-error{background:#fef2f2;border:1px solid #fca5a5;color:#dc2626}
+.alert-success{background:#f0f9ff;border:1px solid #9fe3ec;color:#1296a6}
+  .alert-info{background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8}
+  .form-group{margin-bottom:16px}
+  .form-group label{display:block;font-weight:600;font-size:.88rem;margin-bottom:6px;color:#374151}
+.form-group input,.form-group select{width:100%;padding:10px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:.95rem;outline:none;transition:border .2s}
+  .form-group input:focus,.form-group select:focus{border-color:#16b3c6}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}}
+.steps{display:flex;align-items:center;justify-content:center;margin-bottom:28px;flex-wrap:wrap;gap:4px}
+.step{display:flex;align-items:center;gap:6px}
+.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;background:#e5e7eb;color:#6b7280}
+.step-label{font-size:.8rem;color:#6b7280;font-weight:600}
+.step.active .step-num{background:#16b3c6;color:#fff}.step.active .step-label{color:#16b3c6}
+.step.done .step-num{background:#16b3c6;color:#fff}.step.done .step-label{color:#16b3c6}
+.step-line{width:32px;height:2px;background:#e5e7eb;margin:0 2px}
+.video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;background:#000;margin-bottom:20px}
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.quiz-option{display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;margin-bottom:8px;transition:all .2s}
+.quiz-option:hover{border-color:#16b3c6;background:#f0f9ff}
+.quiz-option.selected{border-color:#16b3c6;background:#eff6ff}
+.quiz-option.correct{border-color:#16b3c6;background:#f0f9ff;pointer-events:none}
+.quiz-option.wrong{border-color:#dc2626;background:#fef2f2;pointer-events:none}
+.opt-letter{font-weight:700;color:#6b7280;min-width:22px}
+.question-block{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:18px;margin-bottom:16px}
+.question-block h4{font-size:.95rem;font-weight:700;margin-bottom:12px;color:#374151}
+.badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.82rem;font-weight:700}
+.badge-pass{background:#e0f7fa;color:#0e7d8c}.badge-fail{background:#fee2e2;color:#991b1b}
+.cert-box{background:linear-gradient(135deg,#f0f9ff,#e0f7fa);border:3px solid #16b3c6;border-radius:16px;padding:36px;text-align:center;max-width:520px;margin:0 auto}
+.cert-title{font-size:1.5rem;font-weight:800;color:#16b3c6;margin-bottom:4px}
+.cert-org{font-size:.88rem;color:#6b7280;margin-bottom:14px}
+  .cert-name{font-size:1.4rem;font-weight:800;color:#1a202c;border-bottom:2px solid #16b3c6;padding-bottom:8px;margin-bottom:10px}
+.cert-detail{font-size:.9rem;color:#374151;margin-bottom:4px}
+.cert-score{font-size:1.05rem;font-weight:700;color:#16b3c6;margin-top:10px}
+.spinner{display:inline-block;width:18px;height:18px;border:3px solid #e5e7eb;border-top-color:#16b3c6;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+  #loading-screen{text-align:center;padding:80px 20px}
+  #loading-screen .big-spinner{width:48px;height:48px;border:5px solid #e5e7eb;border-top-color:#16b3c6;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px}
+  </style>
+  </head>
+  <body>
+  <div class="header">
+  <img src="hasc-logo.png" alt="HASC Center" height="40" style="display:block">
+  <span style="margin-left:16px;font-size:1rem;font-weight:700;color:#374151">Staff Training</span>
+  </div>
+
+  <div class="container">
+
+<!-- Loading -->
+  <div id="loading-screen">
+<div class="big-spinner"></div>
+<p style="color:#6b7280;font-size:.95rem">Loading your training session...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="error-screen" style="display:none">
+<div class="card">
+<div class="alert alert-error" id="error-msg">Session not found or has already been completed.</div>
+</div>
+</div>
+
+  <!-- Step 1: DSP Info -->
+<div id="step-info" style="display:none">
+  <div class="steps">
+<div class="step active"><div class="step-num">1</div><div class="step-label">Your Info</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">2</div><div class="step-label">Watch Video</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">3</div><div class="step-label">Attestation</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">4</div><div class="step-label">Quiz</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">5</div><div class="step-label">Certificate</div></div>
+</div>
+<div class="card">
+<h2>👋 Welcome — Please Enter Your Information</h2>
+<div id="info-alert"></div>
+<div class="two-col">
+<div class="form-group"><label>Your Full Name *</label><input type="text" id="dsp-name" placeholder="e.g. John Smith"/></div>
+<div class="form-group"><label>Your Role / Title *</label>
+<select id="dsp-title">
+<option value="">-- Select your role --</option>
+<option value="DSP">DSP (Direct Support Professional)</option>
+<option value="Senior DSP">Senior DSP</option>
+<option value="House Manager">House Manager</option>
+<option value="Supervisor">Supervisor</option>
+<option value="Other">Other</option>
+</select>
+</div>
+</div>
+<div class="form-group"><label>Training For</label><input type="text" id="dsp-individual" readonly style="background:#f8fafc;color:#6b7280"/></div>
+<div class="form-group"><label>Residence</label><input type="text" id="dsp-residence" readonly style="background:#f8fafc;color:#6b7280"/></div>
+<button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="goToVideo()">▶ Continue to Training Video</button>
+</div>
+</div>
+
+<!-- Step 2: Video -->
+<div id="step-video" style="display:none">
+<div class="steps">
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Your Info</div></div>
+<div class="step-line"></div>
+<div class="step active"><div class="step-num">2</div><div class="step-label">Watch Video</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">3</div><div class="step-label">Attestation</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">4</div><div class="step-label">Quiz</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">5</div><div class="step-label">Certificate</div></div>
+</div>
+<div class="card">
+<h2>🎥 Watch the Training Video</h2>
+<p style="color:#6b7280;font-size:.88rem;margin-bottom:16px">Please watch the full video before proceeding to the quiz.</p>
+<div class="video-wrap" id="video-container"></div>
+<div id="doc-container" style="margin-top:16px"></div>
+<div id="doc-fs-wrap" style="display:none;text-align:center;margin:10px 0;"><button class="btn" style="background:#0d9488;color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:15px;cursor:pointer;" onclick="openDocFullscreen()">⛶ Open Fullscreen</button><div style="font-size:12px;color:#64748b;margin-top:4px;">Tap to view the document full screen</div></div>
+<button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="goToQuestions()">💬 Continue to Questions →</button>
+</div>
+</div>
+
+<!-- Step 3: Quiz -->
+<div id="step-questions" style="display:none">
+      <div class="steps">
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Your Info</div></div>
+<div class="step-line"></div>
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Watch Video</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">3</div><div class="step-label">Attestation</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">4</div><div class="step-label">Quiz</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">5</div><div class="step-label">Certificate</div></div>
+</div>
+      <div class="card">
+        <h2>💬 Do You Have Questions?</h2>
+        <p style="color:#6b7280;margin-bottom:8px;">Before taking the quiz, do you have any questions about the training video for the nurse?</p>
+        <div id="q-choice" style="display:flex;gap:16px;margin-top:24px;justify-content:center;flex-wrap:wrap;">
+          <button onclick="showQuestionsForm()" style="flex:1;min-width:180px;max-width:260px;padding:28px 20px;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;border:2px solid #f59e0b;background:#fff8f0;color:#92400e;display:flex;flex-direction:column;align-items:center;gap:10px;"><span style="font-size:2.5rem;">🙋</span><span>Yes, I have questions</span></button>
+          <button onclick="proceedToQuiz()" style="flex:1;min-width:180px;max-width:260px;padding:28px 20px;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;border:2px solid #16b3c6;background:#f0f9ff;color:#0e7d8c;display:flex;flex-direction:column;align-items:center;gap:10px;"><span style="font-size:2.5rem;">✅</span><span>No, I'm ready for the quiz</span></button>
+        </div>
+        <div id="q-form" style="display:none;margin-top:24px;">
+          <hr style="margin:24px 0;border-color:#e5e7eb;">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;color:#374151;">📞 Leave Your Questions for the Nurse</h3>
+          <div style="margin-bottom:16px;"><label style="display:block;font-weight:600;margin-bottom:6px;color:#374151;">Your Callback Phone Number *</label><input type="tel" id="q-phone" placeholder="e.g. (718) 555-1234" style="width:100%;padding:10px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.95rem;font-family:inherit;"></div>
+          <div style="margin-bottom:16px;"><label style="display:block;font-weight:600;margin-bottom:6px;color:#374151;">Your Questions *</label><textarea id="q-text" placeholder="Type your questions here..." style="width:100%;padding:10px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.95rem;font-family:inherit;resize:vertical;min-height:100px;"></textarea></div>
+          <div id="q-err" class="alert alert-error" style="display:none;"></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="submitQuestions()">📤 Submit &amp; Continue to Quiz</button><button class="btn btn-secondary" onclick="cancelQuestions()">← Back</button></div>
+        </div>
+        <div id="q-submitted" style="display:none;text-align:center;padding:20px;">
+          <div style="font-size:3rem;margin-bottom:12px;">📤</div>
+          <h3 style="font-weight:700;margin-bottom:8px;color:#0e7d8c;">Questions Submitted!</h3>
+          <p style="color:#6b7280;margin-bottom:20px;">A nurse will call you back at your number. You can now take the quiz.</p>
+          <button class="btn btn-primary" onclick="proceedToQuiz()">📝 Continue to Quiz →</button>
+        </div>
+      </div>
+    </div>
+    <!-- Step 4: Attestation -->
+<div id="step-attest" style="display:none">
+<div class="steps">
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Your Info</div></div>
+<div class="step-line"></div>
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Watch Video</div></div>
+<div class="step-line"></div>
+<div class="step active"><div class="step-num">3</div><div class="step-label">Attestation</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">4</div><div class="step-label">Quiz</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">5</div><div class="step-label">Certificate</div></div>
+</div>
+<div class="card">
+<h2>✓ Attestation</h2>
+<div id="attest-alert"></div>
+<p style="font-size:.95rem;line-height:1.6;color:#374151;margin-bottom:18px">Please confirm the statement below before continuing to the quiz.</p>
+<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin-bottom:18px">
+<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+<input type="checkbox" id="attest-check" style="width:18px;height:18px;margin-top:3px;flex:none"/>
+<span id="attest-text" style="font-size:.95rem;line-height:1.55;color:#1a202c">I certify that I watched the training video in full and was given the opportunity to ask questions.</span>
+</label>
+</div>
+<p style="font-size:.85rem;color:#6b7280;margin-bottom:18px">By checking the box and continuing, you are electronically signing this attestation as <strong id="attest-signer">your name</strong> on <strong id="attest-date"></strong>.</p>
+<button class="btn btn-primary" onclick="confirmAttestation()">Confirm &amp; Continue to Quiz</button>
+</div>
+</div>
+<div id="step-quiz" style="display:none">
+<div class="steps">
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Your Info</div></div>
+<div class="step-line"></div>
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Watch Video</div></div>
+<div class="step-line"></div>
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Attestation</div></div>
+<div class="step-line"></div>
+<div class="step active"><div class="step-num">4</div><div class="step-label">Quiz</div></div>
+<div class="step-line"></div>
+<div class="step"><div class="step-num">5</div><div class="step-label">Certificate</div></div>
+</div>
+<div class="card">
+<h2>📝 Knowledge Check Quiz</h2>
+<p style="color:#6b7280;font-size:.88rem;margin-bottom:20px">Answer all questions below. You need 4 out of 5 to pass.</p>
+<div id="quiz-alert"></div>
+<div id="quiz-questions"></div>
+<button class="btn btn-success" style="width:100%;margin-top:8px" onclick="submitQuiz()">✅ Submit Quiz</button>
+</div>
+</div>
+
+<!-- Step 4: Certificate -->
+<div id="step-cert" style="display:none">
+<div class="steps">
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Your Info</div></div>
+<div class="step-line"></div>
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Watch Video</div></div>
+<div class="step-line"></div>
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Attestation</div></div>
+<div class="step-line"></div>
+<div class="step done"><div class="step-num">✓</div><div class="step-label">Quiz</div></div>
+<div class="step-line"></div>
+<div class="step active"><div class="step-num">5</div><div class="step-label">Certificate</div></div>
+</div>
+<div class="card" id="cert-card"></div>
+</div>
+
+</div>
+
+<script>
+const SUPA_URL='https://xqcykvgsesavtuautivq.supabase.co';
+const SUPA_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxY3lrdmdzZXNhdnR1YXV0aXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc1ODUsImV4cCI6MjA5MTkxMzU4NX0.A6FkxttGZMGaPxqr1orOWlpoO_zZSeqbp5W3L7s6U5w';
+const sb=supabase.createClient(SUPA_URL,SUPA_ANON);
+
+let sessionData=null;
+let dspName='',dspTitle='';
+
+function getToken(){
+  const p=new URLSearchParams(window.location.search);
+  return p.get('token');
+}
+
+function showStep(id){
+  ['step-info','step-video','step-attest','step-quiz','step-cert','loading-screen','error-screen'].forEach(s=>{
+    const el=document.getElementById(s);
+    if(el) el.style.display='none';
+});
+  const target=document.getElementById(id);
+  if(target) target.style.display='block';
+}
+
+function getVideoEmbed(url){
+  if(!url) return '';
+  // ScreenPal embed
+  if(url.includes('screenpal.com')||url.includes('screencast-o-matic.com')){
+    const vid=url.split('/watch/')[1]||url.split('/player/')[1];const embedUrl='https://go.screenpal.com/player/'+vid+'?ff=1&ahc=1&dcc=1&tl=1&bg=transparent&embed=1';
+    return `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+}
+  // YouTube
+  const ytMatch=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
+  if(ytMatch) return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe>`;
+  // Vimeo
+  const vmMatch=url.match(/vimeo\.com\/(\d+)/);
+  if(vmMatch) return `<iframe src="https://player.vimeo.com/video/${vmMatch[1]}" allowfullscreen></iframe>`;
+  // Fallback: direct link
+  return `<div style="padding:20px;color:#6b7280;text-align:center"><a href="${url}" target="_blank" style="color:#16b3c6;font-weight:600">▶ Open Training Video</a></div>`;
+}
+
+async function loadSession(){
+  const token=getToken();
+  if(!token){showStep('error-screen');document.getElementById('error-msg').textContent='No training token found. Please use the link provided by your nurse.';return;}
+  const{data,error}=await sb.from('training_sessions').select('*').eq('session_token',token).single();
+  if(error||!data){showStep('error-screen');document.getElementById('error-msg').textContent='Session not found. Please contact your nurse for a new link.';return;}
+  sessionData=data;try{var _isInd=(sessionData.individual_name!==sessionData.description);var _at=document.getElementById('attest-text');if(_at)_at.textContent='I certify that I watched the training video in full and was given the opportunity to ask '+(_isInd?'the nurse ':'')+'questions.';}catch(e){}
+  document.getElementById('dsp-individual').value=data.individual_name||'';
+  document.getElementById('dsp-residence').value=data.residence||'';
+  const vc=document.getElementById('video-container');
+  vc.innerHTML=getVideoEmbed(data.video_url);var _h=document.querySelector('#step-video h2');if(_h)_h.innerHTML=data.video_url?'\uD83C\uDFA5 Watch the Training Video':'\uD83D\uDCC4 Review the Training Document';var _p=document.querySelector('#step-video p');if(_p)_p.style.display=data.video_url?'':'none';
+const dc=document.getElementById('doc-container');if(data.document_url){const u=data.document_url;const ext=(u.split('?')[0].split('.').pop()||'').toLowerCase();let inner='';if(ext==='pdf'){inner='<iframe src="'+u+'#toolbar=1" style="width:100%;height:80vh;border:1px solid #d1d5db;border-radius:10px"></iframe>';}else if(['png','jpg','jpeg','gif','webp'].includes(ext)){inner='<img src="'+u+'" style="max-width:100%;border:1px solid #d1d5db;border-radius:10px">';}else if(['doc','docx','ppt','pptx','xls','xlsx'].includes(ext)){inner='<iframe src="https://view.officeapps.live.com/op/embed.aspx?src='+encodeURIComponent(u)+'" style="width:100%;height:80vh;border:1px solid #d1d5db;border-radius:10px"></iframe>';}else{inner='<a href="'+u+'" target="_blank" rel="noopener" class="btn btn-primary">📄 View Training Document</a>';}dc.innerHTML='<p style="color:#374151;font-weight:600;margin:0 0 10px">📄 Training Document</p>'+inner;}else{dc.innerHTML='';}if(!data.video_url){const vw=document.getElementById('video-container');if(vw)vw.style.display='none';}
+  showStep('step-info');
+}
+
+function goToVideo(){
+  dspName=document.getElementById('dsp-name').value.trim();
+  dspTitle=document.getElementById('dsp-title').value;
+  const alert=document.getElementById('info-alert');
+  if(!dspName||!dspTitle){alert.innerHTML='<div class="alert alert-error">Please enter your name and select your role.</div>';return;}
+  alert.innerHTML='';
+  showStep('step-video');
+}
+
+function goToQuiz(){
+  const qs=sessionData.questions||[];
+  const container=document.getElementById('quiz-questions');
+  container.innerHTML='';
+  qs.forEach((q,i)=>{
+    const opts=['A','B','C','D'];
+    const optLabels=[q.optionA,q.optionB,q.optionC,q.optionD];
+    const block=document.createElement('div');
+    block.className='question-block';
+    block.innerHTML=`<h4>Question ${i+1}: ${q.question}</h4>`+
+      opts.map((l,j)=>`<div class="quiz-option" data-q="${i}" data-opt="${l}" onclick="selectOpt(this,${i},'${l}')"><span class="opt-letter">${l}.</span><span>${optLabels[j]||''}</span></div>`).join('');
+    container.appendChild(block);
+});
+  showStep('step-quiz');
+}
+
+function selectOpt(el,qIdx,opt){
+  document.querySelectorAll(`.quiz-option[data-q="${qIdx}"]`).forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function submitQuiz(){
+  const qs=sessionData.questions||[];
+  const alert=document.getElementById('quiz-alert');
+  let score=0;
+  let allAnswered=true;
+  const results=[];
+  for(let i=0;i<qs.length;i++){
+    const sel=document.querySelector(`.quiz-option[data-q="${i}"].selected`);
+    if(!sel){allAnswered=false;break;}
+    const chosen=sel.dataset.opt;
+    const correct=qs[i].correctOption;
+    const isCorrect=chosen===correct;
+    if(isCorrect) score++;
+    results.push({chosen,correct,isCorrect});
+}
+  if(!allAnswered){alert.innerHTML='<div class="alert alert-error">Please answer all questions before submitting.</div>';return;}
+
+      // Show correct/wrong highlights
+  for(let i=0;i<qs.length;i++){
+    const r=results[i];
+    document.querySelectorAll(`.quiz-option[data-q="${i}"]`).forEach(o=>{
+      if(o.dataset.opt===r.correct) o.classList.add('correct');
+      else if(o.dataset.opt===r.chosen&&!r.isCorrect) o.classList.add('wrong');
+      o.style.pointerEvents='none';
+});
+  }
+
+  const passed=score>=4;
+  const now=new Date().toISOString();
+
+  // Save certificate to Supabase
+  const{error}=await sb.from('certificates').insert({
+    nurse_email:sessionData.nurse_email,
+    residence:sessionData.residence,
+    individual_name:sessionData.description,
+    certificate:(sessionData.individual_name!==sessionData.description)?sessionData.individual_name:null,
+    dsp_name:dspName,
+    
+    score:score,
+    passed:passed,
+    completed_at:now,
+    attested_at:window.__attestedAt||null,
+    attestation:window.__attestationText||null,
+    session_id:sessionData.id
+});
+
+  if(error){
+    alert.innerHTML=`<div class="alert alert-error">Error saving certificate: ${error.message}</div>`;
+    return;
+}
+
+  // Show certificate
+  const certCard=document.getElementById('cert-card');
+  const dateStr=new Date(now).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  certCard.innerHTML=`
+    <div style="text-align:center;margin-bottom:20px">
+      <span class="badge ${passed?'badge-pass':'badge-fail'}" style="font-size:1rem;padding:8px 20px">${passed?'🎉 PASSED':'❌ FAILED'} — ${score}/5 Correct</span>
+    </div>
+    ${passed?'<div class="alert alert-success" style="margin-bottom:20px;text-align:center">Congratulations! You have successfully completed the PON training.</div>':
+    '<div class="alert alert-error" style="margin-bottom:20px;text-align:center">You did not pass this time. Please ask your nurse to create a new training session to retry.</div>'}
+    <div class="cert-box">
+      <div style="font-size:2.5rem;margin-bottom:8px">🏆</div>
+      <div class="cert-title">Certificate of Completion</div>
+      <div class="cert-org">HASC Center — Training Program</div>
+      <p style="margin-bottom:8px;color:#374151;font-size:.9rem">This certifies that</p>
+      <div class="cert-name">${dspName}</div>
+      <div class="cert-detail">Role: <strong>${dspTitle}</strong></div>
+      <div class="cert-detail">Residence: <strong>${sessionData.residence||'—'}</strong></div>
+      <div class="cert-detail">Individual: <strong>${sessionData.individual_name||'—'}</strong></div>
+      <div class="cert-score">Score: ${score}/5 (${Math.round((score/5)*100)}%)</div>
+      <div class="cert-detail" style="margin-top:8px;color:#9ca3af;font-size:.8rem">Completed: ${dateStr}</div>
+      <div class="badge ${passed?'badge-pass':'badge-fail'}" style="margin-top:12px">${passed?'✅ PASSED':'❌ FAILED'}</div>
+    </div>
+    <div style="width:100%;margin-top:20px;text-align:center;color:#374151;font-size:.95rem">✓ Saved — your certificate is on file. No action needed.</div>
+  `;
+  showStep('step-cert');
+}
+
+document.addEventListener('DOMContentLoaded',loadSession);
+
+    function goToQuestions(){showStep('step-questions');document.getElementById('q-form').style.display='none';document.getElementById('q-submitted').style.display='none';document.getElementById('q-choice').style.display='flex';}
+    function showQuestionsForm(){document.getElementById('q-form').style.display='block';document.getElementById('q-choice').style.display='none';document.getElementById('q-phone').focus();}
+    function cancelQuestions(){document.getElementById('q-form').style.display='none';document.getElementById('q-choice').style.display='flex';document.getElementById('q-err').style.display='none';}
+    async function submitQuestions(){const p=(document.getElementById('q-phone').value||'').trim();const q=(document.getElementById('q-text').value||'').trim();const e=document.getElementById('q-err');e.style.display='none';if(!p){e.textContent='Please enter your callback phone number.';e.style.display='block';return;}if(!q){e.textContent='Please type your questions before submitting.';e.style.display='block';return;}const b=document.querySelector('#q-form .btn-primary');const o=b.textContent;b.textContent='Submitting...';b.disabled=true;const{error}=await sb.from('dsp_questions').insert({dsp_name:sessionData?(sessionData.dsp_name||document.getElementById('dsp-name')?.value||''):(document.getElementById('dsp-name')?.value||''),dsp_phone:p,questions:q,residence:sessionData?(sessionData.residence||''):'',nurse_email:sessionData?(sessionData.nurse_email||''):'',session_id:sessionData?(sessionData.id||null):null,session_token:getToken(),resolved:false});if(error){e.textContent='Error: '+error.message;e.style.display='block';b.textContent=o;b.disabled=false;return;}document.getElementById('q-form').style.display='none';document.getElementById('q-submitted').style.display='block';setTimeout(function(){document.getElementById('step-questions').style.display='none';goToQuiz();},1200);}
+    function proceedToQuiz(){goToAttestation();}
+</script>
+  <!-- View mode toggle: Phone / PC / Auto -->
+  <style id="hasc-view-toggle-style">
+    html.hasc-framed body{background:#f4f6f9 !important;min-height:100vh;}
+    html.hasc-framed body > *:not(#hasc-view-toggle-btn){max-width:440px !important;margin-left:auto !important;margin-right:auto !important;}
+    #hasc-view-toggle-btn{position:fixed;bottom:14px;right:14px;z-index:2147483600;display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.96);box-shadow:0 6px 18px rgba(0,0,0,.22);font-size:12.5px;font-weight:600;color:#1a202c;cursor:pointer;font-family:inherit;}
+    /* Fit the embedded training document inside the narrow phone frame */
+    html.hasc-framed #doc-container{overflow:hidden;border-radius:10px;}
+    html.hasc-framed #doc-container iframe{transform-origin:top left;}
+  </style>
+  <button id="hasc-view-toggle-btn" type="button" aria-label="Switch view"></button>
+  <script>
+  (function(){
+    var KEY="hascViewMode";
+    var modes=["pc","auto","phone"];
+    var labels={pc:"\uD83D\uDCBB PC",auto:"\uD83D\uDD32 Auto",phone:"\uD83D\uDCF1 Phone"};
+    var btn=document.getElementById("hasc-view-toggle-btn");
+    var DOC_RENDER_W=760, DOC_VIEW_H=560;
+    function fitDoc(){
+      var dc=document.getElementById("doc-container"); if(!dc) return;
+      var ifr=dc.querySelector("iframe"); if(!ifr) return;
+      if(document.documentElement.classList.contains("hasc-framed")){
+        var w=dc.clientWidth;
+        if(!w){ requestAnimationFrame(fitDoc); return; }  /* wait for layout before scaling */
+        var scale=Math.min(1, w/DOC_RENDER_W);
+        ifr.style.width=DOC_RENDER_W+"px";
+        ifr.style.height=Math.round(DOC_VIEW_H/scale)+"px";
+        ifr.style.transform="scale("+scale+")";
+        dc.style.height=DOC_VIEW_H+"px";
+        if(!ifr.__hascLoadHooked){ ifr.__hascLoadHooked=1; ifr.addEventListener("load",fitDoc); }
+      } else {
+        ifr.style.width=""; ifr.style.height=""; ifr.style.transform=""; dc.style.height="";
+      }
+    }
+    function scheduleFit(){ fitDoc(); requestAnimationFrame(fitDoc); setTimeout(fitDoc,300); setTimeout(fitDoc,1200); }
+    function detectAuto(){return (window.matchMedia&&window.matchMedia("(max-width:768px)").matches)?"phone":"pc";}
+    function apply(mode){var eff=mode==="auto"?detectAuto():mode;document.documentElement.classList.toggle("hasc-framed",eff==="phone");btn.textContent=labels[mode];scheduleFit();}
+    function getMode(){var m=localStorage.getItem(KEY);return modes.indexOf(m)>=0?m:"pc";}
+    function setMode(m){localStorage.setItem(KEY,m);apply(m);}
+    btn.addEventListener("click",function(){var c=getMode();setMode(modes[(modes.indexOf(c)+1)%modes.length]);});
+    if(window.matchMedia){try{window.matchMedia("(max-width:768px)").addEventListener("change",function(){if(getMode()==="auto")apply("auto");});}catch(e){}}
+    window.addEventListener("resize",fitDoc);
+    /* The document iframe is created when the user reaches the video step; re-fit when it appears. */
+    try{var mo=new MutationObserver(function(){scheduleFit();}); var dcEl=document.getElementById("doc-container"); if(dcEl){mo.observe(dcEl,{childList:true,subtree:true});}}catch(e){}
+    apply(getMode());
+  })();
+  
+/* === Fullscreen document viewer === */
+function openDocFullscreen(){
+ var src=document.getElementById("doc-container");
+ if(!src||!src.firstChild) return;
+ var ov=document.createElement("div"); ov.id="doc-fs-overlay";
+ ov.style.cssText="position:fixed;inset:0;z-index:99999;background:#1e293b;display:flex;flex-direction:column;";
+ var bar=document.createElement("div");
+ bar.style.cssText="flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0f172a;color:#fff;";
+ var lbl=document.createElement("div"); lbl.textContent="Document"; lbl.style.cssText="font-size:15px;font-weight:600;";
+ var done=document.createElement("button"); done.textContent="✕ Done";
+ done.style.cssText="background:#0d9488;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:15px;cursor:pointer;";
+ done.onclick=closeDocFullscreen;
+ bar.appendChild(lbl); bar.appendChild(done);
+ var body=document.createElement("div");
+ body.style.cssText="flex:1 1 auto;overflow:auto;-webkit-overflow-scrolling:touch;background:#475569;";
+ var clone=src.querySelector('iframe').cloneNode(true);
+ if(clone.style){ clone.style.transform="none"; clone.style.width="100%"; clone.style.height="100%"; clone.style.border="none"; }
+ body.appendChild(clone);
+ ov.appendChild(bar); ov.appendChild(body);
+ document.body.appendChild(ov); document.body.style.overflow="hidden";
+ if(ov.requestFullscreen){ try{ ov.requestFullscreen(); }catch(e){} }
+}
+function closeDocFullscreen(){
+ var ov=document.getElementById("doc-fs-overlay"); if(ov) ov.remove();
+ document.body.style.overflow="";
+ if(document.fullscreenElement && document.exitFullscreen){ try{ document.exitFullscreen(); }catch(e){} }
+}
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeDocFullscreen(); });
+(function(){
+ function syncFsBtn(){ var dc=document.getElementById("doc-container"); var w=document.getElementById("doc-fs-wrap"); if(dc&&w){ w.style.display=dc.firstChild?"block":"none"; } }
+ var dc=document.getElementById("doc-container");
+ if(dc){ new MutationObserver(syncFsBtn).observe(dc,{childList:true}); }
+ setTimeout(syncFsBtn,300); setTimeout(syncFsBtn,1200);
+})();
+
+function goToAttestation(){
+  showStep('step-attest');
+  var nm=(document.getElementById('dsp-name')||{}).value||'';
+  var sg=document.getElementById('attest-signer'); if(sg) sg.textContent=nm||'your name';
+  var dt=document.getElementById('attest-date'); if(dt) dt.textContent=new Date().toLocaleDateString();
+  var cb=document.getElementById('attest-check'); if(cb) cb.checked=false;
+  window.scrollTo(0,0);
+}
+function confirmAttestation(){
+  var cb=document.getElementById('attest-check');
+  var al=document.getElementById('attest-alert');
+  if(!cb||!cb.checked){ if(al) al.innerHTML='<div class="alert alert-error">Please check the box to confirm before continuing.</div>'; return; }
+  if(al) al.innerHTML='';
+  window.__attestedAt=new Date().toISOString();
+  window.__attestationText='I certify that I watched the training video in full and was given the opportunity to ask '+((sessionData&&sessionData.individual_name!==sessionData.description)?'the nurse ':'')+'questions.';
+  goToQuiz();
+}
+</script>
+</body>
+</html>
