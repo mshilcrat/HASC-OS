@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HASC RM Compliance Portal</title>
+<style>
+  :root {
+    --hasc-teal: #3fc1c9; --hasc-teal-light: #3fc1c9; --hasc-teal-dark: #1a8c94;
+    --hasc-yellow: #F5C518; --hasc-blue: #0078d4;
+    --bg-page: #f0f2f5; --bg-card: #ffffff; --bg-soft: #f8f9fb;
+    --text-primary: #323130; --text-secondary: #605e5c; --text-muted: #a19f9d;
+    --border: #e1e1e1; --border-soft: #f3f2f1;
+    --shadow: 0 2px 8px rgba(0,0,0,.06); --shadow-hover: 0 4px 16px rgba(0,0,0,.1);
+    --green: #107c10; --green-bg: #dff6dd; --red: #d13438; --red-bg: #fde7e9;
+    --amber: #d97706; --amber-bg: #fef3c7; --purple: #5c2d91; --purple-bg: #e6e0f1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-page); color: var(--text-primary); font-size: 14px; min-height: 100vh; }
+  header { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .header-logo { display: block; height: 36px; }
+  .header-divider { height: 24px; width: 1px; background: var(--border); }
+  .header-title-block .header-title { font-size: 14px; font-weight: 700; line-height: 1.15; }
+  .header-title-block .header-sub { font-size: 10px; font-weight: 700; color: var(--hasc-teal); letter-spacing: .12em; text-transform: uppercase; margin-top: 1px; }
+  .nav-user { display: flex; align-items: center; gap: 10px; padding: 4px 12px 4px 4px; background: var(--bg-page); border-radius: 20px; }
+  .nav-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--amber); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .nu-name { font-size: 12px; font-weight: 600; }
+  .nu-role { font-size: 10px; color: var(--text-secondary); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 22px 18px 60px; }
+  .house-banner { background: linear-gradient(135deg, var(--hasc-teal), var(--hasc-teal-dark)); border-radius: 14px; padding: 20px 24px; color: #fff; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: var(--shadow); }
+  .house-banner h1 { font-size: 20px; font-weight: 700; }
+  .house-banner .house-meta { font-size: 12px; opacity: .9; margin-top: 3px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .house-date { background: rgba(255,255,255,.18); padding: 10px 16px; border-radius: 10px; text-align: center; }
+  .house-date .day { font-size: 22px; font-weight: 700; line-height: 1; }
+  .house-date .month { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; opacity: .9; margin-top: 2px; }
+  .progress-summary { background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 18px; box-shadow: var(--shadow); border: 1px solid var(--border-soft); display: flex; align-items: center; gap: 20px; }
+  .progress-ring-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+  .progress-ring-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; font-weight: 700; color: var(--hasc-teal); }
+  .progress-info { flex: 1; }
+  .progress-info .pi-title { font-size: 15px; font-weight: 700; }
+  .progress-info .pi-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .progress-bar-track { background: var(--bg-page); border-radius: 6px; height: 8px; margin-top: 8px; overflow: hidden; }
+  .progress-bar-fill { background: var(--hasc-teal); height: 100%; border-radius: 6px; transition: width .4s ease; }
+  .freq-tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+  .freq-tab { padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; background: #fff; border: 1px solid var(--border-soft); white-space: nowrap; transition: all .15s; display: flex; align-items: center; gap: 7px; }
+  .freq-tab:hover { border-color: var(--border); }
+  .freq-tab.active { background: var(--hasc-teal); color: #fff; border-color: var(--hasc-teal); }
+  .freq-tab .ft-count { background: rgba(0,0,0,.08); padding: 1px 7px; border-radius: 10px; font-size: 11px; }
+  .freq-tab.active .ft-count { background: rgba(255,255,255,.25); }
+  .checklist { display: none; }
+  .checklist.active { display: block; }
+  .section-group { margin-bottom: 16px; }
+  .section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; padding-left: 4px; }
+  .task-card { background: #fff; border: 1px solid var(--border-soft); border-radius: 10px; margin-bottom: 8px; overflow: hidden; transition: all .15s; }
+  .task-card:hover { box-shadow: var(--shadow); }
+  .task-row { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; cursor: pointer; }
+  .task-check { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 7px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s; margin-top: 1px; }
+  .task-card.checked .task-check { background: var(--hasc-teal); border-color: var(--hasc-teal); color: #fff; }
+  .task-check svg { width: 14px; height: 14px; opacity: 0; transition: opacity .15s; }
+  .task-card.checked .task-check svg { opacity: 1; }
+  .task-body { flex: 1; min-width: 0; }
+  .task-name { font-size: 14px; font-weight: 500; line-height: 1.4; }
+  .task-card.checked .task-name { color: var(--text-secondary); }
+  .task-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; align-items: center; }
+  .task-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; background: var(--bg-page); color: var(--text-secondary); }
+  .task-meta-done { font-size: 11px; color: var(--green); font-weight: 600; margin-top: 4px; display: none; }
+  .task-card.checked .task-meta-done { display: block; }
+  .signoff-card { background: #fff; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-soft); margin-top: 18px; overflow: hidden; }
+  .signoff-head { padding: 14px 20px; border-bottom: 1px solid var(--border-soft); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .signoff-body { padding: 18px 20px; }
+  .signoff-body label { font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px; }
+  .signoff-body textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical; min-height: 70px; margin-bottom: 16px; }
+  .signoff-body textarea:focus { outline: none; border-color: var(--hasc-teal); box-shadow: 0 0 0 2px rgba(63,193,201,.12); }
+  .cert-text { background: var(--bg-soft); border-left: 3px solid var(--hasc-teal); padding: 12px 16px; border-radius: 6px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; font-style: italic; }
+  .sign-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .sign-field { flex: 1; min-width: 200px; }
+  .sign-field .sig-line { border: 2px dashed var(--border); border-radius: 8px; padding: 14px; text-align: center; color: var(--text-muted); font-size: 13px; cursor: pointer; transition: all .15s; }
+  .sign-field .sig-line:hover { border-color: var(--hasc-teal); color: var(--hasc-teal); }
+  .sign-field.signed .sig-line { border-style: solid; border-color: var(--hasc-teal); background: rgba(63,193,201,.05); color: var(--hasc-teal); font-family: 'Segoe Script', cursive; font-size: 18px; font-weight: 600; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; transition: all .15s; }
+  .btn-primary { background: var(--hasc-teal); color: #fff; }
+  .btn-primary:hover { background: var(--hasc-teal-dark); }
+  .btn-primary:disabled { background: var(--border); cursor: not-allowed; color: var(--text-muted); }
+  .btn-block { width: 100%; margin-top: 8px; }
+  .home-select-bar { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .home-select-bar label { font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.06em; }
+  .home-select-bar select { padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-size:14px; font-family:inherit; background:#fff; min-width:240px; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--hasc-teal-dark); color: #fff; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow-hover); transition: transform .3s ease; z-index: 200; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .empty-note { background:#fff; border:1px solid var(--border-soft); border-radius:10px; padding:30px; text-align:center; color:var(--text-muted); }
+
+/* MOBILE-FIT */
+@media (max-width:640px){header{padding:10px 14px;}.header-title{font-size:15px;}.header-divider{display:none;}.nu-name{display:none;}.wrap{padding:16px 12px;}.home-select-bar{flex-direction:column;align-items:stretch;gap:6px;}.home-select-bar select{width:100%;font-size:16px;padding:12px;}.house-banner{flex-direction:column;align-items:flex-start;gap:10px;padding:16px;}.house-date{align-self:flex-end;}.freq-tabs{flex-wrap:wrap;overflow-x:visible;gap:8px;}.freq-tab{flex:1 1 auto;justify-content:center;font-size:14px;padding:10px 12px;}.task-row{padding:16px 14px;gap:14px;}.task-check{width:28px;height:28px;min-width:28px;}.task-name{font-size:16px;}.sign-row{flex-direction:column;gap:14px;}.btn-block{padding:16px;font-size:16px;}}
+</style>
+</head>
+<body>
+<header>
+<div class="header-left">
+      <img class="header-logo" src="hasc-logo.png" alt="HASC Center" />
+<div class="header-divider"></div>
+<div class="header-title-block">
+<div class="header-title">RM Checklists</div>
+</div>
+</div>
+<div class="nav-user">
+<div class="nav-avatar" id="nav-avatar">RM</div>
+<div><div class="nu-name" id="nav-name">Residence Manager</div></div>
+<button id="signoutBtn" onclick="rmSignOut()" style="margin-left:8px;background:#fff;border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;">Sign out</button>
+</div>
+</header>
+
+<div class="wrap">
+
+<div class="home-select-bar">
+<label for="home-sel">Doing check-off for</label>
+<select id="home-sel"></select>
+</div>
+
+<div class="house-banner">
+<div>
+<h1 id="house-name">—</h1>
+<div class="house-meta"><span id="house-rm">👤</span></div>
+</div>
+<div class="house-date">
+<div class="day" id="today-day">28</div>
+<div class="month" id="today-month">MAY</div>
+</div>
+</div>
+
+<div class="progress-summary">
+<div class="progress-ring-wrap">
+<svg width="64" height="64" viewBox="0 0 64 64">
+<circle cx="32" cy="32" r="27" fill="none" stroke="#f0f2f5" stroke-width="7"/>
+<circle id="progress-ring" cx="32" cy="32" r="27" fill="none" stroke="#3fc1c9" stroke-width="7" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="169.6" transform="rotate(-90 32 32)" style="transition: stroke-dashoffset .5s ease;"/>
+</svg>
+<div class="progress-ring-text" id="progress-pct">0%</div>
+</div>
+<div class="progress-info">
+<div class="pi-title">Today's Daily Checklist</div>
+<div class="pi-sub"><span id="done-count">0</span> of <span id="total-count">0</span> items complete · <span id="remaining-text">Let's get started</span></div>
+<div class="progress-bar-track"><div class="progress-bar-fill" id="progress-bar" style="width: 0%;"></div></div>
+</div>
+</div>
+
+<div class="freq-tabs">
+<div class="freq-tab active" onclick="switchFreq('daily', this)">📅 Daily <span class="ft-count" id="count-daily">0/0</span></div>
+<div class="freq-tab" onclick="switchFreq('weekly', this)">🗓️ Weekly <span class="ft-count" id="count-weekly">0/0</span></div>
+<div class="freq-tab" onclick="switchFreq('weekend', this)">🕯️ Weekend <span class="ft-count" id="count-weekend">0/0</span></div>
+<div class="freq-tab" onclick="switchFreq('monthly', this)">📆 Monthly <span class="ft-count" id="count-monthly">0/0</span></div>
+<div class="freq-tab" onclick="switchFreq('quarterly', this)">📊 Quarterly <span class="ft-count" id="count-quarterly">0/0</span></div>
+<div class="freq-tab" onclick="switchFreq('annual', this)">🗂️ Annual <span class="ft-count" id="count-annual">0/0</span></div>
+</div>
+
+<div class="checklist active" id="list-daily"></div>
+<div class="checklist" id="list-weekly"></div>
+<div class="checklist" id="list-weekend"></div>
+<div class="checklist" id="list-monthly"></div>
+<div class="checklist" id="list-quarterly"></div>
+<div class="checklist" id="list-annual"></div>
+
+<div class="signoff-card">
+<div class="signoff-head">✍️ Sign off this checklist</div>
+<div class="signoff-body">
+<label>Any comments?</label>
+<textarea id="comments" placeholder="Add any notes about today's checklist (optional)..."></textarea>
+<div class="cert-text">I certify that I have personally reviewed the information above and affirm that I have checked all items applicable to my residence. I understand that signing this document serves as my legal confirmation for compliance purposes.</div>
+<div class="sign-row">
+<div class="sign-field" id="sign-field">
+<div class="sig-line" id="sig-line" onclick="signNow()">✍️ Tap here to sign</div>
+</div>
+</div>
+<button class="btn btn-block" style="background:#eef7f7;color:#12706e;border:1px solid #bfe3e2;margin-bottom:10px;" onclick="rmPreviewPrint()">🖨️ Preview / Print blank checklist</button><button class="btn btn-primary btn-block" id="submit-btn" onclick="submitChecklist()" disabled>Submit signed checklist</button>
+</div>
+</div>
+
+</div>
+
+<div class="toast" id="toast">✓ Saved</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+  <script src="wb-flip.js"></script>
+<script>
+(async function(){
+  try{
+    var c = window.HASC_CONFIG || {};
+    var gsb = window.supabase.createClient(c.SUPABASE_URL, c.SUPABASE_ANON_KEY);
+    var r = await gsb.auth.getSession(); try{ window.__rmEmail=(r.data.session&&r.data.session.user&&r.data.session.user.email)||""; window.__rmRole=(sessionStorage.getItem("hasc_role")||""); }catch(e){}
+    if(!r || !r.data || !r.data.session){ location.replace("wb-login.html"); }
+  }catch(e){ location.replace("wb-login.html"); }
+})();
+</script>
+<script>
+var sb = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
+var FREQS = ['daily','weekly','weekend','monthly','quarterly','annual'];
+var FLABEL = { daily:'Daily', weekly:'Weekly', weekend:'Weekend', monthly:'Monthly', quarterly:'Quarterly', annual:'Annual' };
+
+var tasks = { daily:[], weekly:[], weekend:[], monthly:[], quarterly:[], annual:[] };
+var state = {};        // checked map per freq
+var taskIndex = {};    // taskId -> library uuid
+var currentHome = null;
+var homes = [];
+var isSigned = false;
+  var signerName='';
+
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(window._tt); window._tt=setTimeout(function(){t.classList.remove('show');},1600); }
+
+async function boot(){
+  // load homes
+  try{ var h = await sb.from('cl_homes').select('home_name,rm_email').order('home_name'); homes = (h.error||!h.data)?[]:h.data; if(window.__rmRole!=="admin"){ var __my=[]; try{ __my=JSON.parse(sessionStorage.getItem("hasc_homes")||"[]"); }catch(e){ __my=[]; } homes=(homes||[]).filter(function(x){ return x && x.home_name && __my.indexOf(x.home_name)!==-1; }); } }catch(e){ homes=[]; }
+  var sel = document.getElementById('home-sel');
+  sel.innerHTML = homes.map(function(x){ return '<option value="'+x.home_name.replace(/"/g,'&quot;')+'">'+x.home_name+'</option>'; }).join('');
+  sel.addEventListener('change', function(){ currentHome = sel.value; loadHome(); });
+  // date
+  var now = new Date();
+  document.getElementById('today-day').textContent = now.getDate();
+  document.getElementById('today-month').textContent = now.toLocaleDateString('en-US',{month:'short'}).toUpperCase();
+  if(homes.length){ currentHome = homes[0].home_name; await loadHome(); }
+}
+
+async function loadHome(){
+  // reset
+  tasks = { daily:[], weekly:[], weekend:[], monthly:[], quarterly:[], annual:[] };
+  state = {}; taskIndex = {}; isSigned = false;
+  document.getElementById('sign-field').classList.remove('signed');
+  document.getElementById('sig-line').textContent = '✍️ Tap here to sign';
+  document.getElementById('submit-btn').textContent = 'Submit signed checklist';
+
+  // banner
+  var hm = homes.filter(function(x){return x.home_name===currentHome;})[0] || {};
+  document.getElementById('house-name').textContent = currentHome || '—';
+  document.getElementById('house-rm').textContent = '👤 ' + (hm.rm_email || '');
+
+  // library tasks
+  var lib = [];
+  try{ var r = await sb.from('cl_library').select('id,frequency,section,task_name,sort_order').order('sort_order'); lib = (r.error||!r.data)?[]:r.data; }catch(e){ lib=[]; }
+  // this home's removed tasks
+  var off = {};
+  try{ var o = await sb.from('cl_home_off').select('task_id').eq('home_name', currentHome); if(!o.error&&o.data){ o.data.forEach(function(x){ off[x.task_id]=true; }); } }catch(e){}
+  // this home's checks already done today
+  var doneToday = {};
+  try{
+    var __today=(function(){var d=new Date();var p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);var o={};p.forEach(function(x){o[x.type]=x.value;});return o.year+'-'+o.month+'-'+o.day;})();
+    var dq = await sb.from('cl_done').select('task_id').eq('home_name', currentHome).eq('done_date', __today);
+    if(!dq.error&&dq.data){ dq.data.forEach(function(x){ doneToday[x.task_id]=true; }); }
+  }catch(e){}
+  window.__doneToday = doneToday;
+
+  // build tasks structure grouped by freq -> section, excluding removed
+  var byFreqSec = {};
+  lib.forEach(function(t){
+    if(off[t.id]) return;
+    var f = (t.frequency||'').toLowerCase();
+    if(FREQS.indexOf(f)<0) return;
+    var sec = t.section || 'General';
+    byFreqSec[f] = byFreqSec[f] || {};
+    byFreqSec[f][sec] = byFreqSec[f][sec] || [];
+    byFreqSec[f][sec].push({ id:t.id, name:t.task_name });
+  });
+  FREQS.forEach(function(f){
+    var secs = byFreqSec[f]||{};
+    tasks[f] = Object.keys(secs).map(function(s){ return { sec:s, items:secs[s] }; });
+  });
+
+  FREQS.forEach(buildList);
+  // re-activate currently selected tab (default daily)
+  var active = document.querySelector('.freq-tab.active');
+  updateProgress();
+}
+
+function buildList(freq){
+  var container = document.getElementById('list-'+freq);
+  container.innerHTML=''; state[freq]=state[freq]||{};
+  if(!tasks[freq] || !tasks[freq].length){ container.innerHTML='<div class="empty-note">No '+FLABEL[freq]+' tasks for this home.</div>'; updateCounts(freq); return; }
+  var idx=0;
+  tasks[freq].forEach(function(group){
+    var groupEl=document.createElement('div'); groupEl.className='section-group';
+    groupEl.innerHTML='<div class="section-title">'+group.sec+'</div>';
+    group.items.forEach(function(item){
+      var taskId=freq+'-'+idx; idx++; taskIndex[taskId]=item.id;
+      if(window.__doneToday && window.__doneToday[item.id]){ state[freq][taskId]=true; }
+      var card=document.createElement('div'); card.className='task-card'+((window.__doneToday&&window.__doneToday[item.id])?' checked':''); card.id=taskId;
+      card.innerHTML='<div class="task-row" onclick="toggleTask(\''+taskId+'\',\''+freq+'\')">'+
+        '<div class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
+        '<div class="task-body"><div class="task-name">'+item.name+'</div><div class="task-meta-done">✓ Completed just now</div></div></div>';
+      groupEl.appendChild(card);
+    });
+    container.appendChild(groupEl);
+  });
+  updateCounts(freq);
+}
+
+async function toggleTask(taskId,freq){
+  var card=document.getElementById(taskId); card.classList.toggle('checked');
+  var checked=card.classList.contains('checked');
+  state[freq][taskId]=checked;
+  updateCounts(freq); updateProgress();
+  var uuid=taskIndex[taskId];
+  var today=(function(){var d=new Date();var p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);var o={};p.forEach(function(x){o[x.type]=x.value;});return o.year+'-'+o.month+'-'+o.day;})();
+  if(!uuid){ toast(checked?'✓ Saved':'Unchecked'); return; }
+  try{
+    if(checked){
+      var res=await sb.from('cl_done').insert([{ home_name: currentHome, task_id: uuid, done_by: (signerName||window.__rmEmail||'RM'), done_date: today }]);
+      if(res.error) throw res.error;
+      toast('✓ Saved');
+    } else {
+      var del=await sb.from('cl_done').delete().eq('home_name', currentHome).eq('task_id', uuid).eq('done_date', today);
+      if(del.error) throw del.error;
+      toast('Unchecked');
+    }
+  }catch(e){
+    card.classList.toggle('checked'); state[freq][taskId]=card.classList.contains('checked');
+    updateCounts(freq); updateProgress();
+    toast('Could not save: '+(e.message||e));
+  }
+}
+
+function countItems(freq){
+  var total=0; (tasks[freq]||[]).forEach(function(g){ total+=g.items.length; });
+  var done=0; Object.keys(state[freq]||{}).forEach(function(k){ if(state[freq][k]) done++; });
+  return {total:total, done:done};
+}
+function updateCounts(freq){ var c=countItems(freq); var el=document.getElementById('count-'+freq); if(el) el.textContent=c.done+'/'+c.total; }
+
+function updateProgress(){
+  var activeFreq=document.querySelector('.checklist.active').id.replace('list-','');
+  var c=countItems(activeFreq); var pct=c.total?Math.round((c.done/c.total)*100):0;
+  document.getElementById('progress-pct').textContent=pct+'%';
+  document.getElementById('done-count').textContent=c.done;
+  document.getElementById('total-count').textContent=c.total;
+  document.getElementById('progress-bar').style.width=pct+'%';
+  var ring=document.getElementById('progress-ring'); var circ=169.6; ring.style.strokeDashoffset=circ-(circ*pct/100);
+  var rem=c.total-c.done;
+  document.getElementById('remaining-text').textContent= c.total===0?'No tasks':(rem===0?'🎉 All done!':rem+' remaining');
+  checkSubmitReady();
+}
+
+  function signNow(){
+    var typed=prompt('Type your full name to sign:');
+    if(!typed || !typed.trim()){ return; }
+    signerName=typed.trim();
+    isSigned=true; document.getElementById('sign-field').classList.add('signed');
+    document.getElementById('sig-line').textContent='Signed by '+signerName;
+    checkSubmitReady(); toast('✓ Signed');
+  }
+
+function checkSubmitReady(){
+  // submit enabled once signed and at least one task done overall
+  var anyDone=false; FREQS.forEach(function(f){ var c=countItems(f); if(c.done>0) anyDone=true; });
+  document.getElementById('submit-btn').disabled = !(isSigned && anyDone);
+}
+
+async function submitChecklist(){
+  var btn=document.getElementById('submit-btn');
+  // gather all checked library ids
+  var doneUuids=[];
+  FREQS.forEach(function(f){ Object.keys(state[f]||{}).forEach(function(tid){ if(state[f][tid] && taskIndex[tid]) doneUuids.push(taskIndex[tid]); }); });
+  if(!isSigned){ toast('Please sign first'); return; }
+  if(!doneUuids.length){ toast('Tick at least one task'); return; }
+  btn.disabled=true; btn.textContent='Submitting…';
+  var today=(function(){var d=new Date();var p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);var o={};p.forEach(function(x){o[x.type]=x.value;});return o.year+'-'+o.month+'-'+o.day;})();
+  var rows=doneUuids.map(function(id){ return { home_name: currentHome, task_id: id, done_by: (signerName||'RM'), done_date: today }; });
+  try{
+    var res=await sb.from('cl_done').insert(rows);
+    if(res.error) throw res.error;
+          try{ var totalCount=0; FREQS.forEach(function(f){ totalCount+=Object.keys(state[f]||{}).length; }); await sb.from('cl_submissions').insert([{ home_name: currentHome, submitted_by:(signerName||'RM'), frequency: (document.querySelector('.checklist.active')?document.querySelector('.checklist.active').id.replace('list-',''):'daily'), tasks_done: doneUuids.length, tasks_total: totalCount, comments: (document.getElementById('comments')?document.getElementById('comments').value:''), signature:(signerName||'RM'), tasks_json: rmBuildTasksJson() }]); }catch(subErr){ console.warn('submission log failed', subErr); }
+    btn.textContent='✓ Submitted'; toast('✓ Checklist submitted');
+  }catch(err){ btn.textContent='Submit signed checklist'; btn.disabled=false; toast('Could not submit: '+(err.message||err)); }
+}
+
+function switchFreq(freq, el){
+  document.querySelectorAll('.freq-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.checklist').forEach(function(c){c.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('list-'+freq).classList.add('active');
+  document.querySelector('.pi-title').textContent="Today's "+FLABEL[freq]+' Checklist';
+  updateProgress();
+}
+
+boot();
+</script>
+
+<script>
+// --- RM portal fixes: tasks_json builder, header name, sign out ---
+function rmBuildTasksJson(){
+  try{
+    var active = document.querySelector('.checklist.active');
+    var freq = active ? active.id.replace('list-','') : 'daily';
+    var items = [];
+    if(active){
+      active.querySelectorAll('.task-card').forEach(function(card){
+        var nm = card.querySelector('.task-name');
+        if(nm){ items.push({ name: nm.textContent.trim(), done: card.classList.contains('checked') }); }
+      });
+    }
+    return { frequency: freq, items: items };
+  }catch(e){ return null; }
+}
+function rmSignOut(){
+  try{
+    if(window.sb && sb.auth){ sb.auth.signOut().finally(function(){ location.href='wb-login.html'; }); }
+    else { location.href='wb-login.html'; }
+  }catch(e){ location.href='wb-login.html'; }
+}
+(async function rmSetHeaderName(){
+  try{
+    if(!window.sb || !sb.auth) return;
+    var s = await sb.auth.getSession();
+    var email = s && s.data && s.data.session ? s.data.session.user.email : null;
+    if(!email) return;
+    var nm = email.split('@')[0];
+    var prof = await sb.from('profiles').select('full_name').eq('email', email).maybeSingle();
+    if(prof && prof.data && prof.data.full_name) nm = prof.data.full_name;
+    var nameEl = document.getElementById('nav-name');
+    var avEl = document.getElementById('nav-avatar');
+    if(nameEl) nameEl.textContent = nm;
+    if(avEl){
+      var parts = nm.trim().split(/\s+/);
+      avEl.textContent = (parts[0][0]||'R') + (parts[1]?parts[1][0]:'');
+    }
+  }catch(e){}
+})();
+</script>
+
+<script>function rmPreviewPrint(){var F=['daily','weekly','weekend','monthly','quarterly','annual'];var a='daily';for(var i=0;i<F.length;i++){var el=document.getElementById('list-'+F[i]);if(el&&getComputedStyle(el).display!=='none'){a=F[i];break;}}var L=a.charAt(0).toUpperCase()+a.slice(1);var home=(document.querySelector('h1')&&document.querySelector('h1').textContent.trim())||'Residence';var list=document.getElementById('list-'+a);var groups=list.querySelectorAll('.section-group');var n=0,sh='';groups.forEach(function(g){var title=(g.querySelector('.section-title')||{}).textContent||'';var rows='';g.querySelectorAll('.task-card').forEach(function(c){var b=c.querySelector('.task-body');var lb=b?b.childNodes[0].textContent.trim():c.textContent.trim();lb=lb.replace(/\u2713 Completed.*/,'').trim();if(!lb)return;n++;rows+='<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #f0f2f5;"><span style="width:16px;height:16px;border:2px solid #12b5b0;border-radius:4px;flex:0 0 auto;margin-top:2px;"></span><span style="font-size:13px;color:#1f2d3d;line-height:1.35;">'+lb+'</span></div>';});sh+='<div style="margin-bottom:16px;break-inside:avoid;"><div style="background:#f4f8fa;border-left:3px solid #12b5b0;padding:6px 10px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#12706e;margin-bottom:6px;">'+title+'</div>'+rows+'</div>';});var d=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});var body='<div class="sheet" style="width:800px;flex:0 0 800px;margin:0 auto;background:#fff;padding:0 0 40px;font-family:Arial,Helvetica,sans-serif;"><div style="background:linear-gradient(90deg,#0b3b3a,#12b5b0);color:#fff;padding:22px 40px;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:20px;font-weight:800;">HASC Center <span style="font-weight:400;font-size:12px;opacity:.85;">Residential Management</span></div><div style="border:1px solid rgba(255,255,255,.5);border-radius:20px;padding:5px 16px;font-size:11px;letter-spacing:.08em;">BLANK CHECKLIST</div></div><div style="padding:26px 40px 10px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="color:#12b5b0;font-size:11px;font-weight:700;letter-spacing:.08em;">'+L.toUpperCase()+' COMPLIANCE CHECKLIST</div><div style="font-size:26px;font-weight:800;color:#12293f;margin:2px 0;">'+home+'</div><div style="font-size:12px;color:#6b7a8d;">'+L+' operational compliance verification</div></div><div style="text-align:right;"><div style="font-size:22px;font-weight:800;color:#12293f;">0 / '+n+'</div><div style="font-size:11px;color:#6b7a8d;">items</div><div style="font-size:12px;color:#6b7a8d;margin-top:6px;">'+d+'</div><div style="font-size:12px;color:#6b7a8d;">'+L+'</div></div></div><div style="height:1px;background:#e6ebf0;margin:8px 40px 20px;"></div><div style="padding:0 40px;column-count:2;column-gap:40px;">'+sh+'</div><div style="margin:40px 40px 0;padding-top:14px;border-top:1px solid #e6ebf0;display:flex;justify-content:space-between;align-items:flex-end;"><div><div style="font-size:22px;color:#12b5b0;">________________________</div><div style="font-size:10px;letter-spacing:.08em;color:#8a97a6;margin-top:4px;">SIGNATURE &middot; RESIDENCE MANAGER</div></div><div style="text-align:right;font-size:12px;color:#6b7a8d;">Date: ____________________</div></div></div>';var full='<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+home+' \u2013 '+L+' Checklist (Blank)</title><style>@page{size:8.5in 11in;margin:0;}@media print{body{margin:0;display:flex;justify-content:center;}*{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}}body{margin:0;background:#eef1f4;padding:20px 0;}</style></head><body onload="setTimeout(function(){window.print();},350)">'+body+'</body></html>';var url=URL.createObjectURL(new Blob([full],{type:'text/html'}));var w=window.open(url,'_blank');if(!w){location.href=url;}}</script></body>
+</html>
