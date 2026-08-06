@@ -306,11 +306,7 @@ var NOTIFICATIONS=[
   {type:"checklist",title:"2 checklists due today",subtitle:"Bedford Avenue - 3245",pc:"var(--green-ink)",pw:"var(--green-wash)",ic:"tasks"},
   {type:"training",title:"Training due this week",subtitle:"DSP core training",pc:"var(--gold-ink)",pw:"var(--gold-wash)",ic:"grad"}
 ];
-function loadNotifications(){
-  // MCP: replace with a Supabase read (e.g. count unread announcements + due items for this user/home),
-  // set NOTIFICATIONS = [...], then call renderNotifications().
-  renderNotifications();
-}
+function loadNotifications(){try{var home=(HOMES[HOME_IDX]&&HOMES[HOME_IDX].name)||"";if(!sb||!sb.from||!home){NOTIFICATIONS=[];renderNotifications();return;}sb.from("cl_submissions").select("home_name,frequency,tasks_done,tasks_total,submitted_at").eq("home_name",home).then(function(res){var rows=(res&&res.data)||[];var latest={};rows.forEach(function(s){var k=s.frequency;var cur=latest[k];if(!cur||new Date(s.submitted_at)>new Date(cur.submitted_at))latest[k]=s;});var list=[];Object.keys(latest).forEach(function(k){var r=latest[k];var d=r.tasks_done||0,tt=r.tasks_total||0;var o=Math.max(0,tt-d);if(o>0){list.push({type:"checklist",title:o+" task"+(o==1?"":"s")+" open ("+k+")",subtitle:r.home_name,pc:"var(--green-ink)",pw:"var(--green-wash)",ic:"tasks"});}});NOTIFICATIONS=list;renderNotifications();}).catch(function(){NOTIFICATIONS=[];renderNotifications();});}catch(e){NOTIFICATIONS=[];renderNotifications();}}
 function renderNotifications(){
   var pop=document.getElementById("bellPop"), cnt=document.getElementById("bellCnt");
   if(!pop)return;
@@ -337,11 +333,7 @@ var RAIL={
   glance:{tasks:"2", attention:"1", training:"1", events:"0"},
   progress:{done:3, total:5, pct:60, caption:"2 tasks left to finish today."}
 };
-function loadRail(){
-  // MCP: replace this body with a Supabase read that fills RAIL, then call refreshRail().
-  // Example shape:
-  // sb.from("daily_status").select("*").eq("home", HOMES[HOME_IDX].name).eq("date", today).single()
-  //   .then(function(res){ if(res.data){ RAIL.glance={...}; RAIL.progress={...}; refreshRail(); } });
+function loadRail(){try{var home=(HOMES[HOME_IDX]&&HOMES[HOME_IDX].name)||"";if(!sb||!sb.from||!home){RAIL.glance.training="";RAIL.glance.events="";refreshRail();return;}sb.from("cl_submissions").select("home_name,frequency,tasks_done,tasks_total,submitted_at").eq("home_name",home).then(function(res){var rows=(res&&res.data)||[];var latest={};rows.forEach(function(s){var k=s.frequency;var cur=latest[k];if(!cur||new Date(s.submitted_at)>new Date(cur.submitted_at))latest[k]=s;});var open=0,attn=0;Object.keys(latest).forEach(function(k){var r=latest[k];var d=r.tasks_done||0,tt=r.tasks_total||0;open+=Math.max(0,tt-d);if(tt>0&&d<tt)attn++;});RAIL.glance.tasks=open;RAIL.glance.attention=attn;RAIL.glance.training="";RAIL.glance.events="";refreshRail();}).catch(function(){RAIL.glance.training="";RAIL.glance.events="";refreshRail();});}catch(e){refreshRail();}} });
   refreshRail();
 }
 function refreshRail(){
