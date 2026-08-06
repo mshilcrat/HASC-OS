@@ -480,7 +480,7 @@ function renderApp(){
      +'<div class="bar"><div class="fill" id="progFill" style="width:'+RAIL.progress.pct+'%"></div></div>'
      +'<div class="cap" id="progCap">'+RAIL.progress.caption+'</div></div>'
    : '')
- +'<div class="panel"><div class="ph">'+ICONS.bell+' Recent activity<span class="link">View all</span></div><div class="act" id="actList">'+actrows+'</div></div>'
+ +'<div class="panel"><div class="ph">'+ICONS.bell+' Recent activity<span class="link" id="actViewAll">View all</span></div><div class="act" id="actList">'+actrows+'</div></div>'
  +'<div class="panel"><div class="ph">'+ICONS.bell+' Announcements</div>'
  +'<div id="annList"></div>'
  +(SESSION.role==="admin"?'<div class="annpost"><input id="annTitle" placeholder="Title (e.g. Staff meeting)"><textarea id="annBody" placeholder="Message\u2026" rows="2"></textarea><label class="annexp">Remove after<input id="annExp" type="date"></label><button id="annPost">Post announcement</button></div>':'')
