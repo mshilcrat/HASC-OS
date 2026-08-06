@@ -259,14 +259,14 @@ function saveAnnouncement(rec){
   ANNOUNCEMENTS.unshift(rec);           // browser-demo write
   renderAnnouncements();
 }
-function annActive(){var today=new Date().toISOString().slice(0,10);return ANNOUNCEMENTS.filter(function(a){return !a.expires||a.expires>=today;});}
+function annKey(a){return (a.title||'')+'|'+(a.body||'');}function annDismissedSet(){try{return JSON.parse(localStorage.getItem('hascAnnDismissed')||'[]');}catch(e){return [];}}function annIsDismissed(a){return annDismissedSet().indexOf(annKey(a))>-1;}function annDismiss(btn){var el=btn.closest('.ann');if(!el)return;var k=el.getAttribute('data-annkey');var s=annDismissedSet();if(s.indexOf(k)<0){s.push(k);localStorage.setItem('hascAnnDismissed',JSON.stringify(s));}renderAnnouncements();}function annActive(){var today=new Date().toISOString().slice(0,10);return ANNOUNCEMENTS.filter(function(a){return (!a.expires||a.expires>=today)&&!annIsDismissed(a);});}
 function renderAnnouncements(){
   var list=document.getElementById("annList"); if(!list)return;
   var active=annActive();
   if(!active.length){list.innerHTML='<div class="annempty">No announcements right now.</div>';return;}
   list.innerHTML=active.map(function(a){
     var exp=a.expires?'<div class="annwhen">Until '+new Date(a.expires+"T00:00").toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</div>':(a.when?'<div class="annwhen">'+a.when+'</div>':'');
-    return '<div class="ann"><div class="a1">'+ICONS.bell+' '+a.title+'</div><div class="a2">'+a.body+'</div>'+exp+'</div>';
+    return '<div class="ann" style="position:relative" data-annkey="'+annKey(a)+'"><span onclick="annDismiss(this)" title="Remove" style="position:absolute;top:6px;right:8px;cursor:pointer;color:#94a3b8;font-size:16px;line-height:1">×</span><div class="a1">'+ICONS.bell+' '+a.title+'</div><div class="a2">'+a.body+'</div>'+exp+'</div>';
   }).join("");
 }
 function wireAnnouncements(){
