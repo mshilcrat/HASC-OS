@@ -201,7 +201,7 @@ async function loadAll(){
     }
   }catch(__e){ console.warn("name load failed", __e); }
   const [homesR, profR, libR, subR, doneR] = await Promise.all([
-    SB.from("cl_homes").select("home_name,site,rm_email,ac_email"),
+        (function(){var _r=sessionStorage.getItem("hasc_role")||"";var _e=(sessionStorage.getItem("hasc_email")||"").toLowerCase();var _q=SB.from("cl_homes").select("home_name,site,rm_email,ac_email");if(_r==="area_coordinator")_q=_q.eq("ac_email",_e);else if(_r==="residence_manager")_q=_q.eq("rm_email",_e);return _q;})(),
     SB.from("profiles").select("email,full_name,role"),
     SB.from("cl_library").select("id,frequency,section,task_name,sort_order").order("sort_order"),
     SB.from("cl_submissions").select("*").order("submitted_at",{ascending:false}),
