@@ -236,7 +236,7 @@ function cap(e){var n=(e||"").split("@")[0].replace(/[._-]+/g," ");return n.char
 function greeting(){var h=new Date().getHours();return h<12?"Good morning":h<17?"Good afternoon":"Good evening";}
 function today(){return new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
 function clock(){return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
-function homeOptions(){var o="";for(var i=0;i<HOMES.length;i++){o+='<option value="'+i+'"'+(i===HOME_IDX?" selected":"")+'>'+HOMES[i].name+'</option>';}return o;}
+function homeOptions(){var o="";for(var i=0;i<HOMES.length;i++){if(window.MY_HOMES&&window.MY_HOMES.length&&window.MY_HOMES.map(function(x){return String(x).toLowerCase().replace(/\s+/g,'').replace(/[^a-z0-9]/g,'');}).indexOf(String(HOMES[i].name).toLowerCase().replace(/\s+/g,'').replace(/[^a-z0-9]/g,''))<0)continue;o+='<option value="'+i+'"'+(i===HOME_IDX?" selected":"")+'>'+HOMES[i].name+'</option>';}return o;}
 // Announcements. Browser-demo by default; MCP swaps loadAnnouncements()/saveAnnouncement()
 // for real Supabase reads/writes against the `announcements` table (see BUILD SPEC at top).
 var ANNOUNCEMENTS=[{title:"Staff meeting this week",body:"Team meeting Wednesday at 10:00 AM. Please confirm attendance.",when:"This week",expires:""}];
@@ -407,7 +407,7 @@ function loadActivity(){
    sb=window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL,window.HASC_CONFIG.SUPABASE_ANON_KEY);window.__hascClient=sb;
    sb.auth.getSession().then(function(res){var s=res&&res.data?res.data.session:null;
      if(!s){return;}var email=(s.user&&s.user.email||"").toLowerCase();
-     return sb.from("profiles").select("role").eq("id",s.user.id).single().then(function(p){
+     return sb.from("profiles").select("role,residences").eq("email",s.user.email).single().then(function(p){window.MY_HOMES=(p&&p.data&&p.data.residences)||null;
        SESSION={email:email,role:resolveRole(email,p&&p.data?p.data.role:"")};renderApp();
      }).catch(function(){SESSION={email:email,role:resolveRole(email,"")};renderApp();});
    }).catch(renderGate);return;
@@ -430,7 +430,7 @@ function renderGate(){
      sb.auth.signInWithPassword({email:email,password:pw}).then(function(res){
        if(res&&res.error){err.textContent=res.error.message||"Sign in failed.";go.disabled=false;go.textContent="Sign in";return;}
        var uid=res&&res.data&&res.data.user?res.data.user.id:null;
-       if(uid){sb.from("profiles").select("role").eq("id",uid).single().then(function(p){
+       if(uid){sb.from("profiles").select("role,residences").eq("email",email).single().then(function(p){window.MY_HOMES=(p&&p.data&&p.data.residences)||null;
           SESSION={email:email.toLowerCase(),role:resolveRole(email.toLowerCase(),p&&p.data?p.data.role:"")};renderApp();
         }).catch(function(){SESSION={email:email.toLowerCase(),role:resolveRole(email.toLowerCase(),"")};renderApp();});
        }else{SESSION={email:email.toLowerCase(),role:resolveRole(email.toLowerCase(),"")};renderApp();}
