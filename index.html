@@ -372,18 +372,7 @@ function renderActivityRows(rows){
       +'<div class="tx"><div class="t1">'+a.title+'</div><div class="t2">'+sub+'</div></div><div class="tm">'+tm+'</div></div>';
   }).join("");
 }
-function loadActivity(){
-  // Real read: when Supabase is connected, pull the newest events from `activity`.
-  if(sb&&sb.from){
-    sb.from("activity").select("type,title,subtitle,home,created_at").order("created_at",{ascending:false}).limit(8)
-      .then(function(res){
-        if(res&&!res.error&&res.data&&res.data.length){ renderActivityRows(res.data); }
-        else { renderActivityRows(ACT_SAMPLE); }   // table empty or not created yet
-      }).catch(function(){ renderActivityRows(ACT_SAMPLE); });
-  } else {
-    renderActivityRows(ACT_SAMPLE);   // standalone preview
-  }
-}
+function loadActivity(){try{var names=(window.MY_HOMES&&window.MY_HOMES.length)?window.MY_HOMES.slice():HOMES.map(function(h){return h.name;});if(!sb||!sb.from||!names.length){renderActivityRows([]);return;}var q=sb.from("cl_submissions").select("home_name,frequency,tasks_done,tasks_total,submitted_at").order("submitted_at",{ascending:false}).limit(8);q=q.in("home_name",names);q.then(function(res){if(res&&res.error){renderActivityRows([]);return;}var rows=(res&&res.data)||[];var out=rows.map(function(s){var f=(s.frequency||"").toString();var fl=f?f.charAt(0).toUpperCase()+f.slice(1):"Checklist";var d=s.tasks_done||0,tt=s.tasks_total||0;var done=(tt>0&&d>=tt);var title=done?(fl+" checklist completed"):(fl+" checklist updated ("+d+"/"+tt+")");return{type:"checklist",title:title,subtitle:s.home_name,home:s.home_name,created_at:s.submitted_at};});renderActivityRows(out);}).catch(function(){renderActivityRows([]);});}catch(e){renderActivityRows([]);}}
 (function start(){
  if(window.supabase&&window.HASC_CONFIG){try{
    sb=window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL,window.HASC_CONFIG.SUPABASE_ANON_KEY);window.__hascClient=sb;
