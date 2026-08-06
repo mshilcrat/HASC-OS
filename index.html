@@ -333,9 +333,7 @@ var RAIL={
   glance:{tasks:"2", attention:"1", training:"1", events:"0"},
   progress:{done:3, total:5, pct:60, caption:"2 tasks left to finish today."}
 };
-function loadRail(){try{var home=(HOMES[HOME_IDX]&&HOMES[HOME_IDX].name)||"";if(!sb||!sb.from||!home){RAIL.glance.training="";RAIL.glance.events="";refreshRail();return;}sb.from("cl_submissions").select("home_name,frequency,tasks_done,tasks_total,submitted_at").eq("home_name",home).then(function(res){var rows=(res&&res.data)||[];var latest={};rows.forEach(function(s){var k=s.frequency;var cur=latest[k];if(!cur||new Date(s.submitted_at)>new Date(cur.submitted_at))latest[k]=s;});var open=0,attn=0;Object.keys(latest).forEach(function(k){var r=latest[k];var d=r.tasks_done||0,tt=r.tasks_total||0;open+=Math.max(0,tt-d);if(tt>0&&d<tt)attn++;});RAIL.glance.tasks=open;RAIL.glance.attention=attn;RAIL.glance.training="";RAIL.glance.events="";refreshRail();}).catch(function(){RAIL.glance.training="";RAIL.glance.events="";refreshRail();});}catch(e){refreshRail();}} });
-  refreshRail();
-}
+function loadRail(){try{var home=(HOMES[HOME_IDX]&&HOMES[HOME_IDX].name)||"";if(!sb||!sb.from||!home){RAIL.glance.training="";RAIL.glance.events="";refreshRail();return;}sb.from("cl_submissions").select("home_name,frequency,tasks_done,tasks_total,submitted_at").eq("home_name",home).then(function(res){var rows=(res&&res.data)||[];var latest={};rows.forEach(function(s){var k=s.frequency;var cur=latest[k];if(!cur||new Date(s.submitted_at)>new Date(cur.submitted_at))latest[k]=s;});var open=0,attn=0;Object.keys(latest).forEach(function(k){var r=latest[k];var d=r.tasks_done||0,tt=r.tasks_total||0;open+=Math.max(0,tt-d);if(tt>0&&d<tt)attn++;});RAIL.glance.tasks=open;RAIL.glance.attention=attn;RAIL.glance.training="";RAIL.glance.events="";refreshRail();}).catch(function(){RAIL.glance.training="";RAIL.glance.events="";refreshRail();});}catch(e){refreshRail();}}
 function refreshRail(){
   // glance numbers
   var g=document.querySelectorAll("#glanceGrid .gn");
