@@ -302,10 +302,7 @@ var SESSION=null,sb=null;
 
 // Top-bar notifications. Wire-ready: MCP fills NOTIFICATIONS from Supabase (unread announcements,
 // flagged items, tasks due) via loadNotifications(); count + dropdown update automatically.
-var NOTIFICATIONS=[
-  {type:"checklist",title:"2 checklists due today",subtitle:"Bedford Avenue - 3245",pc:"var(--green-ink)",pw:"var(--green-wash)",ic:"tasks"},
-  {type:"training",title:"Training due this week",subtitle:"DSP core training",pc:"var(--gold-ink)",pw:"var(--gold-wash)",ic:"grad"}
-];
+var NOTIFICATIONS=[];
 function loadNotifications(){try{var home=(HOMES[HOME_IDX]&&HOMES[HOME_IDX].name)||"";if(!sb||!sb.from||!home){NOTIFICATIONS=[];renderNotifications();return;}sb.from("cl_submissions").select("home_name,frequency,tasks_done,tasks_total,submitted_at").eq("home_name",home).then(function(res){var rows=(res&&res.data)||[];var latest={};rows.forEach(function(s){var k=s.frequency;var cur=latest[k];if(!cur||new Date(s.submitted_at)>new Date(cur.submitted_at))latest[k]=s;});var list=[];Object.keys(latest).forEach(function(k){var r=latest[k];var d=r.tasks_done||0,tt=r.tasks_total||0;var o=Math.max(0,tt-d);if(o>0){list.push({type:"checklist",title:o+" task"+(o==1?"":"s")+" open ("+k+")",subtitle:r.home_name,pc:"var(--green-ink)",pw:"var(--green-wash)",ic:"tasks"});}});NOTIFICATIONS=list;renderNotifications();}).catch(function(){NOTIFICATIONS=[];renderNotifications();});}catch(e){NOTIFICATIONS=[];renderNotifications();}}
 function renderNotifications(){
   var pop=document.getElementById("bellPop"), cnt=document.getElementById("bellCnt");
@@ -355,12 +352,7 @@ var ACT_TYPES={
   ledger:{ac:"var(--blue-ink)",aw:"var(--blue-wash)",ic:"ledger"},
   ot:{ac:"var(--coral-ink)",aw:"var(--coral-wash)",ic:"chart"}
 };
-var ACT_SAMPLE=[
-  {type:"checklist",title:"Morning checklist completed",subtitle:"__HOME__",created_at:null,when:"8:15 AM"},
-  {type:"training",title:"Medication training due",subtitle:"DSP core training",created_at:null,when:"Yesterday"},
-  {type:"incident",title:"Incident report submitted",subtitle:"Awaiting review",created_at:null,when:"Yesterday"},
-  {type:"checklist",title:"Evening checklist completed",subtitle:"__HOME__",created_at:null,when:"Yesterday"}
-];
+var ACT_SAMPLE=[];
 function actRelTime(ts){
   if(!ts) return "";
   var d=new Date(ts), now=new Date(), diff=(now-d)/1000;
