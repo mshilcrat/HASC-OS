@@ -43,7 +43,7 @@ button:hover{background:#1a8c94}button:disabled{background:#a19f9d;cursor:not-al
 <script>
 var c = window.HASC_CONFIG || {};
 var sb = window.supabase.createClient(c.SUPABASE_URL, c.SUPABASE_ANON_KEY);
-function routeFor(role){ return (role==="residence_manager") ? "wb-checkoff.html" : "wb-today.html"; }
+function routeFor(role){ return (role==="residence_manager") ? "index.html" : "index.html"; }
 // On the login page, always start from a clean slate: sign out any
 // leftover session so a new login can never inherit a previous user.
 (async function(){
