@@ -201,7 +201,7 @@ async function loadAll(){
     SB.from("cl_homes").select("home_name,site,rm_email,ac_email"),
     SB.from("profiles").select("email,full_name,role"),
     SB.from("cl_library").select("id,frequency,section,task_name,sort_order").order("sort_order"),
-    SB.from("cl_submissions").select("*").order("submitted_at",{ascending:false}),
+    (window.AC_ALLOWED?SB.from("cl_submissions").select("*").in("home_name",window.AC_ALLOWED).order("submitted_at",{ascending:false}):SB.from("cl_submissions").select("*").order("submitted_at",{ascending:false})),
     SB.from("cl_done").select("home_name,task_id")
   ]);
   try{
@@ -284,7 +284,7 @@ function renderInsights(){
 let DOCS=[];
 async function loadDocsAll(){
   if(DOCS.length) return DOCS;
-  const { data } = await SB.from("cl_submissions").select("*").order("submitted_at",{ascending:false});
+  const { data } = await (window.AC_ALLOWED?SB.from("cl_submissions").select("*").in("home_name",window.AC_ALLOWED).order("submitted_at",{ascending:false}):SB.from("cl_submissions").select("*").order("submitted_at",{ascending:false}));
   DOCS = data||[];
   return DOCS;
 }
