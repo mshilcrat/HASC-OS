@@ -658,6 +658,7 @@ function navIcon(n,c){
         <div class="wxmeta" id="wxDate">—</div>
       </div>
       <div class="herobody">
+      <div class="deptrow" id="deptRow" style="display:none;justify-content:flex-end;margin-bottom:10px"><select id="deptpick" style="font:600 12.5px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#333;background:#fff;border:1px solid #d9d9d9;border-radius:9px;padding:6px 8px;min-width:190px;max-width:220px"><option>Residential Department</option><option>Day Hab</option><option>Training Department</option><option>HR</option><option>FI</option></select></div>
         <span class="ey">${ic('cal')} This week</span>
         <h2>Women’s Program — Day Hab</h2>
         <span class="chip">Week of Jul 28 – Aug 1, 2026</span>
@@ -873,5 +874,16 @@ function navIcon(n,c){
   });
 })();
 </script>
+  <script>
+  (function(){
+    var OWNER_EMAIL="mshilcrat@hasccenter.org";
+    var DEPT_URLS={"Residential Department":"/index.html","Day Hab":"/Day Hab/index.html","Training Department":"","HR":"","FI":""};
+    function ownerEmail(){try{var k=Object.keys(localStorage).find(function(x){return /sb-.*-auth-token/.test(x);});if(!k)return null;var v=JSON.parse(localStorage.getItem(k));return (v&&v.user&&v.user.email)||null;}catch(e){return null;}}
+    function apply(){var row=document.getElementById("deptRow"),sel=document.getElementById("deptpick");if(!row||!sel)return false;row.style.display=(ownerEmail()===OWNER_EMAIL)?"flex":"none";if(sel.value!=="Day Hab")sel.value="Day Hab";return true;}
+    document.addEventListener("change",function(e){if(e.target&&e.target.id==="deptpick"){var d=e.target.value;if(d==="Day Hab")return;var u=DEPT_URLS[d];if(u){window.location.href=u;}else{e.target.value="Day Hab";}}});
+    var tries=0,t=setInterval(function(){tries++;if(apply()||tries>40)clearInterval(t);},150);
+    if(document.readyState!=="loading")apply();else document.addEventListener("DOMContentLoaded",apply);
+  })();
+  </script>
 </body>
 </html>
