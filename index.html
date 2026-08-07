@@ -92,6 +92,8 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .res .reshead{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:12px}
 .res .reshead h2{margin:0}
 .homepick{font:600 12.5px var(--ui);color:var(--ink2);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:6px 8px;max-width:150px}
+.deptrow{display:flex;justify-content:flex-end;margin-bottom:10px}
+.deptpick{min-width:190px;max-width:220px}
 .resmeta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:10px}
 .resmeta span{font-size:13px;color:var(--ink2)}.resmeta b{color:var(--muted);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-right:5px}
 .resaddr{font-size:12.5px;color:var(--muted);margin:0 0 16px;line-height:1.5}
@@ -459,6 +461,7 @@ function renderApp(){
  +'<div class="main">'
  // residence card (real HASC homes)
  +'<div class="res"><div class="wx" id="wx"><div class="wxtop">'+ICONS.wx+' Local weather</div><div class="wxloading">Loading\u2026</div></div><div class="body"><div class="ey">'+ICONS.home+' My residence</div>'
+ +'<div class="deptrow"><select id="deptpick" class="homepick deptpick">'+'<option>Residential Department</option>'+'<option>Day Hab</option>'+'<option>Training Department</option>'+'<option>HR</option>'+'<option>FI</option>'+'</select></div>'
  +'<div class="reshead"><h2>'+HOMES[HOME_IDX].name+'</h2>'
  +'<select id="homepick" class="homepick">'+homeOptions()+'</select></div>'
  +'<div class="resmeta"><span><b>RM</b> '+HOMES[HOME_IDX].rm+'</span><span><b>Coordinator</b> '+HOMES[HOME_IDX].ac+'</span></div>'
@@ -508,4 +511,52 @@ function renderApp(){
  [].forEach.call(document.querySelectorAll("[data-url]"),function(el){el.addEventListener("click",function(){var u=el.getAttribute("data-url");if(u)window.location.href=u;});});
  document.getElementById("out").addEventListener("click",function(){SESSION=null;if(sb&&sb.auth&&sb.auth.signOut){sb.auth.signOut().then(renderGate).catch(renderGate);}else renderGate();});
 }
-</script></body></html>
+</script><script>
+/* Department switcher — gated to a single profile. Only "Residential Department" is active; other slots are inert placeholders for now. */
+(function(){
+  var OWNER_EMAIL = "mshilcrat@hasccenter.org";
+  var DEPT_URLS = {
+    "Residential Department": "/index.html",
+    "Day Hab": "",
+    "Training Department": "",
+    "HR": "",
+    "FI": ""
+  };
+  function getEmail(){
+    try {
+      var c = window.__hascClient;
+      if (!c) return Promise.resolve(null);
+      return c.auth.getSession().then(function(res){
+        return (res && res.data && res.data.session && res.data.session.user) ? res.data.session.user.email : null;
+      }).catch(function(){ return null; });
+    } catch(e){ return Promise.resolve(null); }
+  }
+  function wire(){
+    var sel = document.getElementById("deptpick");
+    if (!sel) return;
+    var row = sel.closest(".deptrow");
+    getEmail().then(function(email){
+      if (!email || email.toLowerCase() !== OWNER_EMAIL.toLowerCase()){
+        if (row) row.style.display = "none";
+        return;
+      }
+      if (row) row.style.display = "flex";
+      sel.value = "Residential Department";
+      sel.addEventListener("change", function(){
+        var dept = sel.value;
+        var url = DEPT_URLS[dept];
+        if (dept === "Residential Department") return;
+        if (url){ window.location.href = url; }
+        else { sel.value = "Residential Department"; }
+      });
+    });
+  }
+  var tries = 0;
+  var iv = setInterval(function(){
+    tries++;
+    if (document.getElementById("deptpick")){ clearInterval(iv); wire(); }
+    else if (tries > 40){ clearInterval(iv); }
+  }, 150);
+})();
+</script>
+</body></html>
