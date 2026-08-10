@@ -6,13 +6,19 @@
     var session = res && res.data ? res.data.session : null;
     if(!session){ location.replace("/wb-login.html"); return; }
     var uid = session.user.id;
-    var _p=location.pathname; if(_p==="/"||/\/(index\.html)?$/.test(_p)){ return; }
-    return sb.from("profiles").select("role,residences").eq("email", session.user.email).single().then(function(p){
+    var p=location.pathname; if(p==="/"||/\/(index\.html)?$/.test(p)){ return; }
+    return sb.from("profiles").select("role,residences,department").eq("email", session.user.email).single().then(function(p){
       var row = p && p.data ? p.data : {};
       var role = row.role || "";
+      var department = row.department || "";
       sessionStorage.setItem("hasc_role", role); var acEmail=((session&&session.user&&session.user.email)||"").toLowerCase(); sessionStorage.setItem("hasc_email", acEmail); var AC_EMAILS=["arosenzweig@hasccenter.org","ssinger@hasccenter.org","llebovits@hasccenter.org","slieber@hasccenter.org"]; var isAC=(role==="area_coordinator")||(AC_EMAILS.indexOf(acEmail)>=0);
       sessionStorage.setItem("hasc_homes", JSON.stringify(row.residences || []));
+      sessionStorage.setItem("hasc_department", department);
       var path = location.pathname;
+      if(department === "Day Hab"){
+        if(path.indexOf("/Day Hab/") === -1){ location.replace("/Day Hab/index.html"); }
+        return;
+      }
       var adminPages = ["wb-hub-mark2.html","wb-today-mark2.html","wb-insights-mark2.html","wb-documents-mark2.html","wb-checklists-mark2.html","wb-inbox-mark2.html"];
       if(role === "admin"){
         var allowed = adminPages.some(function(pg){ return path.indexOf(pg) !== -1; });
