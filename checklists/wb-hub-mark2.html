@@ -447,7 +447,7 @@ function renderChecklists(){
   return h;
 }
 function render(){
-  const area=areas.find(a=>a.id===state.tab); pageLabel.textContent=area?area.title:"RM Compliance"; backBtn.disabled=history.length===0; homeBtn.disabled=state.tab==="home";
+  const area=areas.find(a=>a.id===state.tab); pageLabel.textContent=area?area.title:"RM Compliance"; backBtn.disabled=history.length===0; homeBtn.disabled = false;
   let html="";
   if(state.tab==="home") html=renderHome();
   else if(state.tab==="today") html=renderToday();
