@@ -29,3 +29,37 @@
     });
   }).catch(function(){ location.replace("/wb-login.html"); });
 })();
+
+
+/* Identity paint: show the logged-in user's name + role from their profile */
+(function(){
+  var want=null;
+  function tc(x){return String(x||'').replace(/_/g,' ').replace(/\b\w/g,function(m){return m.toUpperCase();});}
+  function setTxt(id,val){var el=document.getElementById(id);if(el&&val&&el.textContent!==val){el.textContent=val;}}
+  function paint(){
+    if(!want)return;
+    var hm=document.querySelector('.hmeta');
+    if(hm){var html='<b>'+tc(want.role)+'</b> '+want.name;if(hm.innerHTML!==html){hm.innerHTML=html;}}
+    setTxt('meName',want.name);setTxt('meRole',tc(want.role));setTxt('helloName',want.first);
+  }
+  function getClient(){
+    if(window.__hascClient)return window.__hascClient;
+    if(window.supabase&&window.supabase.createClient&&window.HASC_CONFIG){
+      try{return window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL||'https://xqcykvgsesavtuautivq.supabase.co', window.HASC_CONFIG.SUPABASE_ANON_KEY||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxY3lrdmdzZXNhdnR1YXV0aXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc1ODUsImV4cCI6MjA5MTkxMzU4NX0.A6FkxttGZMGaPxqr1orOWlpoO_zZSeqbp5W3L7s6U5w');}catch(e){}
+    }
+    return null;
+  }
+  async function resolve(){
+    try{
+      var c=getClient(); if(!c||!c.auth)return;
+      var ses=await c.auth.getSession();var sn=ses&&ses.data&&ses.data.session;
+      if(!sn||!sn.user||!sn.user.email)return;
+      var r=await c.from('profiles').select('full_name,role').eq('email',sn.user.email).limit(1);
+      if(r.error)return;var row=r.data&&r.data[0];if(!row)return;
+      var nm=row.full_name||sn.user.email;var first=String(nm).trim().split(/\s+/)[0];
+      want={name:nm,role:row.role||'',first:first};paint();
+    }catch(e){}
+  }
+  var t=0,waitLib=setInterval(function(){t++;if(getClient()){clearInterval(waitLib);resolve();}else if(t>40){clearInterval(waitLib);}},250);
+  var n=0,iv=setInterval(function(){n++;paint();if(n>40||(want&&n>8&&document.getElementById('meName')&&document.getElementById('meName').textContent===want.name)){clearInterval(iv);}},500);
+})();
