@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>(function(){try{var _s=window.supabase;if(_s&&_s.createClient){var _o=_s.createClient.bind(_s);_s.createClient=function(){var c=_o.apply(null,arguments);try{window.__hascClient=c;}catch(e){}return c;};}}catch(e){}})();</script>
 <script src="wb-config.js"></script>
 <script src="wb-guard.js"></script>
 <html lang="en">
@@ -887,5 +886,5 @@ function navIcon(n,c){
   })();
   </script>
 
-<script>(function(){function apply(name,role){try{var el=document.querySelector('.hmeta');if(el){el.innerHTML='<b>'+role+'</b> '+name;}}catch(e){}}async function run(){try{var c=window.__hascClient;if(!c||!c.auth)return;var s=await c.auth.getSession();var sess=s&&s.data&&s.data.session;if(!sess||!sess.user||!sess.user.email)return;var email=sess.user.email;var r=await c.from('profiles').select('full_name,role').eq('email',email).limit(1);var row=r&&r.data&&r.data[0];if(!row)return;var name=row.full_name||email;var role=row.role||'';if(role){role=role.replace(/_/g,' ').replace(/\b\w/g,function(m){return m.toUpperCase();});}apply(name,role);}catch(e){}}if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(run,400);}else{window.addEventListener('DOMContentLoaded',function(){setTimeout(run,400);});}})();</script></body>
+<script>(function(){var SUPA_URL=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_URL)||'https://xqcykvgsesavtuautivq.supabase.co';var SUPA_KEY=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_ANON_KEY)||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxY3lrdmdzZXNhdnR1YXV0aXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc1ODUsImV4cCI6MjA5MTkxMzU4NX0.A6FkxttGZMGaPxqr1orOWlpoO_zZSeqbp5W3L7s6U5w';function titleCase(s){return String(s||'').replace(/_/g,' ').replace(/\b\w/g,function(m){return m.toUpperCase();});}function paint(name,role){try{var el=document.querySelector('.hmeta');if(el){el.innerHTML='<b>'+titleCase(role)+'</b> '+name;}}catch(e){}}async function run(){try{if(!window.supabase||!window.supabase.createClient)return;var c=window.supabase.createClient(SUPA_URL,SUPA_KEY);var s=await c.auth.getSession();var sess=s&&s.data&&s.data.session;if(!sess||!sess.user||!sess.user.email)return;var email=sess.user.email;var r=await c.from('profiles').select('full_name,role').eq('email',email).limit(1);if(r.error)return;var row=r.data&&r.data[0];if(!row)return;paint(row.full_name||email,row.role||'');}catch(e){}}function start(){setTimeout(run,300);}if(document.readyState==='loading'){window.addEventListener('DOMContentLoaded',start);}else{start();}})();</script></body>
 </html>
