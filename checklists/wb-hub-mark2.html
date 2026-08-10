@@ -501,5 +501,23 @@ document.addEventListener("change", async function(e){
 });
 (async function boot(){ try { await loadAll(); await loadDocsAll(); render(); } catch(err){ view.innerHTML='<div class="loading">Could not load data: '+esc(err.message||err)+'</div>'; console.error(err); } })();
 </script>
+
+<script>
+/* Home button -> Residential landing page */
+(function(){
+  function wireHome(){
+    var h=document.getElementById('homeBtn');
+    if(h && !h.__homeWired){
+      h.__homeWired=true;
+      h.addEventListener('click',function(ev){
+        ev.preventDefault(); ev.stopImmediatePropagation(); ev.stopPropagation();
+        location.href='/index.html';
+      },true);
+    }
+  }
+  var n=0,iv=setInterval(function(){n++;wireHome();if(n>40)clearInterval(iv);},300);
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',wireHome);}else{wireHome();}
+})();
+</script>
 </body>
 </html>
