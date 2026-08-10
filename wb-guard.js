@@ -42,6 +42,10 @@ if(location.pathname==="/"||/\/(index\.html)?$/.test(location.pathname)){ return
     var hm=document.querySelector('.hmeta');
     if(hm){var html='<b>'+tc(want.role)+'</b> '+want.name;if(hm.innerHTML!==html){hm.innerHTML=html;}}
     setTxt('meName',want.name);setTxt('meRole',tc(want.role));setTxt('helloName',want.first);
+var nmEls=document.querySelectorAll('.nm');for(var i=0;i<nmEls.length;i++){if(nmEls[i].children.length===0&&nmEls[i].textContent!==want.name){nmEls[i].textContent=want.name;}}
+var rlEls=document.querySelectorAll('.rl');for(var j=0;j<rlEls.length;j++){var rv=tc(want.role);if(rlEls[j].children.length===0&&rlEls[j].textContent!==rv){rlEls[j].textContent=rv;}}
+var awEl=document.getElementById('acWelcome');if(awEl&&awEl.children.length===0){var awt=awEl.textContent||'';if(/Welcome back|Good (?:morning|afternoon|evening)/i.test(awt)){var nw=awt.replace(/(Welcome back,\s*)[^!.]*/i,'$1'+want.first).replace(/(Good (?:morning|afternoon|evening),\s*)[^!.]*/i,'$1'+want.first);if(awEl.textContent!==nw)awEl.textContent=nw;}}
+var gEls=document.querySelectorAll('h1,h2');for(var k=0;k<gEls.length;k++){var gt=gEls[k].textContent||'';var gm=gt.match(/^(Good (?:morning|afternoon|evening),\s*)/i);if(gm){var nmc=gEls[k].querySelector('.nm');if(nmc&&nmc.textContent!==want.first){nmc.textContent=want.first;}}}
   }
   function getClient(){
     if(window.__hascClient)return window.__hascClient;
