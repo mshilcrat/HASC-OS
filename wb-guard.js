@@ -44,8 +44,10 @@
   }
   function getClient(){
     if(window.__hascClient)return window.__hascClient;
-    if(window.supabase&&window.supabase.createClient&&window.HASC_CONFIG){
-      try{return window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL||'https://xqcykvgsesavtuautivq.supabase.co', window.HASC_CONFIG.SUPABASE_ANON_KEY||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxY3lrdmdzZXNhdnR1YXV0aXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc1ODUsImV4cCI6MjA5MTkxMzU4NX0.A6FkxttGZMGaPxqr1orOWlpoO_zZSeqbp5W3L7s6U5w');}catch(e){}
+    if(window.supabase&&window.supabase.createClient){
+      var u=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_URL)||'https://xqcykvgsesavtuautivq.supabase.co';
+      var k=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_ANON_KEY)||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxY3lrdmdzZXNhdnR1YXV0aXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc1ODUsImV4cCI6MjA5MTkxMzU4NX0.A6FkxttGZMGaPxqr1orOWlpoO_zZSeqbp5W3L7s6U5w';
+      try{return window.supabase.createClient(u,k);}catch(e){}
     }
     return null;
   }
