@@ -105,3 +105,4 @@ var gEls=document.querySelectorAll('h1,h2');for(var k=0;k<gEls.length;k++){var g
   var n=0,iv=setInterval(function(){n++;wire();if(n>40)clearInterval(iv);},400);
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',wire);}else{wire();}
 })();
+
