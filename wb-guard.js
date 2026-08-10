@@ -65,3 +65,37 @@
   var t=0,waitLib=setInterval(function(){t++;if(getClient()){clearInterval(waitLib);resolve();}else if(t>40){clearInterval(waitLib);}},250);
   var n=0,iv=setInterval(function(){n++;paint();if(n>40||(want&&n>8&&document.getElementById('meName')&&document.getElementById('meName').textContent===want.name)){clearInterval(iv);}},500);
 })();
+
+
+/* Wire the Sign out button to actually sign out and return to login */
+(function(){
+  function findBtn(){
+    var b=document.querySelector('button[aria-label="Sign out"]');
+    if(b)return b;
+    var all=document.querySelectorAll('a,button');
+    for(var i=0;i<all.length;i++){var t=(all[i].textContent||'').toLowerCase();if(/sign\s*out|log\s*out/.test(t))return all[i];}
+    return null;
+  }
+  function getClient(){
+    if(window.__hascClient)return window.__hascClient;
+    if(window.supabase&&window.supabase.createClient){
+      var u=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_URL)||'https://xqcykvgsesavtuautivq.supabase.co';
+      var k=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_ANON_KEY)||'';
+      if(k){try{return window.supabase.createClient(u,k);}catch(e){}}
+    }
+    return null;
+  }
+  async function doSignOut(ev){
+    if(ev){ev.preventDefault();ev.stopImmediatePropagation();ev.stopPropagation();}
+    try{var c=getClient();if(c&&c.auth&&c.auth.signOut){await c.auth.signOut();}}catch(e){}
+    try{sessionStorage.clear();}catch(e){}
+    try{Object.keys(localStorage).forEach(function(k){if(/^sb-.*-auth-token$/.test(k))localStorage.removeItem(k);});}catch(e){}
+    location.replace('/wb-login.html');
+  }
+  function wire(){
+    var b=findBtn();
+    if(b&&!b.__signWired){b.__signWired=true;b.addEventListener('click',doSignOut,true);}
+  }
+  var n=0,iv=setInterval(function(){n++;wire();if(n>40)clearInterval(iv);},400);
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',wire);}else{wire();}
+})();
