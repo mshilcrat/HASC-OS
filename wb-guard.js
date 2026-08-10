@@ -45,6 +45,7 @@ if(location.pathname==="/"||/\/(index\.html)?$/.test(location.pathname)){ return
 var nmEls=document.querySelectorAll('.nm');for(var i=0;i<nmEls.length;i++){if(nmEls[i].children.length===0&&nmEls[i].textContent!==want.name){nmEls[i].textContent=want.name;}}
 var rlEls=document.querySelectorAll('.rl');for(var j=0;j<rlEls.length;j++){var rv=tc(want.role);if(rlEls[j].children.length===0&&rlEls[j].textContent!==rv){rlEls[j].textContent=rv;}}
 var awEl=document.getElementById('acWelcome');if(awEl&&awEl.children.length===0){var awt=awEl.textContent||'';if(/Welcome back|Good (?:morning|afternoon|evening)/i.test(awt)){var nw=awt.replace(/(Welcome back,\s*)[^!.]*/i,'$1'+want.first).replace(/(Good (?:morning|afternoon|evening),\s*)[^!.]*/i,'$1'+want.first);if(awEl.textContent!==nw)awEl.textContent=nw;}}
+var gTxtEls=document.querySelectorAll('h1,h2,h3');for(var q=0;q<gTxtEls.length;q++){var ge=gTxtEls[q];if(ge.children.length===0){var gtx=ge.textContent||'';var gmm=gtx.match(/^(Good (?:morning|afternoon|evening),\s*).+/i);if(gmm){var newg=gmm[1]+want.first;if(ge.textContent!==newg){ge.textContent=newg;}}}}
 var gEls=document.querySelectorAll('h1,h2');for(var k=0;k<gEls.length;k++){var gt=gEls[k].textContent||'';var gm=gt.match(/^(Good (?:morning|afternoon|evening),\s*)/i);if(gm){var nmc=gEls[k].querySelector('.nm');if(nmc&&nmc.textContent!==want.first){nmc.textContent=want.first;}}}
   }
   function getClient(){
