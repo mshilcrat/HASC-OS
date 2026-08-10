@@ -509,6 +509,7 @@ document.addEventListener("change", async function(e){
     var h=document.getElementById('homeBtn');
     if(h && !h.__homeWired){
       h.__homeWired=true;
+      try{ h.disabled=false; h.removeAttribute('disabled'); h.style.opacity=''; h.style.cursor='pointer'; }catch(e){}
       h.addEventListener('click',function(ev){
         ev.preventDefault(); ev.stopImmediatePropagation(); ev.stopPropagation();
         location.href='/index.html';
