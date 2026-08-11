@@ -64,7 +64,7 @@
 </style>
 </head>
 <body>
-<div class="topbar hidden" id="appHeader"><div class="logo"><img src="/hasc-logo.png" alt="HASC"></div><div class="brandlabel">Residential</div><div class="page-label" id="pageLabel">Training Portal</div><div class="navbtns"><button type="button" class="navbtn" id="backBtn">← Back</button><button type="button" class="navbtn" id="homeBtn">🏠 Home</button></div><div class="me"><div class="badge" id="tpBadge"></div><div><div class="nm" id="whoEmail"></div><div class="rl">Residential</div></div><button class="signout" id="signoutBtn">Sign Out</button></div></div>
+<div class="topbar hidden" id="appHeader"><div class="logo"><img src="/hasc-logo.png" alt="HASC"></div><div class="brandlabel">Residential</div><div class="page-label" id="pageLabel">Training Portal</div><div class="navbtns"><button type="button" class="navbtn" id="backBtn" onclick="history.back()">← Back</button><button type="button" class="navbtn" id="homeBtn" onclick="window.location.href='/index.html'">🏠 Home</button></div><div class="me"><div class="badge" id="tpBadge"></div><div><div class="nm" id="whoEmail"></div><div class="rl">Residential</div></div><button class="signout" id="signoutBtn">Sign Out</button></div></div>
 <div class="wrap" id="loginView">
   <div class="login-card">
     <h2>HASC Center Training</h2>
@@ -160,5 +160,5 @@
   });
   checkSession();
 </script>
-<script>/*__navWiredBtns*/document.addEventListener("DOMContentLoaded",function(){var h=document.getElementById("homeBtn");if(h)h.onclick=function(){location.href="/index.html";};var b=document.getElementById("backBtn");if(b)b.onclick=function(){history.back();};});</script></body>
+</body>
 </html>
