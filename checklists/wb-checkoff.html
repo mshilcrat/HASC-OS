@@ -186,8 +186,8 @@
     var c = window.HASC_CONFIG || {};
     var gsb = window.supabase.createClient(c.SUPABASE_URL, c.SUPABASE_ANON_KEY);
     var r = await gsb.auth.getSession(); try{ window.__rmEmail=(r.data.session&&r.data.session.user&&r.data.session.user.email)||""; window.__rmRole=(sessionStorage.getItem("hasc_role")||""); }catch(e){}
-    if(!r || !r.data || !r.data.session){ location.replace("wb-login.html"); }
-  }catch(e){ location.replace("wb-login.html"); }
+    if(!r || !r.data || !r.data.session){ location.replace("/wb-login.html"); }
+  }catch(e){ location.replace("/wb-login.html"); }
 })();
 </script>
 <script>
@@ -398,9 +398,9 @@ function rmBuildTasksJson(){
 }
 function rmSignOut(){
   try{
-    if(window.sb && sb.auth){ sb.auth.signOut().finally(function(){ location.href='wb-login.html'; }); }
-    else { location.href='wb-login.html'; }
-  }catch(e){ location.href='wb-login.html'; }
+    if(window.sb && sb.auth){ sb.auth.signOut().finally(function(){ location.href='/wb-login.html'; }); }
+    else { location.href='/wb-login.html'; }
+  }catch(e){ location.href='/wb-login.html'; }
 }
 (async function rmSetHeaderName(){
   try{
