@@ -149,13 +149,13 @@ body { margin:0; background:#eef2f5; color:#223038; font-family:-apple-system,Bl
 </head>
 <body>
 <header class="topbar">
-  <div class="logo"><span class="logo-mark">HASC</span></div>
+  <div class="logo"><img class="logo-img" src="/hasc-logo.png" alt="HASC-OS" style="height:30px"><span class="logo-mark">HASC-OS</span></div>
   <div class="page-label" id="pageLabel">RM Compliance</div>
   <div class="navbtns">
     <button class="navbtn" id="backBtn">&larr; Back</button>
     <button class="navbtn" id="homeBtn">&#127968; Home</button>
   </div>
-  <div class="whoami"><div class="badge" id="acBadge">MS</div><div class="user-name" id="acUserName">Michael Shilcrat</div></div>
+  <div class="whoami"><div class="badge" id="acBadge"></div><div class="user-name" id="acUserName"></div></div>
 </header>
 <main class="container" id="view"><div class="loading">Loading live data…</div></main>
 <script>
@@ -236,7 +236,7 @@ function goTo(t){ history.push(snap()); state.tab=t; state.coord=null; state.res
 function snap(){ return { tab:state.tab, coord:state.coord, res:state.res, clHome:state.clHome }; }
 function restore(s){ state.tab=s.tab; state.coord=s.coord; state.res=s.res; state.clHome=s.clHome; state.sel.clear(); }
 
-function renderHome(){ let h='<h1 class="screen-title" id="acWelcome">Welcome back, Michael</h1><p class="screen-sub">Choose where you want to go.</p><div class="cubes">'; areas.forEach(a=> h+='<div class="cube" data-tile="'+a.id+'"><div class="cube-icon">'+a.icon+'</div><div class="cube-title">'+esc(a.title)+'</div><div class="cube-desc">'+esc(a.desc)+'</div></div>'); return h+'</div>'; }
+function renderHome(){ let h='<h1 class="screen-title" id="acWelcome">Welcome back</h1><p class="screen-sub">Choose where you want to go.</p><div class="cubes">'; areas.forEach(a=> h+='<div class="cube" data-tile="'+a.id+'"><div class="cube-icon">'+a.icon+'</div><div class="cube-title">'+esc(a.title)+'</div><div class="cube-desc">'+esc(a.desc)+'</div></div>'); return h+'</div>'; }
 var CL_TYPES=["Daily","Weekly","Weekend","Monthly","Quarterly","Annual"];
 var CL_KEY={Daily:"daily",Weekly:"weekly",Weekend:"weekend",Monthly:"monthly",Quarterly:"quarterly",Annual:"annual"};
 var CL_MAXAGE={Daily:1,Weekly:8,Weekend:8,Monthly:35,Quarterly:95,Annual:370};
