@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HASC – Setup Training</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="wb-config.js"></script>
+<script src="../wb-config.js"></script>
 <style>
   *{box-sizing:border-box}
   body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f4;color:#2b3a45}
@@ -50,15 +50,15 @@
 <body>
 <div id="app">
   <div class="topbar"><div class="hdr">
-    <img src="hasc-logo.png" alt="HASC Center">
-    <div class="right"><a href="javascript:history.back()" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">← Back</a><a href="index.html" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">🏠 Home</a><span class="uname" id="uname">…</span><button class="btn-signout" id="signout">Sign Out</button></div>
+    <img src="/hasc-logo.png" alt="HASC Center">
+    <div class="right"><a href="javascript:history.back()" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">← Back</a><a href="/index.html" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">🏠 Home</a><span class="uname" id="uname">…</span><button class="btn-signout" id="signout">Sign Out</button></div>
   </div></div>
   <div class="wrap">
     <div class="tabs">
-      <a class='tab active' href='/wb-setup'>📋 Setup Training</a>
-      <a class='tab' href='/wb-library'>📚 Training Library</a>
-      <a class='tab' href='/wb-certificates'>🏆 Certificates</a>
-      <a class='tab' href='/wb-questions'>💬 Questions</a>
+      <a class='tab active' href='wb-setup.html'>📋 Setup Training</a>
+      <a class='tab' href='wb-library.html'>📚 Training Library</a>
+      <a class='tab' href='wb-certificates.html'>🏆 Certificates</a>
+      <a class='tab' href='wb-questions.html'>💬 Questions</a>
     </div>
     <div class="card">
       <div class="h1">📋 Create Training Session</div>
@@ -102,7 +102,7 @@ const dt=document.getElementById('devToggle');let mob=false;
 dt.onclick=()=>{mob=!mob;document.body.classList.toggle('mobile',mob);dt.innerHTML=mob?'📱 Mobile':'🖥️ PC';window.scrollTo(0,0);};
 let CURRENT_USER=null;
 sb.auth.getUser().then(({data})=>{CURRENT_USER=data&&data.user;document.getElementById('uname').textContent=CURRENT_USER?(CURRENT_USER.email||'Signed in'):'Not signed in';});
-document.getElementById('signout').onclick=async()=>{await sb.auth.signOut();location.href='wb-login.html';};
+document.getElementById('signout').onclick=async()=>{await sb.auth.signOut();location.href='/wb-login.html';};
 function token(){return 'sess_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);}
 document.getElementById('create').onclick=async()=>{
   const msg=document.getElementById('msg');msg.style.color='#c0392b';
