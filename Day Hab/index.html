@@ -939,7 +939,12 @@ function navIcon(n,c){
     document.querySelectorAll("[data-wmode]").forEach(el=>el.onclick=()=>{weekMode=el.dataset.wmode;render();});
     document.querySelectorAll("[data-toast]").forEach(el=>el.onclick=()=>toast(el.dataset.toast));
     document.querySelectorAll("[data-add]").forEach(el=>el.onclick=()=>openAdd(el.dataset.add));
-    document.querySelectorAll("[data-goto]").forEach(el=>el.onclick=()=>{view=el.dataset.goto;setNav(view);render();window.scrollTo(0,0);});
+    document.querySelectorAll("[data-goto]").forEach(el=>el.onclick=()=>{
+      const dest=el.dataset.goto;
+      if(dest==="planner"){window.location.href="/Day Hab/planner.html";return;}
+      if(dest==="bookings"){window.location.href="/Day Hab/bookings.html";return;}
+      view=dest;setNav(view);render();window.scrollTo(0,0);
+    });
   }
   document.querySelectorAll("#nav a").forEach(a=>a.onclick=e=>{e.preventDefault();view=a.dataset.nav;setNav(view);render();});
   document.querySelectorAll(".topbar [data-goto]").forEach(el=>el.onclick=()=>{view=el.dataset.goto;render();window.scrollTo(0,0);});
