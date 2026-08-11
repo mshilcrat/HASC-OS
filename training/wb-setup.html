@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HASC – Setup Training</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="wb-config.js"></script>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f4;color:#2b3a45}
+  #app{margin:0 auto;min-height:100vh}
+  .topbar{background:#fff;border-bottom:3px solid #16b3c6}
+  .hdr{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:14px 20px;flex-wrap:wrap}
+  .hdr img{height:42px;display:block}
+  .hdr .right{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .hdr .uname{color:#5a6773;font-size:14px}
+  .btn-signout{border:1px solid #d6dce2;background:#fff;border-radius:7px;padding:7px 14px;font-size:13px;cursor:pointer}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 16px}
+  .tabs{display:flex;gap:24px;border-bottom:1px solid #e2e7ec;padding:14px 4px 0;flex-wrap:wrap}
+  .tab{padding-bottom:12px;color:#7a8794;font-weight:700;font-size:15px;text-decoration:none}
+  .tab.active{border-bottom:3px solid #16b3c6;color:#16b3c6;font-weight:800}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(0,0,0,.06);padding:24px;margin:22px 0}
+  .h1{font-weight:800;font-size:20px;margin-bottom:24px}
+  label.fld{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+  input.in,select.in{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #d6dce2;border-radius:9px;font-size:14px;color:#2b3a45;margin-bottom:22px;background:#fff}
+  .toggle{display:flex;gap:10px;margin-bottom:22px;max-width:420px}
+  .seg{flex:1;text-align:center;padding:11px;border-radius:9px;background:#eef0f3;color:#5a6773;font-weight:700;font-size:14px;cursor:pointer;border:none}
+  .seg.on{background:#16b3c6;color:#fff}
+  .row2{display:flex;gap:22px;flex-wrap:wrap}
+  .row2>div{flex:1;min-width:240px}
+  .filebox{border:1px solid #d6dce2;border-radius:9px;padding:11px 12px;font-size:14px;color:#5a6773;margin-bottom:28px}
+  .qbox{background:#f8fafb;border:1px solid #e7ebef;border-radius:14px;padding:20px}
+  .qbox h2{font-weight:800;font-size:18px;margin:0 0 18px}
+  .qcard{background:#fff;border:1px solid #e7ebef;border-radius:12px;padding:18px;margin-bottom:16px}
+  .qcard .qt{font-weight:800;font-size:16px;margin-bottom:12px}
+  .opt{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+  .opt input.optin{flex:1;min-width:0;box-sizing:border-box;padding:11px 12px;border:1px solid #d6dce2;border-radius:9px;font-size:14px;margin:0}
+  .opt label{display:flex;align-items:center;gap:6px;color:#1296a6;font-size:13px;font-weight:600;white-space:nowrap}
+  .submit{width:100%;margin-top:24px;padding:14px;border:none;border-radius:10px;background:#16b3c6;color:#fff;font-weight:800;font-size:16px;cursor:pointer}
+  #devToggle{position:fixed;bottom:20px;right:20px;background:#fff;border:1px solid #d6dce2;border-radius:22px;box-shadow:0 3px 12px rgba(0,0,0,.18);padding:9px 18px;font-weight:700;font-size:14px;cursor:pointer;z-index:50}
+  #linkout{display:none;background:#eafaf4;border:1px solid #9fe3ec;border-radius:10px;padding:14px;margin-top:18px;font-size:14px;word-break:break-all}
+  #msg{margin-top:14px;font-size:14px}
+  body.mobile #app{max-width:412px;box-shadow:0 0 0 1px #c6cfd6}
+  body.mobile .hdr{flex-direction:column;align-items:flex-start;gap:10px}
+  body.mobile .hdr .right{margin-left:0}
+  body.mobile .tabs{gap:14px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar"><div class="hdr">
+    <img src="hasc-logo.png" alt="HASC Center">
+    <div class="right"><a href="javascript:history.back()" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">← Back</a><a href="index.html" class="btn-signout" style="text-decoration:none;color:#2b3a45;display:inline-block">🏠 Home</a><span class="uname" id="uname">…</span><button class="btn-signout" id="signout">Sign Out</button></div>
+  </div></div>
+  <div class="wrap">
+    <div class="tabs">
+      <a class='tab active' href='/wb-setup'>📋 Setup Training</a>
+      <a class='tab' href='/wb-library'>📚 Training Library</a>
+      <a class='tab' href='/wb-certificates'>🏆 Certificates</a>
+      <a class='tab' href='/wb-questions'>💬 Questions</a>
+    </div>
+    <div class="card">
+      <div class="h1">📋 Create Training Session</div>
+      <label class="fld">Training Title *</label>
+      <input class="in" id="title" placeholder="e.g. Diabetes Care">
+      <label class="fld">Training Type</label>
+      <div class="toggle"><button class="seg on" id="segInd" type="button">Individual</button><button class="seg" id="segGen" type="button">General Org</button></div>
+      <div class="row2">
+        <div><label class="fld">Residence Name *</label><select class="in" id="residence"><option value="">-- Select Residence --</option></select></div>
+        <div id="indWrap"><label class="fld">Individual Name *</label><input class="in" id="indName" placeholder="Individual being trained on"></div>
+      </div>
+      <label class="fld">Video URL (ScreenPal)</label>
+      <input class="in" id="video" placeholder="Paste full ScreenPal embed link">
+      <label class="fld">PON Training Document (optional)</label>
+      <div class="filebox"><input type="file" id="pon"></div>
+      <div class="qbox"><h2>Quiz Questions (5 Required)</h2><div id="questions"></div></div>
+      <button class="submit" id="create">✅ Create Session &amp; Generate Link</button>
+      <div id="msg"></div>
+      <div id="linkout"></div>
+    </div>
+  </div>
+</div>
+<div id="devToggle">🖥️ PC</div>
+<script>
+const sb = supabase.createClient(HASC_CONFIG.SUPABASE_URL, HASC_CONFIG.SUPABASE_ANON_KEY);
+const RESIDENCES=["1068 East 14th Street","1503 East 14th Street","19th Avenue - 4801","46th Street - 1327","46th Street - 1771 1st Fl","46th Street - 1771 2nd Fl","48th Street - 1268","50th Street - 918","53rd Street - 1038","Avenue H - 824","Avenue I - 2802","Avenue J - 1010","Avenue J - 1014 6B","Avenue J - 1014 6F","Avenue K - 1010","Avenue L - 1122","Avenue S","Bedford Avenue - 3245","Coney Island Ave - 2173","Crown Heights - 580","Ditmas Avenue - 804","East 13th Street - 1857","East 21 - 2102 Ave I","East 35th St - 1431","East 36th Street - 3521","East 7th Street (Ave N)","East 8th Street - 536","East 9th - 1367","Kings Highway - 2416","Mill Basin","Montgomery St (fmr Kingston Ave)","New York Avenue","Staten Island","Webster Avenue - 373","Other"];
+const rsel=document.getElementById('residence');
+RESIDENCES.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;rsel.appendChild(o);});
+let isIndividual=true;
+const segInd=document.getElementById('segInd'),segGen=document.getElementById('segGen'),indWrap=document.getElementById('indWrap');
+segInd.onclick=()=>{isIndividual=true;segInd.classList.add('on');segGen.classList.remove('on');indWrap.style.display='block';};
+segGen.onclick=()=>{isIndividual=false;segGen.classList.add('on');segInd.classList.remove('on');indWrap.style.display='none';};
+const qWrap=document.getElementById('questions');
+for(let n=1;n<=5;n++){
+  const c=document.createElement('div');c.className='qcard';
+  c.innerHTML='<div class="qt">Question '+n+'</div><input class="in qtext" placeholder="Enter question text..." style="margin-bottom:14px">'+
+    ['A','B','C','D'].map((L,idx)=>'<div class="opt"><input class="optin" data-opt="'+idx+'" placeholder="Option '+L+'"><label><input type="radio" name="correct'+n+'" value="'+idx+'"> Correct</label></div>').join('');
+  qWrap.appendChild(c);
+}
+const dt=document.getElementById('devToggle');let mob=false;
+dt.onclick=()=>{mob=!mob;document.body.classList.toggle('mobile',mob);dt.innerHTML=mob?'📱 Mobile':'🖥️ PC';window.scrollTo(0,0);};
+let CURRENT_USER=null;
+sb.auth.getUser().then(({data})=>{CURRENT_USER=data&&data.user;document.getElementById('uname').textContent=CURRENT_USER?(CURRENT_USER.email||'Signed in'):'Not signed in';});
+document.getElementById('signout').onclick=async()=>{await sb.auth.signOut();location.href='wb-login.html';};
+function token(){return 'sess_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);}
+document.getElementById('create').onclick=async()=>{
+  const msg=document.getElementById('msg');msg.style.color='#c0392b';
+  const title=document.getElementById('title').value.trim();
+  const residence=document.getElementById('residence').value;
+  const indName=document.getElementById('indName').value.trim();
+  const video=document.getElementById('video').value.trim();
+const ponFile=document.getElementById('pon').files[0]||null;
+  if(!title){msg.textContent='Please enter a Training Title.';return;}
+  if(!residence){msg.textContent='Please select a Residence.';return;}
+  if(isIndividual&&!indName){msg.textContent='Please enter the Individual Name.';return;}
+  if(!video&&!ponFile){msg.textContent='Add a Video URL or upload a Document (at least one).';return;}
+let ponUrl=null;
+if(ponFile){
+const safe=ponFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+const path=Date.now()+'_'+safe;
+const up=await sb.storage.from('pon-docs').upload(path,ponFile,{upsert:false});
+if(up.error){msg.textContent='Document upload failed: '+up.error.message;return;}
+ponUrl=sb.storage.from('pon-docs').getPublicUrl(path).data.publicUrl;
+}
+  const qcards=[...document.querySelectorAll('.qcard')];const questions=[];
+  for(let n=0;n<qcards.length;n++){
+    const qt=qcards[n].querySelector('.qtext').value.trim();
+    const opts=[...qcards[n].querySelectorAll('.optin')].map(i=>i.value.trim());
+    const correctEl=qcards[n].querySelector('input[type=radio]:checked');
+    if(!qt||opts.some(o=>!o)||!correctEl){msg.textContent='Please complete all 5 questions (text, 4 options, and a correct answer).';return;}
+    questions.push({question:qt,optionA:opts[0],optionB:opts[1],optionC:opts[2],optionD:opts[3],correctOption:['A','B','C','D'][parseInt(correctEl.value,10)],options:opts,correct:parseInt(correctEl.value,10)});
+  }
+  const tok=token();
+  const payload={
+    description:title,
+    individual_name:isIndividual?indName:title,
+    residence:residence,
+    video_url:video,document_url:ponUrl,
+    questions:questions,
+    session_token:tok,
+    nurse_email:CURRENT_USER?CURRENT_USER.email:null,
+    nurse_name:CURRENT_USER?(CURRENT_USER.email||''):null,
+    expires_at:new Date(Date.now()+1000*60*60*24*90).toISOString()
+  };
+  const create=document.getElementById('create');create.disabled=true;create.textContent='Creating…';
+  const {data,error}=await sb.from('training_sessions').insert(payload).select().single();
+  create.disabled=false;create.innerHTML='✅ Create Session &amp; Generate Link';
+  if(error){msg.style.color='#c0392b';msg.textContent='Error: '+error.message;return;}
+  msg.style.color='#1296a6';msg.textContent='Session created.';
+  const link=location.origin+'/dsp-training.html?token='+encodeURIComponent(tok);await sb.from('training_links').insert({name:title+(indName?' — '+indName:''),url:link});
+  const lo=document.getElementById('linkout');lo.style.display='block';
+  lo.innerHTML='<b>Training link</b><br><a href="'+link+'" target="_blank">'+link+'</a> <button id="copyLink" type="button" style="margin-left:8px;padding:6px 12px;border:1px solid #16b3c6;background:#16b3c6;color:#fff;border-radius:8px;cursor:pointer;font-size:13px">Copy Link</button>';document.getElementById('copyLink').onclick=function(){navigator.clipboard.writeText(link).then(function(){var b=document.getElementById('copyLink');b.textContent='Copied!';setTimeout(function(){b.textContent='Copy Link';},1500);});};
+};
+</script>
+</body>
+</html>
