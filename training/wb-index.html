@@ -15,6 +15,9 @@
   .header .spacer{margin-left:auto}
   .header .who{font-size:13px;color:#475569}
   .header .signout{background:none;border:1px solid #cbd5e1;border-radius:8px;padding:6px 12px;font-size:13px;color:#475569;cursor:pointer}
+.header-nav{display:flex;align-items:center;gap:8px}
+.navbtn{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600;color:#475569;cursor:pointer}
+.navbtn:hover{background:#f1f5f9}
   .wrap{max-width:1040px;margin:0 auto;padding:32px 20px}
   .login-card{max-width:400px;margin:60px auto;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.08);padding:32px}
   .login-card h2{font-size:20px;margin-bottom:6px;text-align:center}
@@ -51,7 +54,7 @@
 <div class="header hidden" id="appHeader">
   <img src="/hasc-logo.png" alt="HASC Center">
   <span class="title">Training Portal</span>
-  <span class="spacer"></span>
+  <div class="header-nav"><button type="button" class="navbtn" id="navBack">← Back</button><button type="button" class="navbtn" id="navHome">🏠 Home</button></div><span class="spacer"></span>
   <span class="who" id="whoEmail"></span>
   <button class="signout" id="signoutBtn">Sign Out</button>
 </div>
@@ -150,5 +153,5 @@
   });
   checkSession();
 </script>
-</body>
+<script>/*__navWired*/document.addEventListener("DOMContentLoaded",function(){var h=document.getElementById("navHome");if(h)h.onclick=function(){location.href="/index.html";};var b=document.getElementById("navBack");if(b)b.onclick=function(){history.back();};});</script></body>
 </html>
