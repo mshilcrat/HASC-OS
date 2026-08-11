@@ -1,4 +1,4 @@
-(function(){
+(function(){var __hascReveal=function(){try{document.documentElement.style.visibility="";}catch(e){}};try{if(!window.__hascRevealTimer){window.__hascRevealTimer=setTimeout(__hascReveal,4000);}document.documentElement.style.visibility="hidden";}catch(e){}
   if(!window.supabase || !window.HASC_CONFIG) return;
   var sb = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
   window.__hascClient = sb;
@@ -28,7 +28,7 @@ if(location.pathname==="/"||/\/(index\.html)?$/.test(location.pathname)){ return
         if(isAC){ var acPages=["wb-hub-AC-mark2.html","wb-today-mark2.html","wb-insights-mark2.html","wb-documents-mark2.html","wb-checklists-mark2.html","wb-checkoff.html"]; var acOnAllowed=acPages.some(function(pg){ return path.indexOf(pg)!==-1; }); if(path.indexOf("wb-hub-mark2.html")!==-1 || !acOnAllowed){ location.replace("/checklists/wb-hub-AC-mark2.html"); } } else { if(path.indexOf("wb-checkoff.html") === -1){ location.replace("/checklists/wb-checkoff.html"); } }
       }
     });
-  }).catch(function(){ location.replace("/wb-login.html"); });
+  }).then(function(){try{document.documentElement.style.visibility="";}catch(e){}}).catch(function(){ location.replace("/wb-login.html"); });
 })();
 
 
