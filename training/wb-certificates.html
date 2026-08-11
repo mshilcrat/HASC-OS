@@ -169,7 +169,7 @@
       if(error){ alert('Delete failed: '+error.message); return; }
       DATA = DATA.filter(x=>x.id!==id); render();
     }
-    document.getElementById('logoutBtn').addEventListener('click', async ()=>{ await sb.auth.signOut(); window.location.href='wb-login.html'; });
+    document.getElementById('logoutBtn').addEventListener('click', async ()=>{ await sb.auth.signOut(); window.location.href='/wb-login.html'; });
     document.getElementById('search').addEventListener('input', e=>{ state.search=e.target.value; render(); });
     document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click', ()=>{ document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); state.filter=b.getAttribute('data-f'); render(); }));
     (async ()=>{
