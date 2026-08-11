@@ -115,7 +115,7 @@ searchEl.addEventListener('input',render);
 const dt=document.getElementById('devToggle');let mob=false;
 dt.onclick=()=>{mob=!mob;document.body.classList.toggle('mobile',mob);dt.innerHTML=mob?'📱 Mobile':'🖥️ PC';window.scrollTo(0,0);};
 sb.auth.getUser().then(({data})=>{const u=data&&data.user;document.getElementById('uname').textContent=u?(u.email||'Signed in'):'Not signed in';});
-document.getElementById('signout').onclick=async()=>{await sb.auth.signOut();location.href='wb-login.html';};
+document.getElementById('signout').onclick=async()=>{await sb.auth.signOut();location.href='/wb-login.html';};
 async function load(){
   const {data,error}=await sb.from('dsp_questions').select('*').order('created_at',{ascending:false});
   if(error){listEl.innerHTML='<div class="empty">Error: '+esc(error.message)+'</div>';return;}
