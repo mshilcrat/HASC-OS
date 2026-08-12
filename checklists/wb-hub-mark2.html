@@ -133,7 +133,7 @@ body { margin:0; background:#eef2f5; color:#223038; font-family:-apple-system,Bl
 .cat-name{color:#5b6672;text-transform:capitalize}
 .pill.never{background:#fbe9e9;color:#a83232}
 .cl-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid #e6e9ec}
-.cl-row .nm{flex:1 1 auto;font-size:14px;color:#223038;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-row .cl-nm{flex:1 1 auto;font-size:14px;color:#223038;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cl-row .dot{border-radius:50%;flex:0 0 auto}
 .pill{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px}
 .pill.up{background:#e6f7ee;color:#127a45}
@@ -273,7 +273,7 @@ function renderInsights(){
         h+='<div>';
         col.forEach(function(it){
           var label=it.st.s==="up"?"Up to date":(it.st.s==="behind"?"Behind \u2014 last "+it.st.date:"Never submitted");
-          h+='<div class="cl-row"><span class="dot" style="width:8px;height:8px;background:'+clDot(it.st.s)+'"></span><span class="nm">'+esc(it.name)+'</span><span class="pill '+it.st.s+'">'+label+'</span></div>';
+          h+='<div class="cl-row"><span class="dot" style="width:8px;height:8px;background:'+clDot(it.st.s)+'"></span><span class="cl-nm">'+esc(it.name)+'</span><span class="pill '+it.st.s+'">'+label+'</span></div>';
         });
         h+='</div>';
       });
