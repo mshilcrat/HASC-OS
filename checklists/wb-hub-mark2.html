@@ -228,7 +228,7 @@ async function loadAll(){
   HOMES.forEach(h=> h.pct = todayCount(h.home_name));
   const byC={};
   HOMES.forEach(h=>{ const k=h.ac_name||"Unassigned"; (byC[k]=byC[k]||[]).push(h); });
-  COORDS = Object.keys(byC).map(name=>{ const res=byC[name]; const avg=res.length?Math.round(res.reduce((a,r)=>a+(r.pct||0),0)/res.length):0; return { name, pct:avg, total:res.length, behind:res.filter(r=>(r.pct||0)<70).length, residences:res }; }).sort((a,b)=>a.pct-b.pct);
+  COORDS = Object.keys(byC).map(name=>{ const res=byC[name]; const avg=res.length?Math.round(res.reduce((a,r)=>a+(r.pct||0),0)/res.length):0; return { name, pct:avg, total:res.length, behind:res.filter(r=>(r.pct||0)<70).length, residences:res }; });
 }
 function nycParts(){ const f=new Intl.DateTimeFormat('en-US',{ timeZone:TZ, year:'numeric', month:'2-digit', day:'2-digit', hour:'numeric', minute:'2-digit', hour12:true, weekday:'short' }); const p={}; f.formatToParts(new Date()).forEach(x=>p[x.type]=x.value); return p; }
 function nycDateKey(){ const p=nycParts(); return p.year+"-"+p.month+"-"+p.day; }
@@ -257,14 +257,14 @@ function nycDayNum(iso){ var d=iso?new Date(iso):new Date(); var p={}; new Intl.
 function latestSubDate(homeName,freqKey){ var best=null; (SUBS||[]).forEach(function(s){ if(s.home_name!==homeName) return; if((s.frequency||"").toLowerCase()!==freqKey) return; if(!best||new Date(s.submitted_at)>new Date(best)) best=s.submitted_at; }); return best; }
 function clStatus(type,homeName){ var iso=latestSubDate(homeName,CL_KEY[type]); if(!iso) return {s:"never"}; var age=nycDayNum(null)-nycDayNum(iso); if(age<=CL_MAXAGE[type]) return {s:"up"}; return {s:"behind",date:fmtDate(iso)}; }
 function clScope(type){ if(CL_UNIVERSAL[type]) return HOMES.slice(); var key=CL_KEY[type]; var set={}; (SUBS||[]).forEach(function(s){ if((s.frequency||"").toLowerCase()===key) set[s.home_name]=1; }); return HOMES.filter(function(h){ return set[h.home_name]; }); }
-function insightsByType(){ return CL_TYPES.map(function(type){ var scope=clScope(type); var up=0,late=0; var homes=scope.map(function(h){ var st=clStatus(type,h.home_name); if(st.s==="up") up++; else late++; return {name:h.home_name,st:st}; }); var total=scope.length; var pct=total?Math.round(up/total*100):0; return {type:type,homes:homes,total:total,behind:late,pct:pct}; }).filter(function(r){ return r.total>0; }).sort(function(a,b){ return a.pct-b.pct || CL_TYPES.indexOf(a.type)-CL_TYPES.indexOf(b.type); }); }
+function insightsByType(){ return CL_TYPES.map(function(type){ var scope=clScope(type); var up=0,late=0; var homes=scope.map(function(h){ var st=clStatus(type,h.home_name); if(st.s==="up") up++; else late++; return {name:h.home_name,st:st}; }); var total=scope.length; var pct=total?Math.round(up/total*100):0; return {type:type,homes:homes,total:total,behind:late,pct:pct}; }).filter(function(r){ return r.total>0; }); }
 function clDot(s){ return s==="up"?"#1a9d5a":(s==="behind"?"#c77d16":"#d94b4b"); }
 function renderInsights(){
   var rows=insightsByType();
-  var h='<div class="callout"><b>Checklist compliance</b> \u2014 ranked worst-first, from live checklist data. Click a checklist to expand its residences.</div>';
+  var h='<div class="callout"><b>Checklist compliance</b> \u2014 from live checklist data. Click a checklist to expand its residences.</div>';
   rows.forEach(function(r,i){
     var open=state.coord===r.type;
-    h+='<div class="coord'+(open?' open':'')+'"><div class="coord-head" data-act="coord" data-id="'+esc(r.type)+'"><div class="rank">#'+(i+1)+'</div><div class="coord-main"><div class="coord-name">'+esc(r.type)+' Checklist</div><div class="coord-sub">'+r.behind+' of '+r.total+' residences behind</div></div><div class="coord-pct" style="color:'+pctColor(r.pct)+'">'+r.pct+'%</div><span class="mini-caret">\u25B8</span></div>';
+    h+='<div class="coord'+(open?' open':'')+'"><div class="coord-head" data-act="coord" data-id="'+esc(r.type)+'"><div class="rank"></div><div class="coord-main"><div class="coord-name">'+esc(r.type)+' Checklist</div><div class="coord-sub">'+r.behind+' of '+r.total+' residences behind</div></div><div class="coord-pct" style="color:'+pctColor(r.pct)+'">'+r.pct+'%</div><span class="mini-caret">\u25B8</span></div>';
     if(open){
       var mid=Math.ceil(r.homes.length/2), cols=[r.homes.slice(0,mid),null,r.homes.slice(mid)];
       h+='<div class="cl-grid">';
