@@ -51,7 +51,7 @@
 <div class="wrap">
   <div class="card">
     <h2>Training Links Library</h2>
-    <p class="sub">Saved training links so RMs can grab them without hunting. Links auto-delete after 60 days.</p>
+    <p class="sub">Saved training links so RMs can grab them without hunting.</p>
     <div class="add-row">
       <div>
         <label for="lname">Name this training</label>
@@ -67,92 +67,63 @@
     <div class="foot" id="foot">0 saved · stored on this browser</div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../wb-config.js"></script>
 <script>
-  const KEY = 'hasc_training_links';
-  const TTL = 60 * 24 * 60 * 60 * 1000; // 60 days
-  const listEl = document.getElementById('list');
-  const footEl = document.getElementById('foot');
-
-  function load(){
-    let arr = [];
-    try { arr = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ arr = []; }
-    const now = Date.now();
-    arr = arr.filter(x => (now - x.added) < TTL);
-    localStorage.setItem(KEY, JSON.stringify(arr));
-    return arr;
-  }
-  function save(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
-
-  function daysLeft(added){
-    const left = TTL - (Date.now() - added);
-    return Math.max(0, Math.ceil(left / (24*60*60*1000)));
-  }
-  function agoText(added){
-    const d = Math.floor((Date.now() - added) / (24*60*60*1000));
-    if(d <= 0) return 'Added today';
-    return 'Added ' + d + ' day' + (d===1?'':'s') + ' ago';
-  }
-  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
+(function(){
+  var sb = supabase.createClient(HASC_CONFIG.SUPABASE_URL, HASC_CONFIG.SUPABASE_ANON_KEY);
+  var HIDE_KEY = 'hasc_training_links_hidden';
+  var TZ = 'America/New_York';
+  var listEl = document.getElementById('list');
+  var footEl = document.getElementById('foot');
+  var rows = [];
+  function hiddenIds(){ try { return JSON.parse(localStorage.getItem(HIDE_KEY) || '[]'); } catch(e){ return []; } }
+  function hideLocally(id){ var h = hiddenIds(); if (h.indexOf(id) === -1){ h.push(id); localStorage.setItem(HIDE_KEY, JSON.stringify(h)); } }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function nycYMD(v){ var dt = new Date(v); if (isNaN(dt)) return null; var parts = new Intl.DateTimeFormat('en-US',{timeZone:TZ,year:'numeric',month:'numeric',day:'numeric'}).formatToParts(dt); var o = {}; parts.forEach(function(p){ o[p.type] = p.value; }); return { y:+o.year, m:+o.month, d:+o.day }; }
+  function fmtDate(v){ var c = nycYMD(v); if(!c) return ''; return c.m + '/' + c.d + '/' + String(c.y).slice(-2); }
+  function ageLabel(v){ var s = nycYMD(v); if(!s) return ''; var n = nycYMD(new Date()); var sD = new Date(s.y, s.m-1, s.d), nD = new Date(n.y, n.m-1, n.d); var dayDiff = Math.round((nD - sD)/86400000); if (dayDiff <= 0) return 'Day 1'; var months = (n.y - s.y)*12 + (n.m - s.m); if (n.d < s.d) months -= 1; if (months < 1) return 'Day ' + (dayDiff + 1); if (months < 12) return months + (months===1?' month':' months'); var years = Math.floor(months/12), rem = months%12; var l = years + (years===1?' year':' years'); if (rem > 0) l += ', ' + rem + (rem===1?' month':' months'); return l; }
+  function badge(v){ return fmtDate(v) + ' · ' + ageLabel(v); }
   function render(){
-    const arr = load();
-    if(arr.length === 0){
-      listEl.innerHTML = '<div class="empty">No saved links yet. Add one above.</div>';
-    } else {
-      listEl.innerHTML = arr.map((x,i) => {
-        const dl = daysLeft(x.added);
-        const pillClass = dl <= 7 ? 'pill warn' : 'pill';
-        return '<div class="item">' +
-          '<div class="info">' +
-            '<div class="name">' + esc(x.name) + ' <span class="' + pillClass + '">' + dl + ' day' + (dl===1?'':'s') + ' left</span></div>' +
-            '<div class="url">' + esc(x.url) + '</div>' +
-            '<div class="added">' + agoText(x.added) + '</div>' +
-          '</div>' +
-          '<div class="acts">' +
-            '<button class="ibtn" data-act="copy" data-i="' + i + '">📋 Copy</button>' +
-            '<button class="ibtn" data-act="open" data-i="' + i + '">↗ Open</button>' +
-            '<button class="ibtn del" data-act="del" data-i="' + i + '">🗑</button>' +
-          '</div>' +
-        '</div>';
+    var hide = hiddenIds();
+    var visible = rows.filter(function(r){ return hide.indexOf(r.id) === -1; });
+    if (visible.length === 0){ listEl.innerHTML = '<div class="empty">No saved links yet.</div>'; }
+    else {
+      listEl.innerHTML = visible.map(function(r){
+        return '<div class="item"><div class="info"><div class="name">' + esc(r.name) + ' <span class="pill">' + esc(badge(r.created_at)) + '</span></div><div class="url">' + esc(r.url) + '</div></div><div class="acts"><button class="ibtn" data-act="copy" data-id="' + esc(r.id) + '">📋 Copy</button><button class="ibtn" data-act="open" data-id="' + esc(r.id) + '">↗ Open</button><button class="ibtn del" data-act="del" data-id="' + esc(r.id) + '">🗑</button></div></div>';
       }).join('');
     }
-    footEl.textContent = arr.length + ' saved · stored on this browser';
+    footEl.textContent = visible.length + ' saved · synced from Supabase';
   }
-
-  document.getElementById('addBtn').addEventListener('click', () => {
-    const name = document.getElementById('lname').value.trim();
-    const url = document.getElementById('lurl').value.trim();
-    if(!name || !url){ alert('Please enter a name and a URL.'); return; }
-    const arr = load();
-    arr.unshift({ name, url, added: Date.now() });
-    save(arr);
-    document.getElementById('lname').value = '';
-    document.getElementById('lurl').value = '';
-    render();
+  function byId(id){ for(var i=0;i<rows.length;i++){ if(String(rows[i].id)===String(id)) return rows[i]; } return null; }
+  listEl.addEventListener('click', function(e){
+    var b = e.target.closest('button[data-act]'); if(!b) return;
+    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id'), r = byId(id); if(!r) return;
+    if(act === 'copy'){ navigator.clipboard.writeText(r.url).then(function(){ var t = b.textContent; b.textContent = '✓ Copied'; setTimeout(function(){ b.textContent = t; }, 1200); }); }
+    else if(act === 'open'){ window.open(r.url, '_blank'); }
+    else if(act === 'del'){ hideLocally(id); render(); }
   });
-
-  listEl.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-act]');
-    if(!btn) return;
-    const arr = load();
-    const i = parseInt(btn.dataset.i, 10);
-    const item = arr[i];
-    if(!item) return;
-    const act = btn.dataset.act;
-    if(act === 'copy'){
-      navigator.clipboard.writeText(item.url);
-      btn.textContent = '✓ Copied';
-      setTimeout(() => { btn.textContent = '📋 Copy'; }, 1200);
-    } else if(act === 'open'){
-      window.open(item.url, '_blank');
-    } else if(act === 'del'){
-      arr.splice(i, 1);
-      save(arr);
-      render();
-    }
-  });
-
-  render();
+  function addLink(){
+    var name = (document.getElementById('lname').value || '').trim();
+    var url  = (document.getElementById('lurl').value || '').trim();
+    if(!name || !url){ return; }
+    var id = 'l' + Date.now() + Math.random().toString(36).slice(2,7);
+    sb.from('training_links').insert({ id: id, name: name, url: url }).then(function(res){
+      if(res.error){ alert('Could not save link: ' + res.error.message); return; }
+      document.getElementById('lname').value = ''; document.getElementById('lurl').value = ''; load();
+    });
+  }
+  document.getElementById('addBtn').addEventListener('click', addLink);
+  function load(){
+    footEl.textContent = 'Loading…';
+    sb.from('training_links').select('id,name,url,created_at').order('created_at',{ascending:false}).then(function(res){
+      if(res.error){ footEl.textContent = 'Error loading links'; listEl.innerHTML = '<div class="empty">Could not load links.</div>'; return; }
+      rows = res.data || []; render();
+    });
+  }
+  load();
+})();
 </script>
+
 </body>
 </html>
