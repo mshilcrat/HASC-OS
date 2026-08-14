@@ -77,6 +77,18 @@
   var listEl = document.getElementById('list');
   var footEl = document.getElementById('foot');
   var rows = [];
+  var sessResidence = {};            // session_token -> residence
+  function tokenOf(u){ try{ var m = String(u||'').match(/[?&]token=([^&#]+)/); return m ? decodeURIComponent(m[1]) : ''; }catch(e){ return ''; } }
+  function myRole(){ return (sessionStorage.getItem('hasc_role')||'').toLowerCase(); }
+  function myHomes(){ try{ return JSON.parse(sessionStorage.getItem('hasc_homes')||'[]')||[]; }catch(e){ return []; } }
+  function canSee(r){
+    if (myRole() === 'admin') return true;               // admins see everything
+    var res = sessResidence[tokenOf(r.url)];
+    if (!res) return true;                                // no matching session -> show to all
+    var homes = myHomes();
+    for (var i=0;i<homes.length;i++){ if (String(homes[i]).trim() === String(res).trim()) return true; }
+    return false;
+  }
   function hiddenIds(){ try { return JSON.parse(localStorage.getItem(HIDE_KEY) || '[]'); } catch(e){ return []; } }
   function hideLocally(id){ var h = hiddenIds(); if (h.indexOf(id) === -1){ h.push(id); localStorage.setItem(HIDE_KEY, JSON.stringify(h)); } }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -86,7 +98,7 @@
   function badge(v){ return fmtDate(v) + ' · ' + ageLabel(v); }
   function render(){
     var hide = hiddenIds();
-    var visible = rows.filter(function(r){ return hide.indexOf(r.id) === -1; });
+    var visible = rows.filter(function(r){ return hide.indexOf(r.id) === -1 && canSee(r); });
     if (visible.length === 0){ listEl.innerHTML = '<div class="empty">No saved links yet.</div>'; }
     else {
       listEl.innerHTML = visible.map(function(r){
@@ -118,7 +130,12 @@
     footEl.textContent = 'Loading…';
     sb.from('training_links').select('id,name,url,created_at').order('created_at',{ascending:false}).then(function(res){
       if(res.error){ footEl.textContent = 'Error loading links'; listEl.innerHTML = '<div class="empty">Could not load links.</div>'; return; }
-      rows = res.data || []; render();
+      rows = res.data || [];
+      sb.from('training_sessions').select('session_token,residence').then(function(sr){
+        sessResidence = {};
+        if (sr && sr.data){ sr.data.forEach(function(s){ if(s.session_token) sessResidence[s.session_token] = s.residence; }); }
+        render();
+      });
     });
   }
   load();
