@@ -321,7 +321,7 @@ function selectOpt(el,qIdx,opt){
   el.classList.add('selected');
 }
 
-async function submitQuiz(){
+async function submitQuiz(){var _n=Date.now();if(window.__lastQuizSubmit&&_n-window.__lastQuizSubmit<4000)return;window.__lastQuizSubmit=_n;
   const qs=sessionData.questions||[];
   const alert=document.getElementById('quiz-alert');
   let score=0;
