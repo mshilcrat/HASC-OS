@@ -47,7 +47,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
   .tile{background:#fff;border-radius:14px;padding:24px;text-decoration:none;color:inherit;box-shadow:0 3px 12px rgba(0,0,0,.06);border:1px solid #eef2f6;transition:transform .12s,box-shadow .12s;display:block}
   .tile:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.10)}
-  .tile .ico{font-size:34px;margin-bottom:12px}
+  .tile .ico{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:22px;line-height:1;margin-bottom:12px;background:#3E9EB3}.tile:nth-child(1) .ico{background:#3E9EB3}.tile:nth-child(2) .ico{background:#D9B93B}.tile:nth-child(3) .ico{background:#C96A44}.tile:nth-child(4) .ico{background:#568E62}.tile:nth-child(5) .ico{background:#AC659D}.tile:nth-child(6) .ico{background:#3E9EB3}
   .tile .t-name{font-weight:700;font-size:16px;margin-bottom:4px}
   .tile .t-desc{font-size:13px;color:#64748b;line-height:1.45}
   .slot{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 10px,#f1f5f9 10px,#f1f5f9 20px);border:2px dashed #cbd5e1;border-radius:14px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#94a3b8;min-height:150px}
@@ -85,32 +85,32 @@
   <div class="hello" id="helloName">Welcome</div>
   <div class="hello-sub">Choose a workbook to get started.</div>
   <div class="grid">
-    <a class="tile" href="wb-setup.html">
+    <a class='tile' href='/training/wb-setup'>
       <div class="ico">📋</div>
       <div class="t-name">Setup Training</div>
       <div class="t-desc">Create a training session, add the video and quiz, and generate a staff link.</div>
     </a>
-    <a class="tile" href="wb-library.html">
+    <a class='tile' href='/training/wb-library'>
       <div class="ico">📚</div>
       <div class="t-name">Training Library</div>
       <div class="t-desc">See who has trained, by residence, and who still needs to complete it.</div>
     </a>
-    <a class="tile" href="wb-certificates.html">
+    <a class='tile' href='/training/wb-certificates'>
       <div class="ico">🏆</div>
       <div class="t-name">Certificates</div>
       <div class="t-desc">View and print completion certificates for staff training.</div>
     </a>
-    <a class="tile" href="wb-questions.html">
+    <a class='tile' href='/training/wb-questions'>
       <div class="ico">💬</div>
       <div class="t-name">Questions</div>
       <div class="t-desc">Staff questions from trainings — answer, resolve, or follow up.</div>
     </a>
-    <a class="tile" href="wb-links.html">
+    <a class='tile' href='/training/wb-links'>
       <div class="ico">🔗</div>
       <div class="t-name">Training Links</div>
       <div class="t-desc">Quick-save training links so RMs can grab them fast. Auto-clears after 60 days.</div>
     </a>
-    <a class="tile" href="wb-inbox.html">
+    <a class='tile' href='/training/wb-inbox'>
       <div class="ico">📥</div>
       <div class="t-name">Certificate Inbox</div>
       <div class="t-desc">New certificates land here. Mark each Handled once saved to OneDrive — handled ones move to Done but stay searchable.</div>
