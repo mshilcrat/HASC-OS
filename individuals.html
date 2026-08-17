@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HASC Residential OS — Individuals</title><style>
+/* HASC-OS Mark 4 — shared stylesheet. Fonts via Google Fonts (see @import). */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+:root{
+  --ui:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --paper:#f1efe9;--card:#fff;--ink:#233038;--ink2:#3a4a54;--muted:#6a7a84;--faint:#9fb0b8;
+  --line:#e7e2d9;--line2:#eef1f4;--teal:#17a2b8;--teal-ink:#0f7d8f;--teal-wash:#e8f6f8;
+  --green:#568E62;--green-ink:#39684a;--green-wash:#eef4ef;--blue:#3E9EB3;--blue-ink:#2f7d90;--blue-wash:#e9f4f6;
+  --plum:#AC659D;--plum-ink:#7c4470;--plum-wash:#f6eff4;--gold:#D9B93B;--gold-ink:#8a7415;--gold-wash:#fbf6e4;
+  --coral:#C96A44;--coral-ink:#9a4a2b;--coral-wash:#f9ede7;--slate:#5b7a99;--indigo:#5E6FB2;--jade:#3E9E86;--rose:#C67BA0;--violet:#7C5192;--slate-ink:#3f5a75;--slate-wash:#eef2f6;
+  --rolec:#17a2b8;--shadow:0 1px 2px rgba(60,50,35,.04),0 12px 30px -18px rgba(60,50,35,.18);
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font-family:var(--ui);background:var(--paper);color:var(--ink);letter-spacing:-.01em}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+
+/* shared header chrome */
+.topbar{height:64px;display:flex;align-items:center;gap:12px;padding:0 22px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.brandplate{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;background:var(--acc,var(--teal));box-shadow:0 8px 18px -9px var(--acc,var(--teal))}.brandplate svg{width:18px;height:18px}
+.dept{font-size:14px;font-weight:900;letter-spacing:.17em;text-transform:uppercase;color:var(--teal-ink);white-space:nowrap}
+.hdivider{width:1px;height:26px;background:var(--line)}
+.apptitle{font-weight:850;font-size:16px}
+.backlink{margin-left:auto;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:9px;padding:8px 12px;font-size:13px;font-weight:800;text-decoration:none}
+.backlink:hover{border-color:var(--teal);color:var(--teal-ink)}
+
+.wrap{padding:16px 22px 30px;max-width:1560px;margin:0 auto}
+.viewhead{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}.viewhead h2{font-size:26px;margin:0 0 3px;font-weight:850;letter-spacing:-.02em}.viewhead p{font-size:15px;color:var(--muted);margin:0}.viewhead .push{margin-left:auto;display:flex;gap:7px;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:9px;padding:9px 12px;font-size:14px;font-weight:800}.btn:hover{border-color:var(--teal);color:var(--teal-ink)}.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}.btn.green{background:var(--green);border-color:var(--green);color:#fff}
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px;box-shadow:0 1px 2px rgba(60,50,35,.035),0 8px 22px -20px rgba(60,50,35,.18)}
+.ph{display:flex;align-items:center;gap:8px;margin-bottom:10px}.ph h3{margin:0;font-size:15px;text-transform:uppercase;letter-spacing:.055em;font-weight:900}.ph .push{margin-left:auto}
+.plate{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;background:var(--acc,var(--teal));box-shadow:0 8px 18px -9px var(--acc,var(--teal));flex:none}.plate svg{width:16px;height:16px}
+.minor{font-size:13px;background:var(--paper);color:var(--muted);border-radius:99px;padding:3px 7px;font-weight:800}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.caption{font-size:12.5px;color:var(--muted);margin-top:4px}
+.tablewrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}th,td{padding:11px 13px;border-bottom:1px solid var(--line2);text-align:left;font-size:15.5px}th{background:#fbfcfc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}tr:last-child td{border-bottom:0}
+.status{display:inline-flex;border-radius:99px;padding:3px 7px;font-size:12.5px;font-weight:900}.good{background:var(--green-wash);color:var(--green-ink)}.warn{background:var(--gold-wash);color:var(--gold-ink)}.bad{background:#fff1ee;color:#a34a3f}.info{background:var(--blue-wash);color:var(--blue-ink)}
+.switch{position:relative;display:inline-block;width:34px;height:19px}.switch input{display:none}.slider{position:absolute;inset:0;border-radius:99px;background:#d8dde0}.slider:before{content:'';position:absolute;width:13px;height:13px;border-radius:50%;left:3px;top:3px;background:#fff;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.15)}.switch input:checked + .slider{background:var(--teal)}.switch input:checked + .slider:before{transform:translateX(15px)}
+.drawer{position:fixed;top:0;right:-410px;width:390px;max-width:94vw;height:100vh;background:#fff;border-left:1px solid var(--line);box-shadow:-18px 0 45px -25px rgba(0,0,0,.3);z-index:80;transition:.22s;padding:17px;overflow:auto}.drawer.open{right:0}.drawer h3{margin:0 0 3px;font-size:19.5px}.drawer p{margin:0 0 12px;color:var(--muted);font-size:12.5px}.close{position:absolute;right:10px;top:10px}.field{margin-bottom:10px}.field label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin-bottom:4px}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px;font-size:14.5px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(14px);opacity:0;background:var(--ink);color:#fff;padding:9px 12px;border-radius:8px;font-size:12.5px;font-weight:800;transition:.18s;z-index:100}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.lst-empty{color:var(--muted);font-size:13.5px;padding:14px 4px;text-align:center}td.lst-empty{padding:18px 4px}
+
+/* ===== LEDGERS ===== */
+.ledbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.ledbar label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ledbar select{font:inherit;font-size:14px;font-weight:700;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.ledyear{font-weight:800;color:var(--muted);font-size:14px;margin-left:8px}
+.ledchips{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+@media(max-width:960px){.ledchips{grid-template-columns:repeat(2,1fr)}}
+.ledchip{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:11px 13px;border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:11px;background:#fff;cursor:pointer;transition:.15s;text-align:left}
+.ledchip:hover{box-shadow:0 8px 18px -14px rgba(0,0,0,.4)}
+.ledchip.on{border-color:var(--acc);box-shadow:0 10px 20px -12px var(--acc)}
+.ledchip-t{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.ledchip-b{font-size:17px;font-weight:800;color:var(--ink)}
+.ledmonths{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.ledmo{font:inherit;font-size:12px;font-weight:700;padding:6px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--muted);cursor:pointer}
+.ledmo:hover{border-color:var(--blue)}.ledmo.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ledacct .ph h3{color:var(--blue-ink)}
+.ledbal{font-size:16px;font-weight:800;color:var(--blue-ink)}
+.ledtable th.num,.ledtable td.num{text-align:right;white-space:nowrap}
+.ledtable td.dep{color:var(--green-ink);font-weight:700}
+.ledtable td.deb{color:var(--coral-ink);font-weight:700}
+.ledtable td.bal{font-weight:800}
+.ledtable tr.fwd td{color:var(--muted);font-style:italic;background:#fbfcfd}
+.ledtable th.vfy,.ledtable td.vfy{text-align:center;width:70px}
+.vbtn{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line);background:#fff;display:inline-grid;place-items:center;cursor:pointer;color:#fff}
+.vbtn svg{width:14px;height:14px}.vbtn.ok{background:var(--green);border-color:var(--green)}
+.ledempty{color:var(--muted);text-align:center;padding:14px 0}
+.ledadd{display:flex;gap:6px;flex-wrap:wrap;padding:10px 2px 2px;align-items:center}
+.ledadd input{font:inherit;font-size:12.5px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.ledadd .recin{width:66px}.ledadd .descin{flex:1;min-width:130px}.ledadd .amtin{width:88px}.ledadd .ledaddbtn{padding:8px 14px}
+.ledcfg{display:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:-4px 0 14px;max-width:380px}
+.ledcfg.open{display:block}
+.ledcfg-h{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.ledcfg-row{display:flex;align-items:center;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line2);font-size:13px;font-weight:600}
+.ledcfg-row:last-child{border-bottom:0}.ledcfg-row input{width:17px;height:17px;accent-color:var(--blue)}
+.ledcfg-note{font-size:10.5px;color:var(--muted);margin-top:9px;line-height:1.4}
+.ledcfg-bank{display:flex;align-items:center;gap:8px;padding:2px 2px 10px;border-bottom:1px solid var(--line2);margin-bottom:6px}
+.ledcfg-bank label{font-size:12px;font-weight:800;color:var(--muted)}
+.ledcfg-bank input{flex:1;font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.lact{width:80px;text-align:center;white-space:nowrap}
+.delbtn{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--line);background:#fff;color:var(--coral-ink);cursor:pointer;font-weight:800;font-size:12px;line-height:1}
+.delbtn:hover{border-color:var(--coral);background:var(--coral-wash)}
+.delok{background:var(--coral);color:#fff;border:0;border-radius:7px;padding:4px 9px;font-size:11px;font-weight:800;cursor:pointer}
+.delno{background:#fff;border:1px solid var(--line);border-radius:7px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;margin-left:4px}
+.ledlog{margin-top:14px}.ledlog .ph h3{color:var(--blue-ink)}
+.vchk{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}.vchk input{width:16px;height:16px;accent-color:var(--green)}
+
+/* ===== INDIVIDUALS ===== */
+.zonehead th{background:#fff;border-bottom:0;padding:10px 13px 5px;font-size:13.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.zonehead .zres{color:var(--teal-ink)}.zonehead .zdh{color:var(--coral-ink)}
+.zonehead .zdh,thead tr:last-child th.bnd,tbody td.bnd{border-left:2px solid var(--coral-wash)}
+
+/* ===== PRINT REPORTS (ledgers) ===== */
+#ledReport{display:none}
+.ledrep-page{font-family:'Plus Jakarta Sans',Arial,sans-serif;color:#141414;padding:2px 4px;page-break-inside:avoid}
+.ledrep-logo{height:40px;margin:2px 0 8px}
+.ledrep-name{font-size:17px;font-weight:800;margin:0 0 9px}
+.ledrep-table{width:100%;border-collapse:collapse;font-size:10.5px}
+.ledrep-table th,.ledrep-table td{border:1px solid #23425f;padding:1px 6px;line-height:15px}
+.ledrep-band th{background:#dce7f3;color:#0b2440;text-align:left;font-weight:800;font-size:12.5px}
+.ledrep-band .acctband{font-size:13px}
+.ledrep-cols th{background:#123a60;color:#fff;text-align:left;font-size:10px;font-weight:700}
+.ledrep-cols th.num,.ledrep-table td.num{text-align:right}
+.ledrep-table td.bal{text-align:right;font-weight:800}
+.ledrep-sign{margin-top:26px;font-size:11px}
+@media print{
+  .topbar,.wrap .viewhead .push,.toast{}
+  body>.topbar,body>.wrap>.viewhead .push{display:none!important}
+  #ledReport{display:block!important}
+  @page{margin:14mm}
+  .ledrep-page{page-break-after:always}.ledrep-page:last-child{page-break-after:auto}
+}
+@media(max-width:680px){.grid2{grid-template-columns:1fr}}
+
+/* generic helpers used by split apps */
+.metric{font-size:30px;font-weight:800}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar select,.toolbar input{padding:8px;border:1px solid var(--line);border-radius:8px;font:inherit}
+</style></head>
+<body>
+<header class="topbar"><div class="brandplate" data-icon="individuals" style="--acc:var(--indigo)"></div><div class="dept">Residential</div><div class="hdivider"></div><div class="apptitle">Individuals</div><a class="backlink" href="index.html">‹ Back to OS</a></header>
+<div class="wrap">
+<div class="viewhead"><div><h2>Individuals</h2><p>One shared person record. Residential controls residence and status; Day Hab receives the shared handoff fields.</p></div><div class="push"><button class="btn primary" id="addIndividual">Add Individual</button></div></div>
+<div class="grid2"><section class="panel"><div class="ph"><span class="plate" style="--acc:var(--indigo)" data-icon="individuals"></span><h3>Shared with Day Hab</h3></div><div class="metric" id="sharedCount">0</div><div class="caption">Individuals marked as Day Hab participants</div></section><section class="panel"><div class="ph"><span class="plate" style="--acc:var(--teal)" data-icon="bell"></span><h3>Live Updates Today</h3></div><div class="metric" id="updateCount">0</div><div class="caption">Absence / early return handoffs</div></section></div>
+<div class="toolbar"><label>Residence <select id="homeFilter"></select></label></div>
+<div class="tablewrap"><table><thead><tr class="zonehead"><th colspan="3" class="zres">Residential · owns</th><th colspan="3" class="zdh">Shared → Day Hab · receives</th></tr><tr><th>Individual</th><th>Residence</th><th>Today's Status</th><th class="bnd">Day Hab</th><th>Service</th><th>Last Shared</th></tr></thead><tbody id="individualRows"></tbody></table></div>
+</div>
+<div class="drawer" id="drawer"><button class="btn close" id="drawerClose">×</button><h3 id="drawerTitle"></h3><p id="drawerSub"></p><div id="drawerBody"></div></div><div class="toast" id="toast"></div>
+<script>
+/* HASC-OS Mark 4 — shared icon set (Lucide-style, solid-plate ready). */
+const INDEX_ICONS={"staff":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/></svg>","grid":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.6\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1.6\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.6\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1.6\"/></svg>","check":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 11l3 3L22 4\"/><path d=\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"/></svg>","ledger":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 4a2 2 0 0 1 2-2h11l3 3v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z\"/><path d=\"M9 7h6M9 11h6M9 15h4\"/></svg>","calendar":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"17\" rx=\"2\"/><path d=\"M3 9h18M8 2v4M16 2v4\"/></svg>","grad":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 10L12 5 2 10l10 5 10-5z\"/><path d=\"M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5\"/></svg>","chart":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3v18h18\"/><rect x=\"7\" y=\"11\" width=\"3\" height=\"6\"/><rect x=\"12\" y=\"7\" width=\"3\" height=\"10\"/><rect x=\"17\" y=\"13\" width=\"3\" height=\"4\"/></svg>","lifeplan":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z\"/><path d=\"M3 20a6 6 0 0 1 12 0\"/><path d=\"M15.5 7.5c1-1.2 3-1 3 .6 0 1.3-1.6 2.2-3 3.4-1.4-1.2-3-2.1-3-3.4 0-1.6 2-1.8 3-.6z\"/></svg>","individuals":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/></svg>","home":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 10.5 12 3l9 7.5\"/><path d=\"M5 9.5V21h14V9.5\"/></svg>","arrow":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg>","bell":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0\"/></svg>","print":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 9V2h12v7\"/><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"/><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"/></svg>"};
+function hydrateIcons(root){(root||document).querySelectorAll('[data-icon]').forEach(function(el){var k=el.dataset.icon;if(INDEX_ICONS[k])el.innerHTML=INDEX_ICONS[k];});}
+</script>
+<script>
+const HOMES=[{"name": "Bedford Avenue - 3245", "address": "3245 Bedford Ave Bklyn NY 11210", "rm": "David Kogan", "ac": "Aviva Rosenzweig", "phone": "718-677-0877", "lat": 40.6281, "lng": -73.9464, "zip": "11210"}, {"name": "East 35th St - 1431", "address": "1431 East 35th St Bklyn NY 11234", "rm": "Sarah Nathan", "ac": "Aviva Rosenzweig", "phone": "718-258-9642", "lat": 40.6096, "lng": -73.9174, "zip": "11234"}, {"name": "New York Avenue", "address": "1831 NY Ave Bklyn NY 11210", "rm": "Sarah Nathan", "ac": "Aviva Rosenzweig", "phone": "718-252-4038", "lat": 40.6281, "lng": -73.9464, "zip": "11210"}, {"name": "Avenue I - 2802", "address": "2802 Avenue I Bklyn NY 11210", "rm": "Bracha Klein", "ac": "Aviva Rosenzweig", "phone": "718-758-1784", "lat": 40.6281, "lng": -73.9464, "zip": "11210"}, {"name": "1503 East 14th Street", "address": "1503 East 14th St Bklyn NY 11230", "rm": "Eli Rosengarten", "ac": "Aviva Rosenzweig", "phone": "718-336-1392", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "Avenue H - 824", "address": "824 East 9th St Bklyn NY 11230", "rm": "Yuti Kluger", "ac": "Aviva Rosenzweig", "phone": "718-434-6185", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "East 7th Street (Ave N)", "address": "689 East 7th St Bklyn NY 11218", "rm": "Yuti Kluger", "ac": "Aviva Rosenzweig", "phone": "718-787-1632", "lat": 40.643, "lng": -73.976, "zip": "11218"}, {"name": "46th Street - 1771 1st Fl", "address": "1771 46th St 1st Fl Bklyn NY 11204", "rm": "Yuti Kluger", "ac": "Aviva Rosenzweig", "phone": "718-408-5592", "lat": 40.6187, "lng": -73.9847, "zip": "11204"}, {"name": "46th Street - 1771 2nd Fl", "address": "1771 46th St 2nd Fl Bklyn NY 11204", "rm": "Yuti Kluger", "ac": "Aviva Rosenzweig", "phone": "718-435-2192", "lat": 40.6187, "lng": -73.9847, "zip": "11204"}, {"name": "1068 East 14th Street", "address": "1068 East 14th St Bklyn NY 11230", "rm": "Yuti Kluger", "ac": "Aviva Rosenzweig", "phone": "718-837-0071", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "50th Street - 918", "address": "918 50th Street Bklyn NY 11219", "rm": "Rivka Bikel", "ac": "Shmuel Singer", "phone": "718-435-3079", "lat": 40.6329, "lng": -73.9966, "zip": "11219"}, {"name": "East 9th - 1367", "address": "1367 East 9th St Bklyn NY 11230", "rm": "Vadim Telesh", "ac": "Shmuel Singer", "phone": "718-375-1279", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "Avenue K - 1010", "address": "1010 Avenue K Bklyn NY 11230", "rm": "Vadim Telesh", "ac": "Shmuel Singer", "phone": "718-677-5840", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "Crown Heights - 580", "address": "580 East NY Ave Bklyn NY 11203", "rm": "Eli Rosengarten", "ac": "Shmuel Singer", "phone": "718-363-3750", "lat": 40.6497, "lng": -73.9331, "zip": "11203"}, {"name": "Montgomery St (fmr Kingston Ave)", "address": "777 Montgomery St Bklyn NY 11225", "rm": "Eli Rosengarten", "ac": "Shmuel Singer", "phone": "718-363-0136", "lat": 40.6633, "lng": -73.9547, "zip": "11225"}, {"name": "Coney Island Ave - 2173", "address": "2173 Coney Island Ave Bklyn NY 11223", "rm": "Isaac Serussi", "ac": "Shmuel Singer", "phone": "718-382-1866", "lat": 40.5975, "lng": -73.9736, "zip": "11223"}, {"name": "Avenue L - 1122", "address": "1122 Avenue L Bklyn NY 11230", "rm": "Isaac Serussi", "ac": "Shmuel Singer", "phone": "718-758-2720", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "East 21 - 2102 Ave I", "address": "2102 Avenue I Bklyn NY 11230", "rm": "Eva Hoffman", "ac": "Leedor Lebovits", "phone": "718-252-1406", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "East 36th Street - 3521", "address": "3521 Avenue L Bklyn NY 11210", "rm": "Anar Nisim", "ac": "Leedor Lebovits", "phone": "347-560-2081", "lat": 40.6281, "lng": -73.9464, "zip": "11210"}, {"name": "Kings Highway - 2416", "address": "2416 Kings Hwy Bklyn NY 11229", "rm": "Benyamin Lalehfar", "ac": "Leedor Lebovits", "phone": "718-258-5422", "lat": 40.6011, "lng": -73.9445, "zip": "11229"}, {"name": "53rd Street - 1038", "address": "1038 53rd St Bklyn NY 11219", "rm": "Michal Bentes", "ac": "Leedor Lebovits", "phone": "718-438-1106", "lat": 40.6329, "lng": -73.9966, "zip": "11219"}, {"name": "19th Avenue - 4801", "address": "4801 19th Ave 2nd Fl Bklyn NY 11204", "rm": "Michal Bentes", "ac": "Leedor Lebovits", "phone": "718-436-5439", "lat": 40.6187, "lng": -73.9847, "zip": "11204"}, {"name": "46th Street - 1327", "address": "1327 46th St Apt 2E Bklyn NY 11219", "rm": "Michal Bentes", "ac": "Leedor Lebovits", "phone": "718-972-1192", "lat": 40.6329, "lng": -73.9966, "zip": "11219"}, {"name": "48th Street - 1268", "address": "1268 48th St Bklyn NY 11219", "rm": "Michal Bentes", "ac": "Leedor Lebovits", "phone": "718-438-1012", "lat": 40.6329, "lng": -73.9966, "zip": "11219"}, {"name": "Avenue J - 1010", "address": "1010 Avenue J Bklyn NY 11230", "rm": "Jay Estes", "ac": "Shua Lieber", "phone": "718-377-5492", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "Avenue J - 1014 6B", "address": "1014 Ave J apt 6B Bklyn NY 11230", "rm": "Shlomo Shadrokh", "ac": "Shua Lieber", "phone": "917-933-448", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "Avenue J - 1014 6F", "address": "1014 Ave J apt 6F Bklyn NY 11230", "rm": "Shlomo Shadrokh", "ac": "Shua Lieber", "phone": "718-942-3068", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "Ditmas Avenue - 804", "address": "804 Ditmas Ave Bklyn NY 11218", "rm": "Gavriel Sienov", "ac": "Shua Lieber", "phone": "718-437-6537", "lat": 40.643, "lng": -73.976, "zip": "11218"}, {"name": "Webster Avenue - 373", "address": "373 Webster Ave Bklyn NY 11230", "rm": "Yehuda Osipov", "ac": "Shua Lieber", "phone": "718-853-5907", "lat": 40.6222, "lng": -73.9654, "zip": "11230"}, {"name": "East 8th Street - 536", "address": "536 East 8th St Brooklyn NY 11218", "rm": "Yehuda Osipov", "ac": "Shua Lieber", "phone": "347-505-0771", "lat": 40.643, "lng": -73.976, "zip": "11218"}, {"name": "Avenue S", "address": "2055 East 21 Bklyn NY 11229", "rm": "Sonya Nasimova", "ac": "Shua Lieber", "phone": "718-627-1854", "lat": 40.6011, "lng": -73.9445, "zip": "11229"}, {"name": "Mill Basin", "address": "1427 East 65th St Bklyn NY 11234", "rm": "Aron Janani", "ac": "Shua Lieber", "phone": "718-241-2791", "lat": 40.6096, "lng": -73.9174, "zip": "11234"}, {"name": "Staten Island", "address": "23 Sutter Place Staten Island NY 10309", "rm": "Shlomo Shadrokh", "ac": "Shua Lieber", "phone": "718-317-1512", "lat": 40.5346, "lng": -74.214, "zip": "10309"}, {"name": "East 13th Street - 1857", "address": "1857 East 13th St Bklyn NY 11229", "rm": "Esther Fischer", "ac": "Shua Lieber", "phone": "718-382-7054", "lat": 40.6011, "lng": -73.9445, "zip": "11229"}];
+const KEY='hascos.individuals.v1';
+let individuals=[]; try{individuals=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){individuals=[]}
+let selectedHome='ALL';
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(individuals));window.parent&&window.parent.postMessage({type:'hascos:individuals-changed'},'*')}
+function toastMsg(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1400)}
+function openDrawer(title,sub,body){$('drawerTitle').textContent=title;$('drawerSub').textContent=sub||'';$('drawerBody').innerHTML=body;$('drawer').classList.add('open')}
+$('drawerClose').onclick=()=>$('drawer').classList.remove('open');
+function populate(){$('homeFilter').innerHTML='<option value="ALL">All Homes</option>'+HOMES.map(h=>`<option value="${h.name}">${h.name}</option>`).join('')}
+$('homeFilter').onchange=()=>{selectedHome=$('homeFilter').value;render()}
+function render(){const rows=individuals.filter(x=>selectedHome==='ALL'||x.home===selectedHome);$('sharedCount').textContent=rows.filter(x=>x.dayHab).length;$('updateCount').textContent=rows.filter(x=>(x.last||'').includes('Sent')||(x.last||'').includes('Received')).length;$('individualRows').innerHTML=rows.length?rows.map(r=>`<tr data-id="${r.id}"><td><b>${r.name}</b><div class="caption">${r.id}</div></td><td>${r.home}</td><td><span class="status ${(r.status||'').includes('Sick')?'bad':(r.status||'').includes('Early')?'warn':(r.status||'').includes('Day Hab')?'info':'good'}">${r.status||'At Residence'}</span></td><td class="bnd"><label class="switch"><input data-toggle="${r.id}" type="checkbox" ${r.dayHab?'checked':''}><span class="slider"></span></label></td><td>${r.dayHab?(r.service||'Day Hab'):'Residential only'}</td><td>${r.last||''}</td></tr>`).join(''):'<tr><td colspan="6" class="caption">No individuals recorded yet.</td></tr>';
+document.querySelectorAll('[data-toggle]').forEach(cb=>cb.onclick=e=>{e.stopPropagation();const r=individuals.find(x=>x.id===cb.dataset.toggle);r.dayHab=cb.checked;r.last=cb.checked?'Shared just now':'Residential only';save();render()});
+document.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=()=>openIndividual(individuals.find(x=>x.id===tr.dataset.id)));}
+function openIndividual(r){openDrawer(r.name,'Shared individual record',`<div class="field"><label>Name</label><input id="drName" value="${(r.name||'').replace(/"/g,'&quot;')}"></div><div class="field"><label>Residence</label><select id="drHome">${HOMES.map(h=>`<option ${h.name===r.home?'selected':''}>${h.name}</option>`).join('')}</select></div><div class="field"><label>Day Hab participant</label><select id="drDH"><option value="yes" ${r.dayHab?'selected':''}>Yes</option><option value="no" ${!r.dayHab?'selected':''}>No</option></select></div><div class="field"><label>Day Hab service</label><select id="drService"><option>Day Hab</option><option>Supplemental Day Hab</option><option>Community Prevoc</option><option>SEMP</option></select></div><div class="field"><label>Today's live status</label><select id="drStatus"><option>At Residence</option><option>At Day Hab</option><option>Staying Home Sick</option><option>Early Return 1:30 PM</option><option>Absent - Other</option></select></div><button class="btn primary" id="saveEdit" style="width:100%">Save & Send Live Update</button><button class="btn" id="delInd" style="width:100%;margin-top:8px">Delete Individual</button>`);
+setTimeout(()=>{$('drService').value=r.service||'Day Hab';$('drStatus').value=r.status||'At Residence';$('saveEdit').onclick=()=>{r.name=$('drName').value.trim()||r.name;r.home=$('drHome').value;r.dayHab=$('drDH').value==='yes';r.service=$('drService').value;r.status=$('drStatus').value;r.last='Sent just now';save();$('drawer').classList.remove('open');render();toastMsg('Live update saved')};var _armed=false;$('delInd').onclick=()=>{if(!_armed){_armed=true;$('delInd').textContent='Tap again to confirm delete';$('delInd').style.background='var(--coral-wash)';return;}individuals=individuals.filter(x=>x.id!==r.id);save();$('drawer').classList.remove('open');render();toastMsg('Individual deleted')}},0)}
+$('addIndividual').onclick=()=>{openDrawer('Add Individual','New Residential record',`<div class="field"><label>Name</label><input id="newName"></div><div class="field"><label>Residence</label><select id="newHome">${HOMES.map(h=>`<option>${h.name}</option>`).join('')}</select></div><div class="field"><label>Day Hab participant</label><select id="newDH"><option value="yes">Yes</option><option value="no">No</option></select></div><div class="field"><label>Day Hab service</label><select id="newSvc"><option>Day Hab</option><option>Supplemental Day Hab</option><option>Community Prevoc</option><option>SEMP</option></select></div><button class="btn primary" id="saveNew" style="width:100%">Create Individual</button>`);setTimeout(()=>{$('saveNew').onclick=()=>{const id='IND-'+String(Date.now()).slice(-6);individuals.unshift({id,name:$('newName').value.trim()||'New Individual',home:$('newHome').value,dayHab:$('newDH').value==='yes',service:$('newSvc').value,status:'At Residence',last:$('newDH').value==='yes'?'Shared just now':'Residential only'});save();$('drawer').classList.remove('open');render();toastMsg('Individual created')}},0)}
+populate();render();hydrateIcons();
+</script></body></html>
