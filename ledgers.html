@@ -162,7 +162,7 @@ function toastMsg(s){var t=document.getElementById('toast');t.textContent=s;t.cl
    CONFIG.useSupabase toggles mock (localStorage) vs live.
    Real Supabase queries are commented alongside each stub.
    ============================================================ */
-const CONFIG={useSupabase:false};
+const CONFIG={useSupabase:true};
 let sb=null;
 try{ if(CONFIG.useSupabase && window.supabase && window.HASC_CONFIG){ sb=window.__hascClient||window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL,window.HASC_CONFIG.SUPABASE_ANON_KEY); window.__hascClient=sb; } }catch(e){}
 
@@ -175,16 +175,16 @@ const LOGKEY='hascos.ledgerlog.v1';
 const API={
   async loadResidents(){
     if(CONFIG.useSupabase && sb){
-      // const {data}=await sb.from('individuals').select('id,name,home_name'); return (data||[]).map(r=>({id:r.id,name:r.name,home:r.home_name}));
+      const {data}=await sb.from('resi_individuals').select('id,name,home_name'); return (data||[]).map(r=>({id:r.id,name:r.name,home:r.home_name}));
     }
     try{return JSON.parse(localStorage.getItem(IKEY)||'[]');}catch(e){return [];}
   },
-  loadLedgers(){
-    if(CONFIG.useSupabase && sb){ /* hydrate from sb.from('ledger_entries')… (wire later) */ }
+  async loadLedgers(){
+    if(CONFIG.useSupabase && sb){ return await sbLoadLedgers(); }
     try{return JSON.parse(localStorage.getItem(LKEY)||'{}');}catch(e){return {};}
   },
   saveLedgers(db){
-    if(CONFIG.useSupabase && sb){ /* upsert changed rows into sb.from('ledger_entries') */ }
+    if(CONFIG.useSupabase && sb){ sbSaveLedgers(db); }
     try{localStorage.setItem(LKEY,JSON.stringify(db));}catch(e){}
   },
   loadHomeCfg(){try{return JSON.parse(localStorage.getItem(CFGKEY)||'{}');}catch(e){return {};}},
@@ -211,7 +211,7 @@ const LED_MONTHS_FULL=['January','February','March','April','May','June','July',
 const LED_YEAR=2026;
 
 let RESIDENTS=[];
-let LEDGERS=API.loadLedgers();
+let LEDGERS={};
 let LEDGER_LOG=API.loadLog();
 let HOME_ACCT_CFG=API.loadHomeCfg();
 let BANK_NAME=API.loadBank();
@@ -237,6 +237,7 @@ function ensureLedger(id){
 function ledForward(acct,month){var b=+acct.opening||0;for(var m=1;m<month;m++){(acct.months[m]||[]).forEach(function(t){b+=(+t.deposit||0)-(+t.debit||0);});}return b;}
 function ledClosing(acct,month){var b=ledForward(acct,month);(acct.months[month]||[]).forEach(function(t){b+=(+t.deposit||0)-(+t.debit||0);});return b;}
 function saveLedgers(){API.saveLedgers(LEDGERS);}
+  async function sbLoadLedgers(){try{var db={};function A(n){return {name:n,opening:0,months:{}};}var an={inhouse:'In-House Account',savings:'Savings',checking:'Checking',clothing:'Client Clothing'};function E(id){if(!db[id])db[id]={inhouse:A(an.inhouse),savings:A(an.savings),checking:A(an.checking),clothing:A(an.clothing)};return db[id];}var ac=await sb.from('resi_ledger_accounts').select('individual_id,account,opening');(ac.data||[]).forEach(function(r){var L=E(r.individual_id);if(L[r.account])L[r.account].opening=+r.opening||0;});var en=await sb.from('resi_ledger_entries').select('individual_id,account,month,entry_date,rec,description,deposit,debit,verified');(en.data||[]).forEach(function(r){var L=E(r.individual_id);var a=L[r.account];if(!a)return;var m=+r.month||1;if(!a.months[m])a.months[m]=[];a.months[m].push({date:r.entry_date,rec:r.rec||'',desc:r.description||'',deposit:+r.deposit||0,debit:+r.debit||0,verified:!!r.verified});});return db;}catch(e){return {};}}async function sbSaveLedgers(db){try{var accts=[];var entries=[];Object.keys(db||{}).forEach(function(id){var L=db[id];Object.keys(L).forEach(function(k){var a=L[k];accts.push({individual_id:id,account:k,opening:+a.opening||0});Object.keys(a.months||{}).forEach(function(m){(a.months[m]||[]).forEach(function(t){entries.push({individual_id:id,account:k,month:String(m),entry_date:t.date,rec:t.rec||'',description:t.desc||'',deposit:+t.deposit||0,debit:+t.debit||0,verified:!!t.verified});});});});});await sb.from('resi_ledger_accounts').upsert(accts,{onConflict:'individual_id,account'});var ids=Object.keys(db||{});if(ids.length){await sb.from('resi_ledger_entries').delete().in('individual_id',ids);if(entries.length)await sb.from('resi_ledger_entries').insert(entries);}}catch(e){}}
 
 function renderLedgers(){
   var host=document.getElementById('ledgerRoot');if(!host)return;
@@ -342,7 +343,7 @@ function doLedPrint(scope){
 
 /* ---- boot ---- */
 (async function(){
-  RESIDENTS=await API.loadResidents();
+  RESIDENTS=await API.loadResidents(); LEDGERS=await API.loadLedgers();
   var dm=document.getElementById('dataMode');
   if(dm)dm.textContent=CONFIG.useSupabase?'Supabase connected':'Wire-ready · mock data';
   renderLedgers();
