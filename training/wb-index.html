@@ -62,6 +62,12 @@
     .header{padding:12px 16px}
   }
 </style>
+<style id="hasc-embed">
+  html.hasc-embedded, html.hasc-embedded body { background: rgb(241,239,233) !important; }
+  html.hasc-embedded .topbar, html.hasc-embedded #appHeader, html.hasc-embedded header.topbar { display: none !important; }
+  html.hasc-embedded #homeBtn { display: none !important; }
+</style>
+<script>if (window.self !== window.top) document.documentElement.classList.add('hasc-embedded');</script>
 </head>
 <body>
 <div class="topbar hidden" id="appHeader"><div class="logo"><img src="/hasc-logo.png" alt="HASC"></div><div class="brandlabel">Residential</div><div class="page-label" id="pageLabel">Training Portal</div><div class="navbtns"><button type="button" class="navbtn" id="backBtn" onclick="history.back()">← Back</button><button type="button" class="navbtn" id="homeBtn" onclick="window.location.href='/index.html'">🏠 Home</button></div><div class="me"><div class="badge" id="tpBadge"></div><div><div class="nm" id="whoEmail"></div><div class="rl">Residential</div></div><button class="signout" id="signoutBtn">Sign Out</button></div></div>
