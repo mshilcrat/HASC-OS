@@ -8,6 +8,9 @@
 <script src="../wb-config.js"></script>
 <script src="../wb-guard.js"></script>
 <style>
+  /* Embedded in dashboard shell: hide duplicate chrome so the hub feels like part of the page. Left rail is now Home; Back stays for menu navigation. */
+  .topbar .logo, .topbar .logo-mark, .topbar .brandlabel, .topbar .me, .topbar .whoami, #homeBtn { display:none !important; }
+  .topbar { border-bottom:none !important; background:transparent !important; padding-left:0 !important; padding-right:0 !important; }
 * { box-sizing:border-box; }
 body { margin:0; background:#eef2f5; color:#223038; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
 .topbar { background:#fff; border-bottom:3px solid #17a2b8; display:flex; align-items:center; gap:16px; padding:12px 24px; flex-wrap:wrap; }
