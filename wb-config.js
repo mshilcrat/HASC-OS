@@ -221,3 +221,188 @@ window.HASC_CONFIG = {
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,600);});}else{setTimeout(boot,600);}
 })();
+
+
+/* ============================================================
+   HASC Residential OS — Compliance & Naming add-on
+   Additive module (appended to wb-config.js). Browser-only prototype layer.
+   Adds:
+   1) Ledgers: rename "Client Clothing" account label -> "Individual Clothing"
+   2) Individuals: "$2,000 Limit Watch" toggle column (persisted in localStorage)
+   3) Ledgers: combined-account $2,000 compliance flag + Add-entry warning modal
+   4) Apps launcher: register Forms + Maintenance pin rows
+   ============================================================ */
+(function(){
+  "use strict";
+  var LIMIT = 2000;
+  var WATCH_KEY = "hascos.limitWatch.v1";
+
+  function loadWatch(){ try{ return JSON.parse(localStorage.getItem(WATCH_KEY) || "{}"); }catch(e){ return {}; } }
+  function saveWatch(o){ try{ localStorage.setItem(WATCH_KEY, JSON.stringify(o)); }catch(e){} }
+  function watchedNames(){ return Object.keys(loadWatch()); }
+  function money(t){ var m=(t||"").match(/\$?\s*(-?[0-9][0-9.,]*)/); return m?parseFloat(m[1].replace(/,/g,"")):0; }
+
+  /* ---------- 1) Ledgers "Client Clothing" -> "Individual Clothing" ---------- */
+  function renameClothing(doc){
+    if(!doc) return;
+    var w = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null), n;
+    while((n=w.nextNode())){
+      if(/client clothing/i.test(n.nodeValue||"")) n.nodeValue = n.nodeValue.replace(/client clothing/ig,"Individual Clothing");
+    }
+  }
+
+  /* ---------- 2) Individuals limit-watch toggle column ---------- */
+  function injectWatchCss(){
+    if(document.getElementById("lwCss")) return;
+    var s=document.createElement("style"); s.id="lwCss";
+    s.textContent=".lw-sw{position:relative;display:inline-block;width:42px;height:24px;cursor:pointer;vertical-align:middle}.lw-sw input{opacity:0;width:0;height:0;position:absolute}.lw-tr{position:absolute;inset:0;background:#cbd5e1;border-radius:999px;transition:.15s}.lw-tr:before{content:'';position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}.lw-sw input:checked + .lw-tr{background:#B42318}.lw-sw input:checked + .lw-tr:before{transform:translateX(18px)}th.lw-col{white-space:nowrap}";
+    document.head.appendChild(s);
+  }
+  function buildWatchColumn(){
+    var table=document.querySelector('[data-view-panel="individuals"] table, table');
+    if(!table || table.__lwDone) return;
+    var headTxt=(table.querySelector("thead")||{}).textContent||"";
+    if(!/individual/i.test(headTxt)) return;
+    injectWatchCss();
+    var store=loadWatch();
+    var heads=table.querySelectorAll("thead tr");
+    if(heads[0]){ var th=document.createElement("th"); th.className="lw-col"; th.textContent="COMPLIANCE"; th.style.cssText="color:#B42318;font:700 11px/1 system-ui;letter-spacing:.05em"; heads[0].appendChild(th); }
+    var labelRow=heads[1]||heads[0];
+    var lth=document.createElement("th"); lth.className="lw-col"; lth.textContent="$2,000 LIMIT WATCH"; labelRow.appendChild(lth);
+    table.querySelectorAll("tbody tr").forEach(function(tr){
+      var fc=tr.querySelector("td"), name="";
+      if(fc){ var st=fc.querySelector("b,strong,div,span"); name=((st?st.textContent:fc.textContent)||"").trim().split("\n")[0].trim(); }
+      var td=document.createElement("td"); td.className="lw-col";
+      var on=!!store[name];
+      td.innerHTML='<label class="lw-sw"><input type="checkbox" '+(on?"checked":"")+' data-lw-name="'+name.replace(/"/g,"&quot;")+'"><span class="lw-tr"></span></label>';
+      var inp=td.querySelector("input");
+      inp.addEventListener("click",function(e){ e.stopPropagation(); });
+      inp.addEventListener("change",function(){ var s2=loadWatch(); if(this.checked) s2[this.dataset.lwName]=true; else delete s2[this.dataset.lwName]; saveWatch(s2); });
+      tr.appendChild(td);
+    });
+    table.__lwDone=true;
+  }
+
+  /* ---------- 3) Ledgers compliance flag + warning ---------- */
+  function ledgerDoc(){ var f=document.getElementById("ledgersFrame"); return f&&f.contentDocument?f.contentDocument:null; }
+  function ledgerWin(){ var f=document.getElementById("ledgersFrame"); return f?f.contentWindow:null; }
+
+  function injectFlagCss(doc){
+    if(doc.getElementById("limitFlagCss")) return;
+    var s=doc.createElement("style"); s.id="limitFlagCss";
+    s.textContent=".limit-banner{display:flex;align-items:center;gap:10px;margin:14px 0;padding:12px 16px;border-radius:12px;font:600 14px/1.3 system-ui,sans-serif}.limit-banner.over{background:#FDECEC;color:#B42318;border:1px solid #F3B4B0}.limit-banner.near{background:#FFF6E5;color:#8A5A00;border:1px solid #F3D89B}.limit-badge{display:inline-block;margin-top:4px;padding:2px 8px;border-radius:999px;font:700 10px/1.4 system-ui,sans-serif;letter-spacing:.03em}.limit-badge.over{background:#B42318;color:#fff}.limit-badge.near{background:#8A5A00;color:#fff}.ledchip.limit-over{outline:2px solid #B42318;outline-offset:1px}.lc-back{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;z-index:99999}.lc-box{background:#fff;max-width:440px;width:90%;border-radius:14px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.3);font:14px/1.5 system-ui}.lc-box h3{margin:0 0 8px;color:#B42318;font-size:17px}.lc-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9}.lc-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}.lc-btn{padding:8px 16px;border-radius:8px;border:0;cursor:pointer;font-weight:600}.lc-cancel{background:#e2e8f0;color:#0f172a}.lc-go{background:#B42318;color:#fff}";
+    doc.head.appendChild(s);
+  }
+
+  function renderFlag(){
+    var doc=ledgerDoc(), w=ledgerWin(); if(!doc||!w) return;
+    injectFlagCss(doc);
+    var chips=[].slice.call(doc.querySelectorAll(".ledchip"));
+    var total=0; chips.forEach(function(c){ total+=money(c.textContent); });
+    var rp=doc.getElementById("ledPick");
+    var resident = rp && rp.options[rp.selectedIndex] ? rp.options[rp.selectedIndex].text : "";
+    var onList = watchedNames().indexOf(resident) !== -1;
+    var old=doc.getElementById("limitBanner"); if(old) old.remove();
+    doc.querySelectorAll(".limit-badge").forEach(function(b){ b.remove(); });
+    chips.forEach(function(c){ c.classList.remove("limit-over"); });
+    if(!onList) return;
+    var level = total>=LIMIT ? "over" : (total>=LIMIT*0.9 ? "near" : null);
+    if(!level) return;
+    var chipRow = chips[0] ? chips[0].parentElement : null;
+    var b=doc.createElement("div"); b.id="limitBanner"; b.className="limit-banner "+level;
+    var m="$"+total.toFixed(2);
+    b.innerHTML='<span>'+(level==="over"
+      ? '<b>'+resident+'</b> is <b>OVER</b> the $'+LIMIT.toLocaleString()+' combined resource limit \u2014 total across all accounts is <b>'+m+'</b>. Reduce balance to stay in compliance.'
+      : '<b>'+resident+'</b> is <b>approaching</b> the $'+LIMIT.toLocaleString()+' limit \u2014 combined total is <b>'+m+'</b>.')+'</span>';
+    if(chipRow&&chipRow.parentElement) chipRow.parentElement.insertBefore(b, chipRow);
+    var biggest=null,max=-1; chips.forEach(function(c){ var v=money(c.textContent); if(v>max){max=v;biggest=c;} });
+    if(biggest){ biggest.classList.add("limit-"+level); var bd=doc.createElement("span"); bd.className="limit-badge "+level; bd.textContent=level==="over"?"OVER LIMIT":"NEAR LIMIT"; biggest.appendChild(bd); }
+  }
+
+  function combinedBalance(doc){ var t=0; doc.querySelectorAll(".ledchip").forEach(function(c){ t+=money(c.textContent); }); return t; }
+
+  function warnModal(doc, info, onGo){
+    var back=doc.createElement("div"); back.className="lc-back";
+    back.innerHTML='<div class="lc-box"><h3>Compliance limit warning</h3>'+
+      '<p><b>'+info.resident+'</b> is on the $2,000 limit watch list. This entry would put the combined balance at or above the federal resource limit.</p>'+
+      '<div class="lc-row"><span>Current combined balance</span><b>$'+info.current.toFixed(2)+'</b></div>'+
+      '<div class="lc-row"><span>This entry</span><b>'+(info.delta>=0?"+":"")+"$"+info.delta.toFixed(2)+'</b></div>'+
+      '<div class="lc-row"><span>Projected combined balance</span><b style="color:#B42318">$'+info.projected.toFixed(2)+'</b></div>'+
+      '<div class="lc-actions"><button class="lc-btn lc-cancel">Cancel</button><button class="lc-btn lc-go">Add anyway</button></div></div>';
+    doc.body.appendChild(back);
+    back.querySelector(".lc-cancel").addEventListener("click",function(){ back.remove(); });
+    back.querySelector(".lc-go").addEventListener("click",function(){ back.remove(); onGo(); });
+  }
+
+  function wireWarning(){
+    var doc=ledgerDoc(), w=ledgerWin(); if(!doc||!w) return;
+    if(w.__ledComplyBound) return;
+    doc.addEventListener("click", function(ev){
+      var btn = ev.target.closest ? ev.target.closest(".ledaddbtn") : null;
+      if(!btn) return;
+      if(btn.__lcBypass){ btn.__lcBypass=false; return; }
+      var rp=doc.getElementById("ledPick");
+      var resident = rp && rp.options[rp.selectedIndex] ? rp.options[rp.selectedIndex].text : "";
+      if(watchedNames().indexOf(resident) === -1) return;
+      var amts=doc.querySelectorAll(".amtin");
+      var dep = amts[0]?parseFloat((amts[0].value||"0").replace(/,/g,"")||"0"):0;
+      var deb = amts[1]?parseFloat((amts[1].value||"0").replace(/,/g,"")||"0"):0;
+      var cur = combinedBalance(doc);
+      var proj = cur + (isNaN(dep)?0:dep) - (isNaN(deb)?0:deb);
+      if(proj < LIMIT) return;
+      ev.preventDefault(); ev.stopImmediatePropagation();
+      warnModal(doc, {resident:resident, current:cur, delta:(isNaN(dep)?0:dep)-(isNaN(deb)?0:deb), projected:proj}, function(){
+        btn.__lcBypass=true; btn.click();
+      });
+    }, true);
+    w.__ledComplyBound=true;
+  }
+
+  function initLedger(){
+    var doc=ledgerDoc(); if(!doc) return;
+    renameClothing(doc);
+    renderFlag();
+    wireWarning();
+    var w=ledgerWin();
+    if(w && !w.__ledLimitObs){
+      var obs=new MutationObserver(function(){ clearTimeout(w.__ledLimitT); w.__ledLimitT=setTimeout(function(){ renameClothing(doc); renderFlag(); },150); });
+      obs.observe(doc.body,{subtree:true,childList:true,characterData:true});
+      w.__ledLimitObs=obs;
+      var rp=doc.getElementById("ledPick");
+      if(rp) rp.addEventListener("change",function(){ setTimeout(renderFlag,120); });
+    }
+  }
+
+  /* ---------- 4) Apps launcher: Forms + Maintenance pin rows ---------- */
+  var RAIL_KEY="hascos.rail.v2";
+  function railGet(){ try{ return JSON.parse(localStorage.getItem(RAIL_KEY)||"[]"); }catch(e){ return []; } }
+  function railSet(a){ try{ localStorage.setItem(RAIL_KEY, JSON.stringify(a)); }catch(e){} }
+  function registerApps(){
+    var pin=document.getElementById("appsPin"); if(!pin) return;
+    [{k:"forms",label:"Forms",color:"#0EA5C4"},{k:"maintenance",label:"Maintenance",color:"#8A6D3B"}].forEach(function(app){
+      if(pin.querySelector('input[data-app="'+app.k+'"]')) return;
+      var navBtn=document.querySelector('nav .navbtn[data-view="'+app.k+'"]');
+      var ico=navBtn?navBtn.querySelector(".navico"):null;
+      var row=document.createElement("label"); row.className="approw"; row.setAttribute("data-pw-newapp","1");
+      row.innerHTML='<span class="approw-l"><span class="cfgp" style="--acc:'+app.color+'">'+(ico?ico.innerHTML:"")+'</span>'+app.label+'</span><input type="checkbox" data-app="'+app.k+'">';
+      var cb=row.querySelector("input");
+      cb.checked = railGet().indexOf(app.k) !== -1;
+      cb.addEventListener("change",function(){
+        var r=railGet(); var i=r.indexOf(app.k);
+        if(this.checked){ if(i===-1) r.push(app.k); } else { if(i!==-1) r.splice(i,1); }
+        railSet(r);
+        if(navBtn) navBtn.style.display = this.checked ? "" : "none";
+      });
+      pin.appendChild(row);
+    });
+  }
+
+  /* ---------- boot ---------- */
+  function boot(){ buildWatchColumn(); initLedger(); registerApps(); }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot); else boot();
+  document.addEventListener("click", function(e){
+    var nb=e.target.closest ? e.target.closest("nav .navbtn") : null;
+    if(nb) setTimeout(boot, 400);
+  }, true);
+  var tries=0; var iv=setInterval(function(){ boot(); if(++tries>20) clearInterval(iv); }, 800);
+})();
