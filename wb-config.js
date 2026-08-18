@@ -406,3 +406,93 @@ window.HASC_CONFIG = {
   }, true);
   var tries=0; var iv=setInterval(function(){ boot(); if(++tries>20) clearInterval(iv); }, 800);
 })();
+
+
+/* ============================================================
+   HASC Residential OS — Page-header polish add-on
+   Additive module (appended to wb-config.js). Browser-only prototype layer.
+   Adds (all re-run on SPA view switches):
+   1) Clone each view's matching left-rail .navico badge into its page header
+   2) Hide the page-header subtitle/description line
+   3) Hide developer iframe placeholder notes ("blank in this local preview")
+   ============================================================ */
+(function(){
+  "use strict";
+
+  function injectCss(){
+    if(document.getElementById("hdrIcoCss")) return;
+    var s=document.createElement("style"); s.id="hdrIcoCss";
+    s.textContent=".hdr-ico-row{display:flex;align-items:center;gap:14px}.hdr-ico-row .navico{width:44px;height:44px;flex:0 0 44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center}.hdr-ico-row .navico svg{width:24px;height:24px}.hdr-ico-txt h2{margin:0}.hdr-ico-txt p{margin:2px 0 0}";
+    document.head.appendChild(s);
+  }
+
+  function navMap(){
+    var map={};
+    document.querySelectorAll("nav .navbtn").forEach(function(b){
+      var ico=b.querySelector(".navico");
+      var label=(b.textContent||"").trim().replace(/NEW$/,"").trim().toLowerCase();
+      if(ico) map[label]=ico.outerHTML;
+    });
+    return map;
+  }
+
+  function currentHeader(){
+    var header=null;
+    document.querySelectorAll("h2").forEach(function(h){
+      if(header||h.closest("nav")||h.closest(".hdr-ico-row")) return;
+      var r=h.getBoundingClientRect();
+      if(r.width>0 && r.top<340) header=h;
+    });
+    return header;
+  }
+
+  function addIcon(){
+    injectCss();
+    var header=currentHeader();
+    if(!header) return;
+    var wrap=header.parentElement;
+    if(!wrap || wrap.classList.contains("hdr-ico-row") || wrap.querySelector(".hdr-ico-row")) return;
+    var title=(header.textContent||"").trim().toLowerCase();
+    var map=navMap();
+    var icoHTML=map[title];
+    if(!icoHTML){
+      var k=Object.keys(map).find(function(key){ return key.indexOf(title)===0 || title.indexOf(key)===0 || key.indexOf(title)!==-1; });
+      if(k) icoHTML=map[k];
+    }
+    if(!icoHTML) return;
+    var row=document.createElement("div"); row.className="hdr-ico-row";
+    var tmp=document.createElement("div"); tmp.innerHTML=icoHTML;
+    var ico=tmp.firstElementChild;
+    var txt=document.createElement("div"); txt.className="hdr-ico-txt";
+    while(wrap.firstChild){ txt.appendChild(wrap.firstChild); }
+    row.appendChild(ico); row.appendChild(txt);
+    wrap.appendChild(row);
+  }
+
+  function hideSubtitle(){
+    document.querySelectorAll("h2").forEach(function(h){
+      if(h.closest("nav")) return;
+      var r=h.getBoundingClientRect();
+      if(r.width===0 || r.top>360) return;
+      var scope=h.closest(".hdr-ico-txt") || h.parentElement;
+      if(!scope) return;
+      scope.querySelectorAll(":scope > p").forEach(function(p){ p.style.display="none"; });
+    });
+  }
+
+  var PLACEHOLDER=/blank in this local preview|renders once the shell is deployed|appears blank in this local preview|^Embeds\s+\//i;
+  function hidePlaceholders(){
+    document.querySelectorAll("p").forEach(function(p){
+      if(PLACEHOLDER.test((p.textContent||"").trim())) p.style.display="none";
+    });
+  }
+
+  function run(){ addIcon(); hideSubtitle(); hidePlaceholders(); }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",run); else run();
+  document.addEventListener("click", function(e){
+    var nb=e.target.closest ? e.target.closest("nav .navbtn") : null;
+    if(nb) setTimeout(run, 450);
+  }, true);
+  var tries=0; var iv=setInterval(function(){ run(); if(++tries>20) clearInterval(iv); }, 700);
+})();
