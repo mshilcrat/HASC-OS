@@ -135,4 +135,8 @@ window.HASC_CONFIG = {
   },300);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ renderRA(); wireViewAll(); });
   else { renderRA(); wireViewAll(); }
+  /* win the load-order race vs index.html's one-time re-render */
+  setTimeout(function(){ renderRA(); }, 1200);
+  setTimeout(function(){ renderRA(); }, 2600);
+  setInterval(function(){ renderRA(); }, 60000);
 })();
