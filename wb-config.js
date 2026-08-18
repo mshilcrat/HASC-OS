@@ -70,6 +70,8 @@ window.HASC_CONFIG = {
 
 /* HASC Recent Activity feed: pull trainings + checklists, render live */
 (function(){
+  var ICON_TRAINING = "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 10L12 5 2 10l10 5 10-5z\"/><path d=\"M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5\"/></svg>";
+  var ICON_CHECKLIST = "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 11l3 3L22 4\"/><path d=\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"/></svg>";
   function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function rel(ts){
     if(!ts) return '';
@@ -85,7 +87,7 @@ window.HASC_CONFIG = {
     try{
       var c=await sb.from('certificates').select('id,individual_name,dsp_name,residence,completed_at,is_archived').order('completed_at',{ascending:false}).limit(limit);
       (c.data||[]).filter(function(x){return !x.is_archived;}).forEach(function(x){
-        out.push({ ts:x.completed_at, title:(x.individual_name||'Individual')+' — training certified', by:x.dsp_name||'', where:x.residence||'' });
+        out.push({ type:'training', ts:x.completed_at, title:(x.individual_name||'Individual')+' — training certified', by:x.dsp_name||'', where:x.residence||'' });
       });
     }catch(e){}
     try{
@@ -93,16 +95,17 @@ window.HASC_CONFIG = {
       (s.data||[]).forEach(function(x){
         var freq=x.frequency||'daily';
         var prog=(x.tasks_done!=null&&x.tasks_total!=null)?(' ('+x.tasks_done+'/'+x.tasks_total+')'):'';
-        out.push({ ts:x.submitted_at, title:freq.charAt(0).toUpperCase()+freq.slice(1)+' checklist submitted'+prog, by:x.submitted_by||'', where:x.home_name||'' });
+        out.push({ type:'checklist', ts:x.submitted_at, title:freq.charAt(0).toUpperCase()+freq.slice(1)+' checklist submitted'+prog, by:x.submitted_by||'', where:x.home_name||'' });
       });
     }catch(e){}
     out.sort(function(a,b){ return new Date(b.ts||0)-new Date(a.ts||0); });
     return out.slice(0,limit);
   }
+  function iconFor(type){ return type==='checklist' ? ICON_CHECKLIST : ICON_TRAINING; }
   function rowHtml(a){
     var by=a.by?(' \u00b7 '+esc(a.by)):'';
     var where=a.where?(' \u00b7 '+esc(a.where)):'';
-    return '<div class="act"><div class="actico">\u2713</div><div style="flex:1"><div><b>'+esc(a.title)+'</b></div><div class="when" style="color:var(--muted);font-size:12px">'+rel(a.ts)+where+by+'</div></div></div>';
+    return '<div class="act"><div class="actico">'+iconFor(a.type)+'</div><div style="flex:1"><div><b>'+esc(a.title)+'</b></div><div class="when" style="color:var(--muted);font-size:12px">'+rel(a.ts)+where+by+'</div></div></div>';
   }
   async function renderRA(){
     var el=document.getElementById('recentActivity'); if(!el) return;
@@ -113,7 +116,6 @@ window.HASC_CONFIG = {
   }
   window.renderRA=renderRA;
   window.loadActivityAll=loadActivityAll;
-  // View all button
   function wireViewAll(){
     var b=document.getElementById('activityViewAll'); if(!b) return;
     b.onclick=async function(){
@@ -122,7 +124,6 @@ window.HASC_CONFIG = {
       if(window.openDrawer) window.openDrawer('Recent Activity', items.length+' recent events', body);
     };
   }
-  // Initial render + live subscriptions
   var t=setInterval(function(){
     var sb=window.__hascClient;
     if(!sb||typeof sb.channel!=='function') return;
