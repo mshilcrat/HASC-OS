@@ -345,7 +345,7 @@ td.lst-empty{padding:18px 4px}
 
     <div class="view active" id="view-dashboard">
       <div class="welcome">
-  <h2 id="welcomeGreeting">Good afternoon, Michael <span class="wave">👋</span></h2>
+  <h2 id="welcomeGreeting"><span id="greetWord">Good afternoon</span>, Michael <span class="wave">👋</span></h2>
   <p>Here’s your workspace for <b id="welcomeHome">Bedford Avenue – 3245</b>.</p>
 </div>
 <div class="residence-hero">
@@ -887,7 +887,7 @@ addException.onclick=()=>toastMsg('Exception flow would create a shared Resident
 function updateIndexHeader(){
   const now=new Date(),h=now.getHours();
   const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  const ge=document.getElementById('indexGreeting'),de=document.getElementById('indexDate'),ce=document.getElementById('indexClock');
+  const ge=document.getElementById('greetWord'),de=document.getElementById('indexDate'),ce=document.getElementById('indexClock');
   if(ge)ge.textContent=g;
   if(de)de.textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   if(ce)ce.textContent=now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
