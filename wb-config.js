@@ -102,10 +102,13 @@ window.HASC_CONFIG = {
     return out.slice(0,limit);
   }
   function iconFor(type){ return type==='checklist' ? ICON_CHECKLIST : ICON_TRAINING; }
+  function colorFor(type){ return type==='checklist' ? 'var(--green)' : 'var(--gold)'; }
   function rowHtml(a){
     var by=a.by?(' \u00b7 '+esc(a.by)):'';
     var where=a.where?(' \u00b7 '+esc(a.where)):'';
-    return '<div class="act"><div class="actico">'+iconFor(a.type)+'</div><div style="flex:1"><div><b>'+esc(a.title)+'</b></div><div class="when" style="color:var(--muted);font-size:12px">'+rel(a.ts)+where+by+'</div></div></div>';
+    var col=colorFor(a.type);
+    var icoStyle=' style="background:'+col+';box-shadow:0 8px 18px -9px '+col+'"';
+    return '<div class="act"><div class="actico"'+icoStyle+'>'+iconFor(a.type)+'</div><div style="flex:1"><div><b>'+esc(a.title)+'</b></div><div class="when" style="color:var(--muted);font-size:12px">'+rel(a.ts)+where+by+'</div></div></div>';
   }
   async function renderRA(){
     var el=document.getElementById('recentActivity'); if(!el) return;
@@ -136,7 +139,7 @@ window.HASC_CONFIG = {
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ renderRA(); wireViewAll(); });
   else { renderRA(); wireViewAll(); }
   /* win the load-order race vs index.html's one-time re-render */
-  setTimeout(function(){ renderRA(); }, 1200);
-  setTimeout(function(){ renderRA(); }, 2600);
-  setInterval(function(){ renderRA(); }, 60000);
+  setTimeout(function(){ renderRA(); wireViewAll(); }, 1200);
+  setTimeout(function(){ renderRA(); wireViewAll(); }, 2600);
+  setInterval(function(){ renderRA(); wireViewAll(); }, 60000);
 })();
