@@ -143,3 +143,56 @@ window.HASC_CONFIG = {
   setTimeout(function(){ renderRA(); wireViewAll(); }, 2600);
   setInterval(function(){ renderRA(); wireViewAll(); }, 60000);
 })();
+
+/* HASC dashboard: movable + resizable panels (like windows), layout saved per browser */
+(function(){
+  var KEY='hasc_dash_layout_v1';
+  var MINW=980;
+  function titleOf(p){ var h=p.querySelector(".ph"); return (h?h.textContent:"").trim().replace(/\s+/g," ").slice(0,40); }
+  function load(){ try{ return JSON.parse(localStorage.getItem(KEY)||"{}"); }catch(e){ return {}; } }
+  function save(o){ try{ localStorage.setItem(KEY, JSON.stringify(o)); }catch(e){} }
+  var board, panels=[], enabled=false, saveT, state=load();
+  function scheduleSave(){ clearTimeout(saveT); saveT=setTimeout(function(){
+    var o={}; panels.forEach(function(p){ var t=titleOf(p); o[t]={left:parseFloat(p.style.left)||0, top:parseFloat(p.style.top)||0, w:p.offsetWidth, h:p.offsetHeight}; }); save(o); state=o;
+  },250); }
+  function fitBoard(){ if(!board) return; var max=0; panels.forEach(function(p){ max=Math.max(max,(parseFloat(p.style.top)||0)+p.offsetHeight); }); board.style.height=(max+24)+"px"; }
+  function addResetBtn(){
+    if(document.getElementById("hascLayoutReset")) return;
+    var b=document.createElement("button"); b.id="hascLayoutReset"; b.textContent="Reset layout";
+    b.title="Reset the dashboard panels to their default arrangement";
+    b.style.cssText="position:fixed;right:14px;bottom:14px;z-index:9999;background:#fff;border:1px solid var(--line,#e2ddd4);border-radius:9px;padding:7px 12px;font:600 12.5px inherit;color:var(--ink,#3c3223);box-shadow:0 8px 22px -12px rgba(60,50,35,.4);cursor:pointer";
+    b.onclick=function(){ localStorage.removeItem(KEY); location.reload(); };
+    document.body.appendChild(b);
+  }
+  function enable(){
+    if(enabled) return;
+    if(window.innerWidth < MINW) return;
+    board=document.querySelector(".board"); if(!board) return;
+    panels=[].slice.call(board.querySelectorAll(".left > .panel, .right > .panel")).filter(function(p){ return getComputedStyle(p).display!=="none"; });
+    if(panels.length < 2) return;
+    var br=board.getBoundingClientRect();
+    var cur=panels.map(function(p){ var rr=p.getBoundingClientRect(); return {left:rr.left-br.left, top:rr.top-br.top, w:rr.width, h:rr.height}; });
+    board.style.position="relative"; board.style.display="block";
+    panels.forEach(function(p,i){
+      var t=titleOf(p); var s=state[t]||cur[i];
+      p.style.position="absolute"; p.style.margin="0"; p.style.zIndex=1; p.style.boxSizing="border-box";
+      p.style.left=(s.left||0)+"px"; p.style.top=(s.top||0)+"px";
+      p.style.width=(s.w||cur[i].w)+"px"; if(s.h) p.style.height=s.h+"px";
+      p.style.resize="both"; p.style.overflow="auto"; p.style.minWidth="240px"; p.style.minHeight="80px";
+      var head=p.querySelector(".ph"); if(head){ head.style.cursor="move"; head.setAttribute("data-wm","1"); head.title="Drag to move; drag bottom-right corner to resize"; }
+    });
+    fitBoard(); addResetBtn();
+    try{ var ro=new ResizeObserver(function(){ fitBoard(); scheduleSave(); }); panels.forEach(function(p){ ro.observe(p); }); }catch(e){}
+    var drag=null;
+    board.addEventListener("mousedown",function(e){
+      var head=e.target.closest("[data-wm]"); if(!head) return; if(e.target.closest("button,a,input,select,textarea")) return;
+      var panel=head.closest(".panel"); drag={panel:panel, sx:e.clientX, sy:e.clientY, ol:parseFloat(panel.style.left)||0, ot:parseFloat(panel.style.top)||0};
+      panels.forEach(function(p){ p.style.zIndex=1; }); panel.style.zIndex=10; e.preventDefault();
+    });
+    window.addEventListener("mousemove",function(e){ if(!drag) return; var nl=Math.max(0,drag.ol+(e.clientX-drag.sx)); var nt=Math.max(0,drag.ot+(e.clientY-drag.sy)); drag.panel.style.left=nl+"px"; drag.panel.style.top=nt+"px"; fitBoard(); });
+    window.addEventListener("mouseup",function(){ if(drag){ drag=null; scheduleSave(); } });
+    enabled=true;
+  }
+  var tries=0;
+  var iv=setInterval(function(){ tries++; if(enabled || tries>40){ clearInterval(iv); return; } if(document.querySelector(".board")){ enable(); } }, 300);
+})();
