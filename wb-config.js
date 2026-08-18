@@ -182,7 +182,7 @@ window.HASC_CONFIG = {
       var head=p.querySelector(".ph"); if(head){ head.style.cursor="move"; head.setAttribute("data-wm","1"); head.title="Drag to move; drag bottom-right corner to resize"; }
     });
     fitBoard(); addResetBtn();
-    try{ var ro=new ResizeObserver(function(){ fitBoard(); scheduleSave(); }); panels.forEach(function(p){ ro.observe(p); }); }catch(e){}
+    try{ var ro=new ResizeObserver(function(ents){ if(drag) return; clearTimeout(window.__wmRz); var tgt=ents&&ents[0]&&ents[0].target; window.__wmRz=setTimeout(function(){ if(tgt) snapPanel(tgt); fitBoard(); scheduleSave(); },220); }); panels.forEach(function(p){ ro.observe(p); }); }catch(e){}
     var drag=null;
     board.addEventListener("mousedown",function(e){
       var head=e.target.closest("[data-wm]"); if(!head) return; if(e.target.closest("button,a,input,select,textarea")) return;
@@ -190,7 +190,8 @@ window.HASC_CONFIG = {
       panels.forEach(function(p){ p.style.zIndex=1; }); panel.style.zIndex=10; e.preventDefault();
     });
     window.addEventListener("mousemove",function(e){ if(!drag) return; var nl=Math.max(0,drag.ol+(e.clientX-drag.sx)); var nt=Math.max(0,drag.ot+(e.clientY-drag.sy)); drag.panel.style.left=nl+"px"; drag.panel.style.top=nt+"px"; fitBoard(); });
-    window.addEventListener("mouseup",function(){ if(drag){ drag=null; scheduleSave(); } });
+    var GRID=24; function snapR(v){ return Math.round(v/GRID)*GRID; } function snapPanel(p){ if(!p) return; var b=p.parentElement, bw=b?b.clientWidth:0; var l=Math.max(0,snapR(parseFloat(p.style.left)||0)); var tp=Math.max(0,snapR(parseFloat(p.style.top)||0)); var w=snapR(p.getBoundingClientRect().width); var h=snapR(p.getBoundingClientRect().height); if(w<GRID*5) w=GRID*5; if(h<GRID*4) h=GRID*4; if(bw && l+w>bw) l=Math.max(0,bw-w); p.style.left=l+"px"; p.style.top=tp+"px"; p.style.width=w+"px"; p.style.height=h+"px"; } 
+    window.addEventListener("mouseup",function(){ if(drag){ snapPanel(drag.panel); drag=null; scheduleSave(); } });
     enabled=true;
   }
   var tries=0;
