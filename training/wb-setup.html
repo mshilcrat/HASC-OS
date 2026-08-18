@@ -148,7 +148,7 @@ ponUrl=sb.storage.from('pon-docs').getPublicUrl(path).data.publicUrl;
   create.disabled=false;create.innerHTML='✅ Create Session &amp; Generate Link';
   if(error){msg.style.color='#c0392b';msg.textContent='Error: '+error.message;return;}
   msg.style.color='#1296a6';msg.textContent='Session created.';
-  const link=location.origin+'/dsp-training.html?token='+encodeURIComponent(tok);await sb.from('training_links').insert({id:'l'+Date.now()+Math.random().toString(36).slice(2,7),name:title+(indName?' — '+indName:''),url:link});
+  const link=location.origin+'/training/dsp-training.html?token='+encodeURIComponent(tok);await sb.from('training_links').insert({id:'l'+Date.now()+Math.random().toString(36).slice(2,7),name:title+(indName?' — '+indName:''),url:link});
   const lo=document.getElementById('linkout');lo.style.display='block';
   lo.innerHTML='<b>Training link</b><br><a href="'+link+'" target="_blank">'+link+'</a> <button id="copyLink" type="button" style="margin-left:8px;padding:6px 12px;border:1px solid #16b3c6;background:#16b3c6;color:#fff;border-radius:8px;cursor:pointer;font-size:13px">Copy Link</button>';document.getElementById('copyLink').onclick=function(){navigator.clipboard.writeText(link).then(function(){var b=document.getElementById('copyLink');b.textContent='Copied!';setTimeout(function(){b.textContent='Copy Link';},1500);});};
 };
