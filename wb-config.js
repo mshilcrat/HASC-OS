@@ -19,11 +19,8 @@ window.HASC_CONFIG = {
           var sb = window.__hascClient;
           if(!sb || typeof sb.channel!=='function') return;
           clearInterval(t);
-          var ch = sb.channel('hasc-live');
-          WATCH.forEach(function(tbl){
-                  ch = ch.on('postgres_changes', { event:'*', schema:'public', table:tbl }, function(){ reload(); });
+          window.__hascLive = WATCH.map(function(tbl){
+                  return sb.channel('hasc-live-'+tbl).on('postgres_changes', { event:'*', schema:'public', table:tbl }, function(){ reload(); }).subscribe();
           });
-          ch.subscribe();
-          window.__hascLive = ch;
     }, 300);
 })();
