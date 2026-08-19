@@ -763,7 +763,7 @@ window.HASC_CONFIG = {
   function tidy(){
     try{
       var bar = document.querySelector(".pw-toolbar");
-      if(bar){ bar.style.setProperty("display","none","important"); }
+      if(bar){ if(document.body && document.body.classList.contains("pw-edit")){ bar.style.removeProperty("display"); } else { bar.style.setProperty("display","none","important"); } }
       var vhs = document.querySelectorAll(".viewhead");
       for(var i=0;i<vhs.length;i++){
         var t = (vhs[i].textContent||"").replace(/^\s+/,"");
@@ -814,7 +814,7 @@ window.HASC_CONFIG = {
       mo.observe(document.body, {attributes:true, attributeFilter:["class"]});
     }catch(e){}
   }
-  init();
+  if(document.body){ init(); } else { document.addEventListener("DOMContentLoaded", init); }
   var n=0, iv=setInterval(function(){ hideNew(); ensureDone(); syncDone(); if(++n>40){ clearInterval(iv); } }, 500);
   document.addEventListener("click", function(){ setTimeout(syncDone, 60); }, true);
 })();
