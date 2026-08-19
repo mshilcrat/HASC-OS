@@ -71,7 +71,8 @@
         <div id="indWrap"><label class="fld">Individual Name *</label><input class="in" id="indName" placeholder="Individual being trained on"></div>
       </div>
       <label class="fld">Video URL (ScreenPal)</label>
-      <input class="in" id="video" placeholder="Paste full ScreenPal embed link">
+      <div id="videoList"></div>
+<button type="button" id="addVideo" style="padding:9px 14px;border:1px solid #16b3c6;background:#eafaf4;color:#0e7d8c;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:22px">+ Add another video URL</button>
       <label class="fld">PON Training Document (optional)</label>
       <div class="filebox"><input type="file" id="pon"></div>
       <div class="qbox"><h2>Quiz Questions (5 Required)</h2><div id="questions"></div></div>
@@ -89,6 +90,18 @@ const rsel=document.getElementById('residence');
 RESIDENCES.forEach(r=>{const o=document.createElement('option');o.value=r;o.textContent=r;rsel.appendChild(o);});
 let isIndividual=true;
 const segInd=document.getElementById('segInd'),segGen=document.getElementById('segGen'),indWrap=document.getElementById('indWrap');
+ const videoList=document.getElementById('videoList');
+function addVideoRow(val){
+  if(videoList.children.length>=10){return;}
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:8px;margin-bottom:10px';
+  row.innerHTML='<input class="in vidin" placeholder="Paste ScreenPal embed link" style="margin-bottom:0"><button type="button" class="vidrm" style="flex:none;padding:0 12px;border:1px solid #d6dce2;background:#fff;border-radius:9px;cursor:pointer;color:#c0392b;font-weight:700">✕</button>';
+  row.querySelector('.vidrm').onclick=function(){row.remove();updateAddBtn();};
+  videoList.appendChild(row);updateAddBtn();
+}
+function updateAddBtn(){document.getElementById('addVideo').style.display=videoList.children.length>=10?'none':'inline-block';}
+document.getElementById('addVideo').onclick=function(){addVideoRow('');};
+addVideoRow('');
 segInd.onclick=()=>{isIndividual=true;segInd.classList.add('on');segGen.classList.remove('on');indWrap.style.display='block';};
 segGen.onclick=()=>{isIndividual=false;segGen.classList.add('on');segInd.classList.remove('on');indWrap.style.display='none';};
 const qWrap=document.getElementById('questions');
@@ -109,7 +122,7 @@ document.getElementById('create').onclick=async()=>{
   const title=document.getElementById('title').value.trim();
   const residence=document.getElementById('residence').value;
   const indName=document.getElementById('indName').value.trim();
-  const video=document.getElementById('video').value.trim();
+  const video=[...document.querySelectorAll('.vidin')].map(i=>i.value.trim()).filter(v=>v).join('\n');
 const ponFile=document.getElementById('pon').files[0]||null;
   if(!title){msg.textContent='Please enter a Training Title.';return;}
   if(!residence){msg.textContent='Please select a Residence.';return;}
