@@ -515,6 +515,10 @@ window.HASC_CONFIG = {
 
   /* ---------- 1) Apps launcher <-> left rail sync ---------- */
   (function(){
+    /* DISABLED (app-launcher fix): this legacy launcher's unhideRail() forced every
+       nav button visible on click + every 1.2s, overriding index.html's applyRail().
+       The index.html APP_CATALOG/applyRail launcher is the source of truth now. */
+    return;
     var EXCLUDE = ['dashboard','apps',''];
     function unhideRail(){
       document.querySelectorAll('.navbtn').forEach(function(b){
