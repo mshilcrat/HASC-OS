@@ -905,10 +905,10 @@ hydrateIndexIcons();
 
 function syncIndexHero(){
   const hs=visibleHomes();
-  heroHomeFilter.innerHTML=hs.map(h=>`<option value="${h.name}">${h.name}</option>`).join('');
+  heroHomeFilter.innerHTML=(role==='admin'?'<option value="ALL">🏠 Main Dashboard</option>':'')+hs.map(h=>`<option value="${h.name}">${h.name}</option>`).join('');
   const target=selectedHome==='ALL'?(hs[0]||HOMES[0]):hs.find(h=>h.name===selectedHome)||hs[0]||HOMES[0];
   if(!target)return;
-  heroHomeFilter.value=target.name;
+  heroHomeFilter.value=target.name;if(role==='admin'&&selectedHome==='ALL')heroHomeFilter.value='ALL';
   heroHomeName.textContent=target.name;welcomeHome.textContent=target.name;
   heroRM.textContent=target.rm||'—';heroAC.textContent=target.ac||'—';
   heroAddress.textContent=(target.address||'')+(target.phone?' · '+target.phone:'');
