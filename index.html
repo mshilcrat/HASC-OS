@@ -502,13 +502,14 @@ document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.d
 document.querySelectorAll('[data-open-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.openView));
 
 function filteredBoardHomes(){
-  let hs=BOARD_HOMES.filter(h=>visibleHomes().some(v=>v.name===h.name));
+  var by={};if(typeof BOARD_HOMES!=='undefined')BOARD_HOMES.forEach(function(b){by[b.name]=b;});
+  let hs=visibleHomes().map(function(h){return by[h.name]?Object.assign({},h,by[h.name]):h;});
   if(selectedHome!=='ALL')hs=hs.filter(h=>h.name===selectedHome);
   return hs;
 }
 function renderMotion(){
   let t={at_home:0,out:0,transit:0,overnight:0,attention:0};
-  filteredBoardHomes().forEach(h=>{const d=HOUSE_STATUS[h.name];Object.keys(t).forEach(k=>t[k]+=d[k]||0)});
+  filteredBoardHomes().forEach(h=>{const d=HOUSE_STATUS[h.name]||{};Object.keys(t).forEach(k=>t[k]+=d[k]||0)});
   const arr=[
     ['home','At Home',t.at_home,'Residents','var(--teal-ink)','var(--teal-wash)'],
     ['out','Out of Home',t.out,'Residents','var(--plum-ink)','var(--plum-wash)'],
@@ -537,7 +538,7 @@ function renderHouses(){
   const stCls=st=>st.includes('Sick')?'bad':st.includes('Early')?'warn':st.includes('Day Hab')?'info':'good';
   const stShort=st=>st.includes('Sick')?'Home sick':st.includes('Early')?'Early return':st.includes('Day Hab')?'Day Hab':'At residence';
   houses.innerHTML=hs.map((h,i)=>{
-    const d=HOUSE_STATUS[h.name],c=colors[i%colors.length],att=d.attention>0;
+    const d=HOUSE_STATUS[h.name]||{},c=colors[i%colors.length],att=d.attention>0;
     const ppl=individuals.filter(p=>p.home===h.name);
     const shown=ppl.slice(0,6);
     const list=shown.length?shown.map(p=>`<div class="hperson"><span class="hpn">${p.name}</span></div>`).join('')+(ppl.length>6?`<div class="hmore">+${ppl.length-6} more</div>`:''):'<div class="hnone">No individuals recorded</div>';
@@ -807,7 +808,7 @@ function renderTraining(){
     '<iframe title="Training Portal" src="'+src+'" style="width:100%;height:calc(100vh - 156px);background:#fff;display:block"></iframe>'+
     '<p style="font-size:11.5px;color:var(--muted);margin-top:8px">Embeds <b>/training/wb-index.html</b>. It appears blank in this local preview \u2014 it renders once the shell is deployed on the same Netlify site as the training/ folder (with wb-config.js and hasc-logo.png at the site root).</p>';
 }
-function renderDashboard(){renderHouses();renderFocus();renderMoves();renderRecentActivity();renderDayHabCounts();}
+function renderDashboard(){renderHouses();renderFocus();renderMoves();(window.renderRA||renderRecentActivity)();renderDayHabCounts();}
 function renderDayHabCounts(){
   const rows=individuals.filter(x=>selectedHome==='ALL'||x.home===selectedHome);
   dhAt.textContent=rows.filter(x=>x.dayHab&&x.status==='At Day Hab').length;
@@ -905,10 +906,10 @@ hydrateIndexIcons();
 
 function syncIndexHero(){
   const hs=visibleHomes();
-  heroHomeFilter.innerHTML=hs.map(h=>`<option value="${h.name}">${h.name}</option>`).join('');
+  heroHomeFilter.innerHTML=(role==='admin'?'<option value="ALL">🏠 Main Dashboard</option>':'')+hs.map(h=>`<option value="${h.name}">${h.name}</option>`).join('');
   const target=selectedHome==='ALL'?(hs[0]||HOMES[0]):hs.find(h=>h.name===selectedHome)||hs[0]||HOMES[0];
   if(!target)return;
-  heroHomeFilter.value=target.name;
+  heroHomeFilter.value=target.name;if(role==='admin'&&selectedHome==='ALL')heroHomeFilter.value='ALL';
   heroHomeName.textContent=target.name;welcomeHome.textContent=target.name;
   heroRM.textContent=target.rm||'—';heroAC.textContent=target.ac||'—';
   heroAddress.textContent=(target.address||'')+(target.phone?' · '+target.phone:'');
