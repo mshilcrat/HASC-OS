@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded',loadSession);
         dc.style.height=DOC_VIEW_H+"px";
         if(!ifr.__hascLoadHooked){ ifr.__hascLoadHooked=1; ifr.addEventListener("load",fitDoc); }
       } else {
-        ifr.style.width=""; ifr.style.height=""; ifr.style.transform=""; dc.style.height="";
+        ifr.style.width="100%"; ifr.style.height="85vh"; ifr.style.transform=""; dc.style.height="";
       }
     }
     function scheduleFit(){ fitDoc(); requestAnimationFrame(fitDoc); setTimeout(fitDoc,300); setTimeout(fitDoc,1200); }
