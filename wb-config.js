@@ -280,7 +280,7 @@ window.HASC_CONFIG = {
       inp.addEventListener("change",function(){ var s2=loadWatch(); if(this.checked) s2[this.dataset.lwName]=true; else delete s2[this.dataset.lwName]; saveWatch(s2); });
       tr.appendChild(td);
     });
-    table.__lwDone=true;
+    if(table.querySelectorAll("tbody tr").length) table.__lwDone=true;
   }
 
   /* ---------- 3) Ledgers compliance flag + warning ---------- */
