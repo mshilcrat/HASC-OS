@@ -482,7 +482,7 @@ function closeDocFullscreen(){
 }
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeDocFullscreen(); });
 (function(){
- function syncFsBtn(){ var dc=document.getElementById("doc-container")h; var w=document.getElementById("doc-fs-wrap"); if(dc&&w){ w.style.display=dc.firstChild?"block":"none"; } }
+ function syncFsBtn(){ var dc=document.getElementById("doc-container"); var w=document.getElementById("doc-fs-wrap"); if(dc&&w){ w.style.display=dc.firstChild?"block":"none"; } }
  var dc=document.getElementById("doc-container");
  if(dc){ new MutationObserver(syncFsBtn).observe(dc,{childList:true}); }
  setTimeout(syncFsBtn,300); setTimeout(syncFsBtn,1200);
