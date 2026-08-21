@@ -600,19 +600,7 @@ window.HASC_CONFIG = {
     var HOURS=[]; for(var h=7;h<=20;h++) HOURS.push(h);
     var SLOTS=[0,15,30,45];
 
-    var store = [
-      mk('e1','home','Morning Routine','2026-08-17',8,0,'A. Rivera'),
-      mk('e2','home','Morning Routine','2026-08-18',8,0,'A. Rivera'),
-      mk('e3','out','Day Hab Departure','2026-08-18',9,15,'Transport'),
-      mk('e4','out','Park Trip','2026-08-20',10,0,'J. Chen'),
-      mk('e5','med','Medical Appointment','2026-08-19',12,36,'Nurse K.'),
-      mk('e6','shop','Shopping Trip','2026-08-18',13,0,'M. Diaz'),
-      mk('e7','shop','Target Run','2026-08-19',14,0,'M. Diaz'),
-      mk('e8','fam','Family Visit','2026-08-21',16,30,'Family'),
-      mk('e9','rest','Restaurant Outing','2026-08-18',17,0,'unstaffed'),
-      mk('e10','fun','Pizza Night','2026-08-16',18,0,'C. Park'),
-      mk('e11','fam','Family Visit','2026-08-18',18,0,'Family')
-    ];
+    var store = [];
     function mk(id,type,title,date,hour,min,who){ var o={id:id,type:type,title:title,hour:hour,min:min,who:who}; o['d'+'ate']=date; return o; }
 
     var TODAY = new Date(2026,7,18);
