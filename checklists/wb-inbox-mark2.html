@@ -51,7 +51,7 @@
   try{
     const c = window.__hascClient;
     if(!c){wrap.innerHTML='<div class="empty">No data connection.</div>';return;}
-    const {data,error} = await c.from('cl_submissions').select('home_name,submitted_by,submitted_at,comments').not('comments','is',null).order('submitted_at',{ascending:false}).limit(100);
+    let _q = c.from('cl_submissions').select('home_name,submitted_by,submitted_at,comments').not('comments','is',null).order('submitted_at',{ascending:false}).limit(100);try{var _r=sessionStorage.getItem('hasc_role')||'';var _h=JSON.parse(sessionStorage.getItem('hasc_homes')||'[]');if(_r!=='admin'&&Array.isArray(_h)&&_h.length){_q=_q.in('home_name',_h);}}catch(_e){}const {data,error} = await _q;
     if(error) throw error;
     const msgs=(data||[]).filter(d=>d.comments && d.comments.trim().length);
     if(!msgs.length){wrap.innerHTML='<div class="empty">No notes yet.</div>';return;}
