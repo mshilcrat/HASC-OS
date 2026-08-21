@@ -175,7 +175,7 @@ const LOGKEY='hascos.ledgerlog.v1';
 const API={
   async loadResidents(){
     if(CONFIG.useSupabase && sb){
-      const {data}=await sb.from('resi_individuals').select('id,name,home_name'); return (data||[]).map(r=>({id:r.id,name:r.name,home:r.home_name}));
+      let _q=sb.from('resi_individuals').select('id,name,home_name');try{var _r=sessionStorage.getItem('hasc_role')||'';var _h=JSON.parse(sessionStorage.getItem('hasc_homes')||'[]');if(_r!=='admin'&&Array.isArray(_h)&&_h.length){_q=_q.in('home_name',_h);}}catch(_e){}const {data}=await _q; return (data||[]).map(r=>({id:r.id,name:r.name,home:r.home_name}));
     }
     try{return JSON.parse(localStorage.getItem(IKEY)||'[]');}catch(e){return [];}
   },
