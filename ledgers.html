@@ -344,6 +344,7 @@ function doLedPrint(scope){
 /* ---- boot ---- */
 (async function(){
   RESIDENTS=await API.loadResidents(); LEDGERS=await API.loadLedgers();
+      /* HASC-LED-FIX: scope Home dropdown to logged-in user's residences */ try{var _s=await sb.auth.getSession();var _e=(_s&&_s.data&&_s.data.session&&_s.data.session.user)?_s.data.session.user.email:'';if(_e){var _p=await sb.from('profiles').select('role,residences').eq('email',_e).single();var _pr=_p.data||{};if(String(_pr.role||'').toLowerCase()!=='admin'){var _al=(_pr.residences||[]).map(function(x){return String(x).trim();});for(var _i=HOMES.length-1;_i>=0;_i--){if(_al.indexOf(String(HOMES[_i].name).trim())===-1){HOMES.splice(_i,1);}}}}}catch(_e2){console.error('HASC-LED-FIX',_e2);}
   var dm=document.getElementById('dataMode');
   if(dm)dm.textContent=CONFIG.useSupabase?'Supabase connected':'Wire-ready · mock data';
   renderLedgers();
