@@ -271,28 +271,44 @@ window.HASC_CONFIG = {
     document.head.appendChild(s);
   }
   function buildWatchColumn(){
-    var table=document.querySelector('[data-view-panel="individuals"] table, table');
-    if(!table || table.__lwDone) return;
-    var headTxt=(table.querySelector("thead")||{}).textContent||"";
+    var table=document.querySelector('#view-individuals table, [data-view-panel=\u0022individuals\u0022] table');
+    if(!table) return;
+    var headTxt=(table.querySelector('thead')||{}).textContent||'';
     if(!/individual/i.test(headTxt)) return;
     injectWatchCss();
     var store=loadWatch();
-    var heads=table.querySelectorAll("thead tr");
-    if(heads[0]){ var th=document.createElement("th"); th.className="lw-col"; th.textContent="COMPLIANCE"; th.style.cssText="color:#B42318;font:700 11px/1 system-ui;letter-spacing:.05em"; heads[0].appendChild(th); }
+    /* idempotent: remove any previously-injected compliance cells/headers first */
+    table.querySelectorAll('.lw-col').forEach(function(el){ el.parentNode && el.parentNode.removeChild(el); });
+    var heads=table.querySelectorAll('thead tr');
+    if(heads[0]){ var th=document.createElement('th'); th.className='lw-col'; th.textContent='COMPLIANCE'; th.style.cssText='color:#B42318;font:700 11px/1 system-ui;letter-spacing:.05em'; heads[0].appendChild(th); }
     var labelRow=heads[1]||heads[0];
-    var lth=document.createElement("th"); lth.className="lw-col"; lth.textContent="$2,000 LIMIT WATCH"; labelRow.appendChild(lth);
-    table.querySelectorAll("tbody tr").forEach(function(tr){
-      var fc=tr.querySelector("td"), name="";
-      if(fc){ var st=fc.querySelector("b,strong,div,span"); name=((st?st.textContent:fc.textContent)||"").trim().split("\n")[0].trim(); }
-      var td=document.createElement("td"); td.className="lw-col";
+    if(labelRow){ var lth=document.createElement('th'); lth.className='lw-col'; lth.textContent='$2,000 LIMIT WATCH'; labelRow.appendChild(lth); }
+    table.querySelectorAll('tbody tr').forEach(function(tr){
+      if(tr.querySelector('[colspan]')) return; /* skip empty-message rows */
+      var fc=tr.querySelector('td'), name='';
+      if(!fc) return;
+      var st=fc.querySelector('strong,b,span'); name=((st?st.textContent:fc.textContent)||'').trim().split('\n')[0].trim();
+      var td=document.createElement('td'); td.className='lw-col';
       var on=!!store[name];
-      td.innerHTML='<label class="lw-sw"><input type="checkbox" '+(on?"checked":"")+' data-lw-name="'+name.replace(/"/g,"&quot;")+'"><span class="lw-tr"></span></label>';
-      var inp=td.querySelector("input");
-      inp.addEventListener("click",function(e){ e.stopPropagation(); });
-      inp.addEventListener("change",function(){ var s2=loadWatch(); if(this.checked) s2[this.dataset.lwName]=true; else delete s2[this.dataset.lwName]; saveWatch(s2); });
+      td.innerHTML='<label class=\u0022lw-sw\u0022><input type=\u0022checkbox\u0022 '+(on?'checked':'')+' data-lw-name=\u0022'+name.replace(/\u0022/g,'&quot;')+'\u0022><span class=\u0022lw-tr\u0022></span></label>';
+      var inp=td.querySelector('input');
+      inp.addEventListener('click',function(e){ e.stopPropagation(); });
+      inp.addEventListener('change',function(){ var s2=loadWatch(); if(this.checked) s2[this.dataset.lwName]=true; else delete s2[this.dataset.lwName]; saveWatch(s2); });
       tr.appendChild(td);
     });
-    if(table.querySelectorAll("tbody tr").length) table.__lwDone=true;
+    /* keep switches alive across re-renders (renderIndividuals rebuilds tbody) */
+    if(!table.__lwObs){
+      var tb=table.querySelector('tbody');
+      if(tb && window.MutationObserver){
+        var scheduled=false;
+        var obs=new MutationObserver(function(){
+          if(scheduled) return; scheduled=true;
+          setTimeout(function(){ scheduled=false; obs.disconnect(); buildWatchColumn(); if(table.__lwObs) obs.observe(table.querySelector('tbody')||tb,{childList:true}); }, 120);
+        });
+        obs.observe(tb,{childList:true});
+        table.__lwObs=obs;
+      }
+    }
   }
 
   /* ---------- 3) Ledgers compliance flag + warning ---------- */
