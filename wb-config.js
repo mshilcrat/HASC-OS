@@ -289,6 +289,8 @@ window.HASC_CONFIG = {
       if(!fc) return;
       var st=fc.querySelector('strong,b,span'); name=((st?st.textContent:fc.textContent)||'').trim().split('\n')[0].trim();
       var td=document.createElement('td'); td.className='lw-col';
+      td.addEventListener('mousedown',function(e){ e.stopPropagation(); });
+      td.addEventListener('click',function(e){ e.stopPropagation(); });
       var on=!!store[name];
       td.innerHTML='<label class=\u0022lw-sw\u0022><input type=\u0022checkbox\u0022 '+(on?'checked':'')+' data-lw-name=\u0022'+name.replace(/\u0022/g,'&quot;')+'\u0022><span class=\u0022lw-tr\u0022></span></label>';
       var inp=td.querySelector('input');
