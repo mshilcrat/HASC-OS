@@ -810,7 +810,7 @@ window.HASC_CONFIG = {
       btn.id = "pwDone"; btn.type = "button"; btn.textContent = "Done";
       btn.style.cssText = "position:fixed;right:20px;bottom:22px;z-index:100001;background:linear-gradient(135deg,#7C5192,#AC659D);color:#fff;border:none;border-radius:999px;padding:12px 28px;font:600 15px/1 'Plus Jakarta Sans',system-ui,sans-serif;box-shadow:0 6px 18px rgba(124,81,146,.4);cursor:pointer;letter-spacing:.2px;display:none";
       btn.addEventListener("click", function(){
-        var g = document.querySelector(".pw-gback"); if(g){ g.remove(); }
+        var g = document.querySelector(".pw-gback"); if(g){ g.style.display = "none"; }
         document.body.classList.remove("pw-edit");
         syncDone();
       });
