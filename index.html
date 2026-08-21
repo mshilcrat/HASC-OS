@@ -954,6 +954,7 @@ initAuthAndData();
         if(hf){ var allow = homes.map(function(h){return String(h).trim();}); Array.prototype.slice.call(hf.options).forEach(function(o){ if(o.value==='ALL'){o.remove();return;} if(allow.indexOf(o.textContent.trim())===-1 && allow.indexOf(o.value)===-1){o.remove();} }); }
         var ap = document.getElementById('annPost'); if(ap) ap.style.display='none';
         var af = document.getElementById('announcementForm'); if(af) af.style.display='none';
+                var dsel = document.querySelector('.myres-picks select:not(#heroHomeFilter)'); if(dsel) dsel.style.display='none';
       }
     }
     paint();
