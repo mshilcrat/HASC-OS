@@ -952,6 +952,7 @@ initAuthAndData();
       if(!isAdmin){
         var hf = document.getElementById('heroHomeFilter');
         if(hf){ var allow = homes.map(function(h){return String(h).trim();}); Array.prototype.slice.call(hf.options).forEach(function(o){ if(o.value==='ALL'){o.remove();return;} if(allow.indexOf(o.textContent.trim())===-1 && allow.indexOf(o.value)===-1){o.remove();} }); }
+        var LPS=document.querySelectorAll('#ledHomePick'); if(LPS.length){var allowL=homes.map(function(h){return String(h).trim();});LPS.forEach(function(lp){Array.prototype.slice.call(lp.options).forEach(function(o){var v=String(o.value).trim();if(v==='ALL'||v===''){return;}if(allowL.indexOf(v)===-1){o.remove();}});if(lp.selectedIndex<0&&lp.options.length){lp.selectedIndex=0;}});}
         var ap = document.getElementById('annPost'); if(ap) ap.style.display='none';
         var af = document.getElementById('announcementForm'); if(af) af.style.display='none';
                 var dsel = document.querySelector('.myres-picks select:not(#heroHomeFilter)'); if(dsel) dsel.style.display='none';
