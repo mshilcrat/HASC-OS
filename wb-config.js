@@ -779,7 +779,7 @@ window.HASC_CONFIG = {
   function tidy(){
     try{
       var bar = document.querySelector(".pw-toolbar");
-      if(bar){ if(document.body && document.body.classList.contains("pw-edit")){ bar.style.removeProperty("display"); } else { bar.style.setProperty("display","none","important"); } }
+      if(bar){ bar.style.setProperty("display","none","important"); }
       var vhs = document.querySelectorAll(".viewhead");
       for(var i=0;i<vhs.length;i++){
         var t = (vhs[i].textContent||"").replace(/^\s+/,"");
@@ -818,10 +818,27 @@ window.HASC_CONFIG = {
     }
     return btn;
   }
+  function ensureAdd(){
+    var btn = document.getElementById("pwAdd");
+    if(!btn){
+      btn = document.createElement("button");
+      btn.id = "pwAdd"; btn.type = "button"; btn.textContent = "+ Add widget";
+      btn.style.cssText = "position:fixed;right:20px;bottom:70px;z-index:100001;background:linear-gradient(135deg,#7C5192,#AC659D);color:#fff;border:none;border-radius:999px;padding:12px 28px;font:600 15px/1 'Plus Jakarta Sans',system-ui,sans-serif;box-shadow:0 6px 18px rgba(124,81,146,.4);cursor:pointer;letter-spacing:.2px;display:none";
+      btn.addEventListener("click", function(){
+        var a = document.querySelector(".pw-toolbar button.pri");
+        if(!a){ var bs = document.querySelectorAll(".pw-toolbar button"); for(var i=0;i<bs.length;i++){ if(/add widget/i.test(bs[i].textContent||"")){ a=bs[i]; break; } } }
+        if(a){ a.click(); }
+      });
+      document.body.appendChild(btn);
+    }
+    return btn;
+  }
   function syncDone(){
     var btn = ensureDone();
+    var add = ensureAdd();
     var editing = document.body.classList.contains("pw-edit");
     btn.style.display = editing ? "inline-block" : "none";
+    add.style.display = editing ? "inline-block" : "none";
   }
   function init(){
     hideNew(); ensureDone(); syncDone();
