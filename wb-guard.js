@@ -14,7 +14,7 @@
       sessionStorage.setItem("hasc_homes", JSON.stringify(row.residences || []));
       sessionStorage.setItem("hasc_department", department);
       var path = location.pathname;
-      if(department === "Day Hab"){
+      if(department === "Day Hab" && role !== "admin"){
 var dhp=decodeURIComponent(path).toLowerCase();
 if(dhp.indexOf("/day hab/") === -1){ location.replace("/Day Hab/index.html"); }
 return;
