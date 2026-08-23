@@ -966,6 +966,7 @@ initAuthAndData();
     setTimeout(paint, 1500);
   }catch(e){ console.error('HASC-FIX error', e); }
 })();
+</script>
 
 <script>/* HASC remove-individual */(function(){function bind(){var c=window.__hascClient||window.supabase;if(!c)return;var t=document.querySelector('table');if(!t)return;t.querySelectorAll('tr[data-ind]').forEach(function(tr){if(tr.querySelector('.rm-ind'))return;var td=document.createElement('td');var b=document.createElement('button');b.className='rm-ind';b.type='button';b.textContent='Remove';b.style.cssText='font:inherit;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:6px;padding:2px 8px;cursor:pointer';td.appendChild(b);tr.appendChild(td);});if(!window.__rmIndBound){window.__rmIndBound=true;document.addEventListener('click',async function(e){var b=e.target.closest('.rm-ind');if(!b)return;var tr=b.closest('tr[data-ind]');if(!tr)return;var id=tr.getAttribute('data-ind');var nm=(tr.querySelector('td b')||{}).textContent||'this individual';if(!confirm('Remove '+nm+' from the dashboard?'))return;b.disabled=true;b.textContent='Removing...';var r=await (window.__hascClient||window.supabase).from('resi_individuals').update({active:false}).eq('id',id);if(r.error){alert('Error: '+r.error.message);b.disabled=false;b.textContent='Remove';return;}tr.remove();if(typeof loadIndividuals==='function')loadIndividuals();});}}document.addEventListener('DOMContentLoaded',function(){bind();setInterval(bind,2000);});setTimeout(bind,1500);})();</script>
 </script>
