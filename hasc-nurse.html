@@ -101,7 +101,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 <body>
 <div id="hasc-nurse-app">
   <div class="na-head">
-    <div class="na-mark"><span class="na-cross"></span></div>
+    <button class="na-btn" id="naBack" style="display:inline-flex;align-items:center;gap:6px;margin-right:4px" onclick="if(window.parent!==window){try{window.parent.document.querySelector('.navbtn[data-view=&quot;dashboard&quot;]').click();return;}catch(e){}}location.href='/';"><span style="font-size:16px;line-height:1">&#8592;</span>Dashboard</button><div class="na-mark"><span class="na-cross"></span></div>
     <div class="na-title"><h1>Nurse</h1><p>Residential nursing coverage, ER sheets, and nurse contacts.</p></div>
     <div class="na-actions"><button class="na-btn" id="naPrint">Print Coverage</button><button class="na-btn primary" id="naNewER">+ New ER Sheet</button></div>
   </div>
