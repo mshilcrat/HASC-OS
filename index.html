@@ -297,10 +297,10 @@ th{font-size:14.5px}td{font-size:17px}
 .ledlog{margin-top:14px}
 .ledlog .ph h3{color:var(--blue-ink)}
 
-.hpeople{padding:2px 10px}
+.hpeople{padding:2px 10px;display:grid;grid-template-columns:1fr 1fr;column-gap:12px}
 .hperson{display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:4px 0;border-bottom:1px solid var(--line2)}
 .hperson:last-child{border-bottom:0}
-.hpn{font-size:11.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hpn{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hperson .status{font-size:9.5px;flex:none}
 .hmore{font-size:11px;color:var(--muted);padding:6px 0 2px;font-weight:700}
 .hnone{font-size:11.5px;color:var(--muted);padding:8px 0}
@@ -540,8 +540,8 @@ function renderHouses(){
   houses.innerHTML=hs.map((h,i)=>{
     const d=HOUSE_STATUS[h.name]||{},c=colors[i%colors.length],att=d.attention>0;
     const ppl=individuals.filter(p=>p.home===h.name);
-    const shown=ppl.slice(0,6);
-    const list=shown.length?shown.map(p=>`<div class="hperson"><span class="hpn">${p.name}</span></div>`).join('')+(ppl.length>6?`<div class="hmore">+${ppl.length-6} more</div>`:''):'<div class="hnone">No individuals recorded</div>';
+    const shown=ppl.slice(0,12);
+    const list=shown.length?shown.map(p=>`<div class="hperson"><span class="hpn">${p.name}</span></div>`).join('')+(ppl.length>12?`<div class="hmore">+${ppl.length-12} more</div>`:''):'<div class="hnone">No individuals recorded</div>';
     return `<div class="house" data-house="${h.name}" draggable="true" style="--hc:${att?'var(--coral)':c[0]};--hw:${att?'var(--coral-wash)':c[1]}"><div class="hh"><div class="hico">${INDEX_ICONS.home}</div><div style="min-width:0"><div class="hname">${h.name}</div><div class="hmeta">${ppl.length} residents · RM ${h.rm}</div></div><span class="hgrip" title="Drag to reorder">\u22ee\u22ee</span></div><div class="hpeople">${list}</div><div class="hstatus"><span>View residence \u203a</span></div></div>`;
   }).join('');
   _bindHouseCards();
