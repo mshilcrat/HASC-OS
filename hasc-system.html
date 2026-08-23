@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>HASC Residential OS — System Settings</title>
+  </head>
+  <body style="margin:0">
+  <div id="hasc-sys" class="hs-root">
+    <style>
+      #hasc-sys{--paper:#f1efe9;--card:#fff;--ink:#233038;--ink2:#3a4a54;--muted:#6a7a84;--faint:#9fb0b8;--line:#e7e2d9;--line2:#eef1f4;--teal:#17a2b8;--teal-ink:#0f7d8f;--teal-wash:#e8f6f8;--green:#568E62;--green-wash:#eef4ef;--blue:#3E9EB3;--blue-wash:#e9f4f6;--plum:#AC659D;--plum-wash:#f6eff4;--gold:#D9B93B;--gold-wash:#fbf6e4;--coral:#C96A44;--coral-wash:#f9ede7;--slate:#5b7a99;--indigo:#5E6FB2;--jade:#3E9E86;--rose:#C67BA0;--violet:#7C5192;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f1efe9;color:var(--ink);padding:22px;min-height:100vh;border-radius:0}
+      #hasc-sys *{box-sizing:border-box}.hs-shell{max-width:1100px;margin:auto}.hs-head{display:flex;gap:14px;align-items:center;margin-bottom:18px;flex-wrap:wrap}.hs-gear{width:48px;height:48px;border-radius:12px;background:linear-gradient(180deg,#b9bcc2,#8e9198);display:grid;place-items:center;box-shadow:0 10px 22px -12px rgba(60,50,35,.5)}.hs-gear svg{width:34px;height:34px;display:block}.hs-title h2{margin:0;font-size:27px;letter-spacing:-.025em}.hs-title p{margin:3px 0 0;color:var(--muted);font-size:14px}.hs-status{margin-left:auto;background:var(--green-wash);color:#39684a;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}.hs-toolbar{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin-bottom:14px;box-shadow:0 1px 2px rgba(60,50,35,.04)}.hs-field{display:flex;flex-direction:column;gap:5px}.hs-field label{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.05em}.hs-field select{min-width:250px;border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:9px 11px;font-size:14px;font-weight:750}.hs-scope{font-size:13px;color:var(--muted);padding-bottom:9px}.hs-usercard{margin-left:auto;display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--line);border-radius:12px;background:#fbfcfc}.hs-useravatar{width:34px;height:34px;border-radius:9px;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:900}.hs-usermeta b{display:block;font-size:13px}.hs-usermeta span{display:block;font-size:11px;color:var(--muted);margin-top:2px}.hs-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hs-panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(60,50,35,.04),0 10px 24px -18px rgba(60,50,35,.18)}.hs-ph{display:flex;align-items:center;gap:9px;margin-bottom:11px}.hs-ph h3{margin:0;font-size:14px;text-transform:uppercase;letter-spacing:.05em}.hs-count{margin-left:auto;font-size:11px;background:var(--paper);color:var(--muted);border-radius:99px;padding:4px 7px;font-weight:800}.hs-list{display:flex;flex-direction:column}.hs-item,.hs-widget{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line2)}.hs-item:last-child,.hs-widget:last-child{border-bottom:0}.hs-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--acc);color:white;font-size:17px;box-shadow:0 8px 18px -10px var(--acc);flex:none}.hs-item-main,.hs-widget-main{min-width:0;flex:1}.hs-name,.hs-widget b{font-size:14px;font-weight:850}.hs-desc,.hs-widget small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.35}.hs-switch{position:relative;width:40px;height:23px;display:inline-block;flex:none}.hs-switch input{position:absolute;opacity:0}.hs-slider{position:absolute;inset:0;background:#d8dde0;border-radius:99px;transition:.15s}.hs-slider:before{content:'';position:absolute;width:17px;height:17px;left:3px;top:3px;border-radius:50%;background:white;box-shadow:0 1px 2px rgba(0,0,0,.18);transition:.15s}.hs-switch input:checked+.hs-slider{background:var(--teal)}.hs-switch input:checked+.hs-slider:before{transform:translateX(17px)}.hs-savebar{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.hs-savebar span{font-size:12.5px;color:var(--muted)}.hs-save{margin-left:auto;border:0;background:var(--teal);color:white;border-radius:9px;padding:9px 14px;font-weight:850;cursor:pointer}.hs-reset{border:1px solid var(--line);background:white;color:var(--ink2);border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}.hs-toast{font-size:12px;color:#39684a;font-weight:800;min-width:100px;text-align:right}.hs-db{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:#fbfcfc;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}.hs-dbicon{width:32px;height:32px;border-radius:9px;background:var(--blue-wash);color:var(--blue);display:grid;place-items:center;flex:none;font-weight:900}.hs-db b{display:block;font-size:12.5px}.hs-db small{display:block;color:var(--muted);font-size:11.5px;line-height:1.4;margin-top:2px}@media(max-width:760px){.hs-grid{grid-template-columns:1fr}.hs-usercard{margin-left:0}}@media(max-width:520px){#hasc-sys{padding:14px}.hs-status{margin-left:0}.hs-field,.hs-field select{width:100%}.hs-save{margin-left:0;width:100%}}
+    </style>
+
+    <div class="hs-shell">
+      <div class="hs-head">
+        <div class="hs-gear" aria-label="System Settings">
+          <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.32 1.5a1.6 1.6 0 0 0-1.55 1.2l-.24.92a8.7 8.7 0 0 0-1.5.87l-.9-.32a1.6 1.6 0 0 0-1.93.72l-1.68 2.9a1.6 1.6 0 0 0 .38 2.02l.73.6a8.8 8.8 0 0 0 0 1.74l-.73.6a1.6 1.6 0 0 0-.38 2.02l1.68 2.9c.4.7 1.24 1 1.93.72l.9-.32c.47.35.97.64 1.5.87l.24.92c.18.7.81 1.2 1.55 1.2h3.36c.74 0 1.37-.5 1.55-1.2l.24-.92c.53-.23 1.03-.52 1.5-.87l.9.32c.69.28 1.53-.02 1.93-.72l1.68-2.9a1.6 1.6 0 0 0-.38-2.02l-.73-.6c.06-.58.06-1.16 0-1.74l.73-.6a1.6 1.6 0 0 0 .38-2.02l-1.68-2.9a1.6 1.6 0 0 0-1.93-.72l-.9.32a8.7 8.7 0 0 0-1.5-.87l-.24-.92a1.6 1.6 0 0 0-1.55-1.2h-3.36ZM12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2Z"/></svg>
+        </div>
+        <div class="hs-title">
+          <h2>System Settings</h2>
+          <p>Choose what each individual user sees in the OS.</p>
+        </div>
+        <div class="hs-status">ADMIN ONLY</div>
+      </div>
+
+      <div class="hs-toolbar">
+        <div class="hs-field">
+          <label>Select User</label>
+          <select id="hs-user">
+            <option value="">Loading users from Supabase…</option>
+        </select>
+      </div>
+
+      <div class="hs-scope" id="hs-scope">User scope loads from the profile table</div>
+
+      <div class="hs-usercard">
+        <div class="hs-useravatar" id="hs-useravatar">—</div>
+        <div class="hs-usermeta">
+          <b id="hs-username">Select a user</b>
+          <span id="hs-userrole">Supabase profile</span>
+        </div>
+        </div>
+      </div>
+
+      <div class="hs-grid">
+        <section class="hs-panel">
+          <div class="hs-ph">
+            <div class="hs-ico" style="--acc:var(--violet)">▦</div>
+            <h3>Apps</h3>
+            <span class="hs-count" id="hs-app-count"></span>
+          </div>
+          <div class="hs-list" id="hs-apps"></div>
+        </section>
+
+        <section class="hs-panel">
+          <div class="hs-ph">
+            <div class="hs-ico" style="--acc:var(--blue)">▤</div>
+            <h3>Dashboard Widgets</h3>
+            <span class="hs-count" id="hs-widget-count"></span>
+          </div>
+          <div class="hs-list" id="hs-widgets"></div>
+        </section>
+      </div>
+
+      <div class="hs-savebar">
+        <span>Turn items on or off for this user.</span>
+        <button type="button" class="hs-reset" id="hs-reset">Reset User</button>
+        <button type="button" class="hs-save" id="hs-save">Save to User</button>
+        <div class="hs-toast" id="hs-toast" aria-live="polite"></div>
+      </div>
+
+      <div class="hs-db">
+        <div class="hs-dbicon">DB</div>
+        <div>
+          <b>Supabase user profile</b>
+        <small>This screen is meant to save the selected apps and widgets directly to that user's profile/config row. guard.js still decides which residences and records the user is actually allowed to access.</small>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      const root=document.getElementById('hasc-sys');
+    if(!root||root.dataset.ready)return;
+    root.dataset.ready='1';
+
+    const apps=[
+{k:'checklists',n:'Checklists',d:'Daily tasks and safety checks',i:'✓',c:'var(--green)'},
+{k:'ledgers',n:'Ledgers',d:'Resident funds and monthly sheets',i:'▤',c:'var(--blue)'},
+{k:'planner',n:'Residential Day Planner',d:'Weekly activities and staffing',i:'▣',c:'var(--plum)'},
+{k:'training',n:'Training',d:'Residential PONS and certifications',i:'◆',c:'var(--gold)'},
+{k:'ot',n:'OT Dashboard',d:'Overtime and staffing by residence',i:'▥',c:'var(--coral)'},
+{k:'lifeplan',n:'Life Plan Tracker',d:'Life plans, goals and progress',i:'♡',c:'var(--slate)'},
+{k:'staff',n:'Staff',d:'Staff roster, credentials and assignments',i:'♟',c:'var(--jade)'},
+{k:'orgtraining',n:'Org Training',d:'Organization-wide training programs',i:'◆',c:'var(--rose)'},
+{k:'system',n:'System Settings',d:'Role, app and widget administration',i:'⚙',c:'var(--violet)'}
+    ];
+
+    const widgets=[
+{k:'houses',n:'Houses at a Glance',d:'Residence cards and individual overview'},
+{k:'activity',n:'Recent Activity',d:'Recent certifications and OS activity'},
+{k:'focus',n:'Focus Board',d:'Live exceptions requiring attention'},
+{k:'moves',n:'Departures & Returns',d:'Movement events for individuals'},
+{k:'announcements',n:'Announcements',d:'Department and residence messages'},
+{k:'checkprogress',n:"Today's Checklist Progress",d:'Daily completion snapshot'},
+{k:'dayhab',n:'Residential ↔ Day Hab',d:'Shared attendance and handoff counts'}
+    ];
+
+    const defaults={};
+    const state={};
+    const users={};
+
+    const user=document.getElementById('hs-user');
+    const appHost=document.getElementById('hs-apps');
+    const widgetHost=document.getElementById('hs-widgets');
+
+    function sw(checked,key,type,disabled){
+            return `<label class="hs-switch">
+                      <input type="checkbox" data-${type}="${key}" ${checked?'checked':''} ${disabled?'disabled':''}>
+                      <span class="hs-slider"></span>
+                    </label>`;
+    }
+
+    function render(){
+            const r=user.value;
+      const cfg=state[r];
+      const u=users[r];
+      const ready=!!(r&&cfg&&u);
+
+      if(ready){
+        document.getElementById('hs-scope').textContent=u.scope||'Profile-controlled scope';
+        document.getElementById('hs-username').textContent=u.name||'User';
+        document.getElementById('hs-userrole').textContent=(u.role||'USER')+' · Supabase profile';
+        document.getElementById('hs-useravatar').textContent=u.initials||'—';
+      }else{
+        document.getElementById('hs-scope').textContent='Select a Supabase user to configure';
+        document.getElementById('hs-username').textContent='Select a user';
+        document.getElementById('hs-userrole').textContent='Loaded from Supabase';
+        document.getElementById('hs-useravatar').textContent='—';
+      }
+
+      appHost.innerHTML=apps.map(a=>`
+                <div class="hs-item">
+                  <div class="hs-ico" style="--acc:${a.c}">${a.i}</div>
+                  <div class="hs-item-main">
+                    <div class="hs-name">${a.n}</div>
+                    <div class="hs-desc">${a.d}</div>
+                  </div>
+                  ${sw(ready&&cfg.apps.includes(a.k),a.k,'app',!ready)}
+        </div>
+              `).join('');
+
+      widgetHost.innerHTML=widgets.map(w=>`
+                <div class="hs-widget">
+                  <div class="hs-widget-main">
+                    <b>${w.n}</b>
+                    <small>${w.d}</small>
+                  </div>
+                  ${sw(ready&&cfg.widgets.includes(w.k),w.k,'widget',!ready)}
+        </div>
+              `).join('');
+
+      document.getElementById('hs-app-count').textContent=ready?cfg.apps.length+' enabled':'Select user';
+      document.getElementById('hs-widget-count').textContent=ready?cfg.widgets.length+' visible':'Select user';
+
+      root.querySelectorAll('[data-app]').forEach(cb=>{
+                cb.addEventListener('change',()=>toggle('apps',cb.dataset.app,cb.checked));
+    });
+
+      root.querySelectorAll('[data-widget]').forEach(cb=>{
+                cb.addEventListener('change',()=>toggle('widgets',cb.dataset.widget,cb.checked));
+});
+}
+
+    function toggle(type,key,on){
+            const r=user.value;
+      if(!r||!state[r])return;
+
+      const a=state[r][type];
+
+      if(on&&!a.includes(key))a.push(key);
+      if(!on)state[r][type]=a.filter(x=>x!==key);
+
+      render();
+    }
+
+    user.addEventListener('change',render);
+
+    document.getElementById('hs-reset').addEventListener('click',()=>{
+            if(!user.value||!defaults[user.value])return;
+      state[user.value]=JSON.parse(JSON.stringify(defaults[user.value]));
+      render();
+      document.getElementById('hs-toast').textContent='User reset';
+});
+
+    document.getElementById('hs-save').addEventListener('click',()=>{
+            const t=document.getElementById('hs-toast');
+
+      if(!user.value||!users[user.value]){
+        t.textContent='Select a Supabase user';
+        return;
+      }
+
+      t.textContent='✓ Ready to save to '+users[user.value].name;
+      setTimeout(()=>t.textContent='',1800);
+        });
+
+    render();
+})();
+  </script>
+    </div>
+    </body>
+    </html>
