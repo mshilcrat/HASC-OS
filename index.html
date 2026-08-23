@@ -609,7 +609,7 @@ const APP_CATALOG=[
  {key:'orgtraining',name:'Org Training',icon:'grad',color:'rose'},
  {key:'nurse',name:'Nurse',icon:'lifeplan',color:'coral'}
 ];
-const CORE_VIEWS=['dashboard','individuals'];
+const CORE_VIEWS=['dashboard','individuals','nurse'];
 const SR_KEY='hascos.rail.v2';
 function srLoad(){try{const v=localStorage.getItem(SR_KEY);if(v)return JSON.parse(v);}catch(e){}return APP_CATALOG.map(a=>a.key);}
 function srSave(a){try{localStorage.setItem(SR_KEY,JSON.stringify(a));}catch(e){}}
