@@ -615,7 +615,7 @@ function srLoad(){try{const v=localStorage.getItem(SR_KEY);if(v)return JSON.pars
 function srSave(a){try{localStorage.setItem(SR_KEY,JSON.stringify(a));}catch(e){}}
 let speedApps=srLoad();
 function applyRail(){
-  document.querySelectorAll('.navbtn[data-view]').forEach(b=>{const v=b.dataset.view;if(CORE_VIEWS.includes(v))return;b.style.display=speedApps.includes(v)?'':'none';});
+  document.querySelectorAll('.navbtn[data-view]').forEach(b=>{const v=b.dataset.view;if(CORE_VIEWS.includes(v))return;b.style.display='';});
 }
 function renderAppsPin(){
   if(!window.appsPin)return;
