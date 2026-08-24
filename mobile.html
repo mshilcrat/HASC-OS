@@ -115,12 +115,12 @@ color:var(--muted);display:grid;place-items:center
         <div class="house-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></div>
         <div class="house-copy">
           <div class="eyebrow">House at a Glance</div>
-          <div class="house-name">Current Residence</div>
-          <div class="house-meta">Profile-controlled residence scope</div>
+          <div class="house-name" id="currentResidence">Current Residence</div>
+          <div class="house-meta" id="residenceMeta">Profile-controlled residence scope</div>
         </div>
         <div class="scope">ACTIVE</div>
       </div>
-      <div class="residents">
+      <div class="residents" id="residentGrid">
         <button class="resident"><div class="pball">A</div><div><b>Resident A</b><small>Open resident record</small></div><div class="chev">›</div></button>
         <button class="resident"><div class="pball">B</div><div><b>Resident B</b><small>Open resident record</small></div><div class="chev">›</div></button>
         <button class="resident"><div class="pball">C</div><div><b>Resident C</b><small>Open resident record</small></div><div class="chev">›</div></button>
@@ -267,6 +267,294 @@ if(logoutBtn){
       clearInterval(waitForProfile);
     }
   },100);
+})();
+
+
+// =============================================================
+// MARK 5 — COMPLETE MOBILE WIRING
+// Profile + residence + residents + app routing + permissions
+// =============================================================
+(function(){
+  'use strict';
+
+  const APP_ROUTES = {
+    'Individuals': '/individuals.html',
+    'Checklists': '/checklists/wb-hub-mark2.html',
+    'Ledgers': '/ledgers.html',
+    'Residential Day Planner': '/residential-day-planner.html',
+    'Training': '/training/wb-index.html',
+    'OT Dashboard': '/HASC_OT_Dashboard_v3_CEO_7_2_26.html',
+    'Life Plan Tracker': '',
+    'Staff': '',
+    'Org Training': '',
+    'Nurse / ER Sheets': '/hasc-nurse.html',
+    'Systems': '/hasc-system.html'
+  };
+
+  const APP_KEYS = {
+    'Individuals': 'individuals',
+    'Checklists': 'checklists',
+    'Ledgers': 'ledgers',
+    'Residential Day Planner': 'planner',
+    'Training': 'training',
+    'OT Dashboard': 'ot',
+    'Life Plan Tracker': 'lifeplan',
+    'Staff': 'staff',
+    'Org Training': 'orgtraining',
+    'Nurse / ER Sheets': 'nurse',
+    'Systems': 'system'
+  };
+
+  const CORE_APPS = ['individuals', 'nurse'];
+
+  function getClient(){
+    if(window.__hascClient) return window.__hascClient;
+    if(window.supabase && window.HASC_CONFIG){
+      try{
+        window.__hascClient = window.supabase.createClient(
+          window.HASC_CONFIG.SUPABASE_URL,
+          window.HASC_CONFIG.SUPABASE_ANON_KEY
+        );
+        return window.__hascClient;
+      }catch(e){}
+    }
+    return null;
+  }
+
+  function normalizeArray(v){
+    if(Array.isArray(v)) return v;
+    if(v == null) return [];
+    if(typeof v === 'string'){
+      const s = v.trim();
+      if(!s) return [];
+      try{
+        const p = JSON.parse(s);
+        if(Array.isArray(p)) return p;
+      }catch(e){}
+      return s.split(',').map(x=>x.trim()).filter(Boolean);
+    }
+    return [];
+  }
+
+  function getProfile(){
+    if(window.__hascProfile) return window.__hascProfile;
+    try{
+      return {
+        email: sessionStorage.getItem('hasc_email') || '',
+        role: sessionStorage.getItem('hasc_role') || '',
+        department: sessionStorage.getItem('hasc_department') || '',
+        residences: JSON.parse(sessionStorage.getItem('hasc_homes') || '[]'),
+        apps: sessionStorage.getItem('hasc_apps')
+          ? JSON.parse(sessionStorage.getItem('hasc_apps'))
+          : null
+      };
+    }catch(e){
+      return null;
+    }
+  }
+
+  function displayResidence(v){
+    if(v == null) return '';
+    if(typeof v === 'string') return v.trim();
+    if(typeof v === 'object'){
+      return String(
+        v.name || v.residence_name || v.residence ||
+        v.home || v.title || v.label || ''
+      ).trim();
+    }
+    return String(v).trim();
+  }
+
+  function selectedResidence(profile){
+    const homes = normalizeArray(profile && profile.residences)
+      .map(displayResidence)
+      .filter(Boolean);
+
+    return homes.length ? homes[0] : '';
+  }
+
+  function initials(name){
+    const p = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if(!p.length) return '?';
+    return p.length === 1
+      ? p[0].charAt(0).toUpperCase()
+      : (p[0].charAt(0) + p[p.length-1].charAt(0)).toUpperCase();
+  }
+
+  function escapeHtml(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  async function loadResidents(home){
+    const grid = document.getElementById('residentGrid');
+    if(!grid) return;
+
+    if(!home){
+      grid.innerHTML =
+        '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">No residence assigned to this profile.</div>';
+      return;
+    }
+
+    const sb = getClient();
+    if(!sb){
+      grid.innerHTML =
+        '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">Unable to load residents.</div>';
+      return;
+    }
+
+    try{
+      let result = await sb
+        .from('resi_individuals')
+        .select('id,name,home_name,status,active')
+        .eq('home_name', home)
+        .eq('active', true)
+        .order('name', {ascending:true});
+
+      // Compatibility fallback in case "active" is unavailable on an older table.
+      if(result.error){
+        result = await sb
+          .from('resi_individuals')
+          .select('id,name,home_name,status')
+          .eq('home_name', home)
+          .order('name', {ascending:true});
+      }
+
+      const rows = (result.data || []).slice(0, 12);
+
+      if(!rows.length){
+        grid.innerHTML =
+          '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">No individuals recorded for this residence.</div>';
+        return;
+      }
+
+      grid.innerHTML = rows.map(function(r){
+        const nm = escapeHtml(r.name || 'Individual');
+        const st = escapeHtml(r.status || 'Open ER sheet');
+        const init = escapeHtml(initials(r.name));
+        const url = '/hasc-nurse.html?resident=' +
+          encodeURIComponent(r.name || '') +
+          '&home=' + encodeURIComponent(home);
+
+        return '<button class="resident" type="button" data-resident-url="' + url + '">' +
+          '<div class="pball">' + init + '</div>' +
+          '<div><b>' + nm + '</b><small>' + st + '</small></div>' +
+          '<div class="chev">›</div></button>';
+      }).join('');
+
+      grid.querySelectorAll('[data-resident-url]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          location.href = btn.getAttribute('data-resident-url');
+        });
+      });
+
+    }catch(e){
+      grid.innerHTML =
+        '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">Residents could not be loaded.</div>';
+    }
+  }
+
+  function normalizedEnabledApps(profile){
+    if(!profile || profile.apps == null) return null;
+
+    let a = normalizeArray(profile.apps);
+
+    // Also support object-form permissions such as {"training":true}.
+    if(!a.length && profile.apps && typeof profile.apps === 'object' && !Array.isArray(profile.apps)){
+      a = Object.keys(profile.apps).filter(k=>profile.apps[k]);
+    }
+
+    return a.map(x=>String(x).trim().toLowerCase()).filter(Boolean);
+  }
+
+  function wireApps(profile){
+    const enabled = normalizedEnabledApps(profile);
+    const isAdmin = String(profile && profile.role || '').toLowerCase() === 'admin';
+
+    document.querySelectorAll('.app-btn').forEach(function(btn){
+      const labelEl = btn.querySelector('b');
+      if(!labelEl) return;
+
+      const label = labelEl.textContent.trim();
+      const key = APP_KEYS[label] || '';
+      const url = APP_ROUTES[label] || '';
+
+      let allowed = true;
+
+      if(enabled !== null){
+        allowed = CORE_APPS.indexOf(key) >= 0 || enabled.indexOf(key) >= 0;
+      }
+
+      // Systems stays administrator-only even if a stale permission says otherwise.
+      if(key === 'system' && !isAdmin) allowed = false;
+
+      btn.style.display = allowed ? '' : 'none';
+
+      if(!allowed) return;
+
+      btn.onclick = function(){
+        if(url){
+          location.href = url;
+          return;
+        }
+
+        // App exists in the design but has no live route yet.
+        btn.animate(
+          [{transform:'scale(1)'},{transform:'scale(.96)'},{transform:'scale(1)'}],
+          {duration:180}
+        );
+      };
+    });
+
+    // Hide an empty swipe page.
+    document.querySelectorAll('.page').forEach(function(page){
+      const visible = Array.from(page.querySelectorAll('.app-btn'))
+        .some(b=>b.style.display !== 'none');
+      page.style.display = visible ? '' : 'none';
+    });
+
+    const visiblePages = Array.from(document.querySelectorAll('.page'))
+      .filter(p=>p.style.display !== 'none').length;
+
+    document.querySelectorAll('.dots .dot').forEach(function(dot, i){
+      dot.style.display = i < visiblePages ? '' : 'none';
+    });
+  }
+
+  async function paintMobile(){
+    const profile = getProfile();
+    if(!profile) return false;
+
+    const home = selectedResidence(profile);
+    const residenceEl = document.getElementById('currentResidence');
+    const metaEl = document.getElementById('residenceMeta');
+
+    if(residenceEl){
+      residenceEl.textContent = home || 'No Residence Assigned';
+    }
+
+    if(metaEl){
+      const count = normalizeArray(profile.residences).length;
+      metaEl.textContent = count > 1
+        ? count + ' assigned residences · showing primary'
+        : 'Assigned residence';
+    }
+
+    wireApps(profile);
+    await loadResidents(home);
+    return true;
+  }
+
+  // Wait for wb-guard.js to publish the authenticated profile.
+  let tries = 0;
+  const boot = setInterval(async function(){
+    tries++;
+    if(await paintMobile() || tries >= 80){
+      clearInterval(boot);
+    }
+  },100);
+
 })();
 
 </script>
