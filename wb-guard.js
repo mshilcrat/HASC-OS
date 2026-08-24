@@ -19,7 +19,7 @@ var dhp=decodeURIComponent(path).toLowerCase();
 if(dhp.indexOf("/day hab/") === -1){ location.replace("/Day Hab/index.html"); }
 return;
 }
-if(location.pathname==="/"||/\/(index\.html)?$/.test(location.pathname)){ return; }
+if(location.pathname==="/"||/\/(index\.html|mobile\.html)?$/.test(location.pathname)){ return; }
             if(decodeURIComponent(path).toLowerCase().indexOf("/day hab/") !== -1){ return; }
           var adminPages = ["wb-hub-mark2.html","wb-today-mark2.html","wb-insights-mark2.html","wb-documents-mark2.html","wb-checklists-mark2.html","wb-inbox-mark2.html"];
       if(role === "admin"){
