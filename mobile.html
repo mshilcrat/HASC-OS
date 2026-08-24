@@ -7,9 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>HASC Residential OS</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/wb-config.js"></script>
-  <script src="/wb-guard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/wb-config.js"></script>
+<script src="/wb-guard.js"></script>
 <style>
 :root{
   --ui:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -103,7 +103,7 @@ color:var(--muted);display:grid;place-items:center
       <div class="dept">Residential</div>
     </div>
     <div class="header-actions">
-      <div class="avatar">M</div>
+      <div class="avatar" id="userAvatar" aria-label="Logged in user">M</div>
       <button class="logoutbtn" id="logoutBtn" aria-label="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></button>
       
     </div>
@@ -197,6 +197,78 @@ if(logoutBtn){
     window.location.href='/';
   });
 }
+
+// -------------------------------------------------------------
+// Logged-in user identity
+// Reads the profile published by wb-guard.js.
+// Only the avatar initials are changed; the UI stays untouched.
+// -------------------------------------------------------------
+(function(){
+  const avatar = document.getElementById('userAvatar');
+  if(!avatar) return;
+
+  function initialsFromName(name, email){
+    const clean = String(name || '').trim();
+
+    if(clean){
+      const parts = clean.split(/\s+/).filter(Boolean);
+      if(parts.length === 1) return parts[0].charAt(0).toUpperCase();
+
+      return (
+        parts[0].charAt(0) +
+        parts[parts.length - 1].charAt(0)
+      ).toUpperCase();
+    }
+
+    const fallback = String(email || '').trim();
+    return fallback ? fallback.charAt(0).toUpperCase() : 'U';
+  }
+
+  function paintIdentity(){
+    let profile = window.__hascProfile || null;
+
+    if(!profile){
+      try{
+        const email = sessionStorage.getItem('hasc_email') || '';
+        if(email){
+          profile = {
+            email: email,
+            full_name: ''
+          };
+        }
+      }catch(e){}
+    }
+
+    if(!profile) return false;
+
+    const fullName = String(profile.full_name || '').trim();
+    const email = String(profile.email || '').trim();
+
+    avatar.textContent = initialsFromName(fullName, email);
+
+    if(fullName){
+      avatar.setAttribute('title', fullName);
+      avatar.setAttribute('aria-label', fullName);
+    }else if(email){
+      avatar.setAttribute('title', email);
+      avatar.setAttribute('aria-label', email);
+    }
+
+    return true;
+  }
+
+  if(paintIdentity()) return;
+
+  let tries = 0;
+  const waitForProfile = setInterval(function(){
+    tries++;
+
+    if(paintIdentity() || tries >= 80){
+      clearInterval(waitForProfile);
+    }
+  },100);
+})();
+
 </script>
 </body>
 </html>
