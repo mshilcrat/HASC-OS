@@ -238,7 +238,7 @@
             });
           }
           if(document.readyState!=='loading')setTimeout(fix,60);else document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,60);});
-          new MutationObserver(fix).observe(document.getElementById('hasc-sys'),{childList:true,subtree:true});
+          var mo=new MutationObserver(function(){mo.disconnect();fix();mo.observe(document.getElementById('hasc-sys'),{childList:true,subtree:true});});mo.observe(document.getElementById('hasc-sys'),{childList:true,subtree:true});
         })();
       </script>
 </script>
