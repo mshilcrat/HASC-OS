@@ -1,109 +1,79 @@
-(function(){var __hascReveal=function(){try{document.documentElement.style.visibility="";}catch(e){}};try{if(!window.__hascRevealTimer){window.__hascRevealTimer=setTimeout(__hascReveal,4000);}document.documentElement.style.visibility="hidden";}catch(e){}
-  if(!window.supabase || !window.HASC_CONFIG) return;
-  var sb = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
-  window.__hascClient = sb;
+/* wb-guard.js — HASC Residential OS security/access layer
+ * Responsibilities ONLY:
+ *  - initialize/reuse ONE Supabase client (window.__hascClient)
+ *  - verify authenticated session (else -> /wb-login.html)
+ *  - load the user's profile and store role/residences/department/email/apps
+ *  - enforce department/residence security where appropriate
+ *  - if a phone opens the desktop index, route to /mobile.html
+ *  - never redirect the user away from /mobile.html because of their role
+ * It does NOT route to app-specific checklist pages and does NOT paint the DOM.
+ */
+(function(){
+  var docEl = document.documentElement;
+  var revealed = false;
+  function reveal(){ if(revealed) return; revealed = true; try{ docEl.style.visibility=""; }catch(e){} }
+  try{ docEl.style.visibility="hidden"; }catch(e){}
+  setTimeout(reveal, 4000);
+
+  if(!window.supabase || !window.HASC_CONFIG){ reveal(); return; }
+
+  // ONE shared client, reused everywhere.
+  var sb = window.__hascClient;
+  if(!sb){
+    sb = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY);
+    window.__hascClient = sb;
+  }
+
+  function isPhone(){
+    var ua = navigator.userAgent || navigator.vendor || "";
+    // iPhone / iPod / Android phones only. iPad + desktop get the desktop UI.
+    return /iPhone|iPod/.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+  }
+  function onMobileShell(){ return /\/mobile\.html$/i.test(location.pathname); }
+  function onDesktopIndex(){ return location.pathname === "/" || /\/index\.html$/i.test(location.pathname); }
+
   sb.auth.getSession().then(function(res){
-    var session = res && res.data ? res.data.session : null;
+    var session = (res && res.data) ? res.data.session : null;
     if(!session){ location.replace("/wb-login.html"); return; }
-    var uid = session.user.id;
-        return sb.from("profiles").select("role,residences,department").eq("email", session.user.email).single().then(function(p){
-      var row = p && p.data ? p.data : {};
-      var role = row.role || "";
-      var department = row.department || "";
-      sessionStorage.setItem("hasc_role", role); var acEmail=((session&&session.user&&session.user.email)||"").toLowerCase(); sessionStorage.setItem("hasc_email", acEmail); var AC_EMAILS=["arosenzweig@hasccenter.org","ssinger@hasccenter.org","llebovits@hasccenter.org","slieber@hasccenter.org"]; var isAC=(role==="area_coordinator")||(AC_EMAILS.indexOf(acEmail)>=0);
-      sessionStorage.setItem("hasc_homes", JSON.stringify(row.residences || []));
-      sessionStorage.setItem("hasc_department", department);
-      var path = location.pathname;
-      if(department === "Day Hab" && role !== "admin"){
-var dhp=decodeURIComponent(path).toLowerCase();
-if(dhp.indexOf("/day hab/") === -1){ location.replace("/Day Hab/index.html"); }
-return;
-}
-if(location.pathname==="/"||/\/(index\.html|mobile\.html)?$/.test(location.pathname)){ if((/iPhone|iPod/.test(navigator.userAgent)||/Android/i.test(navigator.userAgent)) && /(\/|index\.html)$/.test(location.pathname)){ location.replace("/mobile.html"); return; } return; }
-            if(decodeURIComponent(path).toLowerCase().indexOf("/day hab/") !== -1){ return; }
-          var adminPages = ["wb-hub-mark2.html","wb-today-mark2.html","wb-insights-mark2.html","wb-documents-mark2.html","wb-checklists-mark2.html","wb-inbox-mark2.html"];
-      if(role === "admin"){
-        var allowed = adminPages.some(function(pg){ return path.indexOf(pg) !== -1; });
-        if(!allowed){ location.replace("/checklists/wb-hub-mark2.html"); }
-      } else {
-        if(isAC){ var acPages=["wb-hub-AC-mark2.html","wb-today-mark2.html","wb-insights-mark2.html","wb-documents-mark2.html","wb-checklists-mark2.html","wb-checkoff.html"]; var acOnAllowed=acPages.some(function(pg){ return path.indexOf(pg)!==-1; }); if(path.indexOf("wb-hub-mark2.html")!==-1 || !acOnAllowed){ location.replace("/checklists/wb-hub-AC-mark2.html"); } } else { if(path.indexOf("wb-checkoff.html") === -1){ location.replace("/checklists/wb-checkoff.html"); } }
-      }
-    });
-  }).then(function(){try{document.documentElement.style.visibility="";}catch(e){}}).catch(function(){ location.replace("/wb-login.html"); });
+
+    // Select "*" so an optional column such as app permissions never breaks the query.
+    return sb.from("profiles")
+      .select("*")
+      .eq("email", session.user.email)
+      .single()
+      .then(function(p){
+        var row = (p && p.data) ? p.data : {};
+        var email = (session.user.email || "").toLowerCase();
+        var profile = {
+          email: email,
+          full_name: row.full_name || "",
+          role: row.role || "",
+          residences: row.residences || [],
+          department: row.department || "",
+          // enabled apps / permissions, whatever the profile happens to carry
+          apps: (row.apps != null ? row.apps : (row.enabled_apps != null ? row.enabled_apps : null))
+        };
+        // Publish profile for the shell (mobile.html / index.html) to read.
+        window.__hascProfile = profile;
+        try{
+          sessionStorage.setItem("hasc_email", email);
+          sessionStorage.setItem("hasc_role", profile.role);
+          sessionStorage.setItem("hasc_department", profile.department);
+          sessionStorage.setItem("hasc_homes", JSON.stringify(profile.residences));
+          if(profile.apps != null) sessionStorage.setItem("hasc_apps", JSON.stringify(profile.apps));
+        }catch(e){}
+
+        // Once on the mobile shell, stay there regardless of role.
+        if(onMobileShell()) return;
+
+        // Phone entering the desktop index -> hand off to the mobile shell.
+        if(isPhone() && onDesktopIndex()){ location.replace("/mobile.html"); return; }
+
+        // Department security: Day Hab users stay inside their own section.
+        if(profile.department === "Day Hab" && profile.role !== "admin"){
+          var dhp = decodeURIComponent(location.pathname).toLowerCase();
+          if(dhp.indexOf("/day hab/") === -1){ location.replace("/Day Hab/index.html"); return; }
+        }
+      });
+  }).then(reveal).catch(function(){ location.replace("/wb-login.html"); });
 })();
-
-
-/* Identity paint: show the logged-in user's name + role from their profile */
-(function(){
-  var want=null;
-  function tc(x){return String(x||'').replace(/_/g,' ').replace(/\b\w/g,function(m){return m.toUpperCase();});}
-  function setTxt(id,val){var el=document.getElementById(id);if(el&&val&&el.textContent!==val){el.textContent=val;}}
-  function paint(){
-    if(!want)return;
-    var hm=document.querySelector('.hmeta');
-    if(hm){var html='<b>'+tc(want.role)+'</b> '+want.name;if(hm.innerHTML!==html){hm.innerHTML=html;}}
-    setTxt('meName',want.name);setTxt('meRole',tc(want.role));setTxt('helloName',want.first);
-var nmEls=document.querySelectorAll('.nm');for(var i=0;i<nmEls.length;i++){if(nmEls[i].children.length===0&&nmEls[i].textContent!==want.name){nmEls[i].textContent=want.name;}}
-var rlEls=document.querySelectorAll('.rl');for(var j=0;j<rlEls.length;j++){var rv=tc(want.role);if(rlEls[j].children.length===0&&rlEls[j].textContent!==rv){rlEls[j].textContent=rv;}}
-var awEl=document.getElementById('acWelcome');if(awEl&&awEl.children.length===0){var awt=awEl.textContent||'';if(/Welcome back|Good (?:morning|afternoon|evening)/i.test(awt)){var nw=awt.replace(/(Welcome back,\s*)[^!.]*/i,'$1'+want.first).replace(/(Good (?:morning|afternoon|evening),\s*)[^!.]*/i,'$1'+want.first);if(awEl.textContent!==nw)awEl.textContent=nw;}}
-var gTxtEls=document.querySelectorAll('h1,h2,h3');for(var q=0;q<gTxtEls.length;q++){var ge=gTxtEls[q];if(ge.children.length===0){var gtx=ge.textContent||'';var gmm=gtx.match(/^(Good (?:morning|afternoon|evening),\s*).+/i);if(gmm){var newg=gmm[1]+want.first;if(ge.textContent!==newg){ge.textContent=newg;}}}}
-var gEls=document.querySelectorAll('h1,h2');for(var k=0;k<gEls.length;k++){var gt=gEls[k].textContent||'';var gm=gt.match(/^(Good (?:morning|afternoon|evening),\s*)/i);if(gm){var nmc=gEls[k].querySelector('.nm');if(nmc&&nmc.textContent!==want.first){nmc.textContent=want.first;}}}
-  }
-  function getClient(){
-    if(window.__hascClient)return window.__hascClient;
-    if(window.supabase&&window.supabase.createClient){
-      var u=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_URL)||'https://xqcykvgsesavtuautivq.supabase.co';
-      var k=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_ANON_KEY)||'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhxY3lrdmdzZXNhdnR1YXV0aXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMzc1ODUsImV4cCI6MjA5MTkxMzU4NX0.A6FkxttGZMGaPxqr1orOWlpoO_zZSeqbp5W3L7s6U5w';
-      try{return window.supabase.createClient(u,k);}catch(e){}
-    }
-    return null;
-  }
-  async function resolve(){
-    try{
-      var c=getClient(); if(!c||!c.auth)return;
-      var ses=await c.auth.getSession();var sn=ses&&ses.data&&ses.data.session;
-      if(!sn||!sn.user||!sn.user.email)return;
-      var r=await c.from('profiles').select('full_name,role').eq('email',sn.user.email).limit(1);
-      if(r.error)return;var row=r.data&&r.data[0];if(!row)return;
-      var nm=row.full_name||sn.user.email;var first=String(nm).trim().split(/\s+/)[0];
-      want={name:nm,role:row.role||'',first:first};paint();
-    }catch(e){}
-  }
-  var t=0,waitLib=setInterval(function(){t++;if(getClient()){clearInterval(waitLib);resolve();}else if(t>40){clearInterval(waitLib);}},250);
-  var n=0,iv=setInterval(function(){n++;paint();if(n>40||(want&&n>8&&document.getElementById('meName')&&document.getElementById('meName').textContent===want.name)){clearInterval(iv);}},500);
-})();
-
-
-/* Wire the Sign out button to actually sign out and return to login */
-(function(){
-  function findBtn(){
-    var b=document.querySelector('button[aria-label="Sign out"]');
-    if(b)return b;
-    var all=document.querySelectorAll('a,button');
-    for(var i=0;i<all.length;i++){var t=(all[i].textContent||'').toLowerCase();if(/sign\s*out|log\s*out/.test(t))return all[i];}
-    return null;
-  }
-  function getClient(){
-    if(window.__hascClient)return window.__hascClient;
-    if(window.supabase&&window.supabase.createClient){
-      var u=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_URL)||'https://xqcykvgsesavtuautivq.supabase.co';
-      var k=(window.HASC_CONFIG&&window.HASC_CONFIG.SUPABASE_ANON_KEY)||'';
-      if(k){try{return window.supabase.createClient(u,k);}catch(e){}}
-    }
-    return null;
-  }
-  async function doSignOut(ev){
-    if(ev){ev.preventDefault();ev.stopImmediatePropagation();ev.stopPropagation();}
-    try{var c=getClient();if(c&&c.auth&&c.auth.signOut){await c.auth.signOut();}}catch(e){}
-    try{sessionStorage.clear();}catch(e){}
-    try{Object.keys(localStorage).forEach(function(k){if(/^sb-.*-auth-token$/.test(k))localStorage.removeItem(k);});}catch(e){}
-    location.replace('/wb-login.html');
-  }
-  function wire(){
-    var b=findBtn();
-    if(b&&!b.__signWired){b.__signWired=true;b.addEventListener('click',doSignOut,true);}
-  }
-  var n=0,iv=setInterval(function(){n++;wire();if(n>40)clearInterval(iv);},400);
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',wire);}else{wire();}
-})();
-
