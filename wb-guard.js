@@ -36,13 +36,17 @@
   }
 
   function isPhone() {
-    var ua =
-      navigator.userAgent ||
-      navigator.vendor ||
-      "";
+  var ua = navigator.userAgent || navigator.vendor || "";
 
-    return /Android|iPhone|iPod/i.test(ua);
-  }
+  var mobileUA =
+    /Android|iPhone|iPod/i.test(ua);
+
+  var touchPhone =
+    navigator.maxTouchPoints > 0 &&
+    window.matchMedia("(max-width: 900px)").matches;
+
+  return mobileUA || touchPhone;
+}
 
   function onMobileShell() {
     var path = cleanPath().toLowerCase();
