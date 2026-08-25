@@ -322,8 +322,16 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
   document.getElementById('naERModal').addEventListener('click',function(e){if(e.target===e.currentTarget)closeER();});
 
   function renderAll(){renderOverview();renderCoverage();renderER();renderDirectory();}
+  /* ===== HASC SUPABASE SYNC (nurse coverage + phones) ===== */
+  function __hascSB(){ try{ return (window.__hascClient)||(window.parent&&window.parent.__hascClient)||null; }catch(e){ return window.__hascClient||null; } }
+  function __covToRows(){ var out=[],ord=0; (COVERAGE||[]).forEach(function(ac){ (ac.residences||[]).forEach(function(r){ out.push({area_coord:ac.name||'',residence:r.res||'',beds:String(r.count||''),primary_nurse:r.primary||'',backup_nurse:r.backup||'',note:r.note||'',sort_order:ord++}); }); }); return out; }
+  function __phToRows(){ return (PHONES||[]).map(function(p,i){ return {name:p.name||'',phone:p.phone||'',sort_order:i}; }); }
+  persist=function(){ writeJSON('hasc.nurse.coverage',COVERAGE); writeJSON('hasc.nurse.phones',PHONES); writeJSON('hasc.nurse.erSheets',ERS); var sb=__hascSB(); if(!sb) return; var covRows=__covToRows(), phRows=__phToRows(); Promise.resolve(sb.from('nurse_coverage').delete().neq('id','00000000-0000-0000-0000-000000000000')).then(function(){ if(covRows.length) return sb.from('nurse_coverage').insert(covRows); }).catch(function(e){ console.warn('HASC coverage save failed',e); }); Promise.resolve(sb.from('nurse_phones').delete().neq('id','00000000-0000-0000-0000-000000000000')).then(function(){ if(phRows.length) return sb.from('nurse_phones').insert(phRows); }).catch(function(e){ console.warn('HASC phones save failed',e); }); };
+  function __hascLoadFromSupabase(){ var sb=__hascSB(); if(!sb) return; Promise.all([ sb.from('nurse_coverage').select('*').order('sort_order',{ascending:true}), sb.from('nurse_phones').select('*').order('sort_order',{ascending:true}) ]).then(function(res){ var cov=res[0], ph=res[1]; if(cov&&!cov.error&&cov.data&&cov.data.length){ var byAC=[],map={}; cov.data.forEach(function(row){ var k=row.area_coord||''; if(!(k in map)){ map[k]=byAC.length; byAC.push({name:k,residences:[]}); } byAC[map[k]].residences.push({res:row.residence||'',count:row.beds||'',primary:row.primary_nurse||'',backup:row.backup_nurse||'',note:row.note||''}); }); COVERAGE.length=0; byAC.forEach(function(x){ COVERAGE.push(x); }); } if(ph&&!ph.error&&ph.data){ PHONES.length=0; ph.data.forEach(function(p){ PHONES.push({name:p.name||'',phone:p.phone||''}); }); } renderAll(); }).catch(function(e){ console.warn('HASC load failed',e); }); }
+  
   renderAll();
-})();
+__hascLoadFromSupabase();
+}})();
 </script>
 </body>
 </html>
