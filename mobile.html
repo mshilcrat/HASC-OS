@@ -6,7 +6,10 @@
 <meta name="theme-color" content="#f1efe9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>HASC Residential OS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/wb-config.js"></script>
+<script src="/wb-guard.js"></script>
+<script>
 
 
 
@@ -408,7 +411,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
 @keyframes m5wiggle{from{transform:rotate(-1.3deg)}to{transform:rotate(1.3deg)}}
 
 
-/* COO full Mark 5 inventory: 14 loose apps, no Dashboard, no Widgets */
+/* COO Mark 5 inventory: 14 apps, no Dashboard, no Widgets */
 .full-app-grid{
   grid-template-columns:repeat(3,minmax(0,1fr))!important;
   align-content:start!important;
@@ -418,6 +421,28 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
 .full-app-grid .app-btn{min-height:76px!important}
 .full-app-grid .app-icon{width:46px!important;height:46px!important;border-radius:13px!important;margin-bottom:7px!important}
 .full-app-grid .app-btn b{font-size:10px!important}
+
+
+.m5-toast{
+  position:absolute;
+  z-index:120;
+  left:50%;
+  bottom:calc(22px + env(safe-area-inset-bottom));
+  transform:translate(-50%,18px);
+  max-width:calc(100% - 36px);
+  padding:10px 14px;
+  border-radius:13px;
+  background:rgba(35,48,56,.94);
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+  box-shadow:0 16px 35px -20px rgba(0,0,0,.55);
+}
+.m5-toast.show{opacity:1;transform:translate(-50%,0)}
 
 </style>
 </head>
@@ -447,8 +472,8 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
           <div class="house-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></div>
           <div class="house-copy">
             <div class="eyebrow">House at a Glance</div>
-            <div class="house-name" id="currentResidence">Ocean Parkway</div>
-            <div class="house-meta" id="residenceMeta">COO access · all residences</div>
+            <div class="house-name" id="currentResidence">Loading residence…</div>
+            <div class="house-meta" id="residenceMeta">Loading live HASC data…</div>
           </div>
           <div class="scope">ACTIVE</div>
         </div>
@@ -457,22 +482,15 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
           <label for="cooHouseSelect">Choose Residence</label>
           <div class="coo-select-wrap">
             <select class="coo-select" id="cooHouseSelect">
-      <option>Ocean Parkway</option>
-      <option>Avenue J</option>
-      <option>East 15th Street</option>
-      <option>East 29th Street</option>
-      <option>Flatbush Residence</option>
+      <option value="">Loading residences…</option>
     </select>
           </div>
         </div>
         
 <div class="residents" id="residentGrid">
-  <button class="resident"><div class="pball">AB</div><div><b>Aaron B.</b><small>ER Sheet · Aug 2026</small></div><div class="chev">›</div></button>
-  <button class="resident"><div class="pball">DG</div><div><b>David G.</b><small>ER Sheet · Aug 2026</small></div><div class="chev">›</div></button>
-  <button class="resident"><div class="pball">JL</div><div><b>Joseph L.</b><small>ER Sheet · Aug 2026</small></div><div class="chev">›</div></button>
-  <button class="resident"><div class="pball">MR</div><div><b>Moshe R.</b><small>ER Sheet · Jul 2026 · latest</small></div><div class="chev">›</div></button>
-  <button class="resident"><div class="pball">SS</div><div><b>Sam S.</b><small>ER Sheet · Aug 2026</small></div><div class="chev">›</div></button>
-  <button class="resident"><div class="pball">YT</div><div><b>Yitz T.</b><small>ER Sheet · Aug 2026</small></div><div class="chev">›</div></button>
+  <div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">
+    Loading residents…
+  </div>
 </div>
 
       </div>
@@ -515,30 +533,495 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
     </div>
     
 </div>
+  <div class="m5-toast" id="m5Toast" role="status" aria-live="polite"></div>
 </main>
 
 <script>
+// ============================================================================
+// HASC MARK 5 — INTEGRATED PRODUCTION CONTROLLER
+// Auth + profile + permissions + residences + residents + app routing + logout
+// ============================================================================
+(function(){
+  'use strict';
 
-// Apps now use one full-screen grid; no nested app carousel.
-// two-screen mobile behavior: the outer page stays fixed;
-    // each screen scrolls vertically and the master shell swipes horizontally.
-    window.scrollTo(0,0);
-// COO experience preview: live Supabase wiring disabled.
-const logoutBtn=document.getElementById('logoutBtn');
-if(logoutBtn){
-  logoutBtn.addEventListener('click',async()=>{
+  const APP_ROUTES = {
+    'Individuals': '/individuals.html',
+    'Checklists': '/checklists/wb-hub-mark2.html',
+    'Ledgers': '/ledgers.html',
+    'Residential Day Planner': '/residential-day-planner.html',
+    'Training': '/training/wb-index.html',
+    'OT Dashboard': '/HASC_OT_Dashboard_v3_CEO_7_2_26.html',
+    'Life Plan Tracker': '',
+    'Staff': '',
+    'Org Training': '',
+    'Forms': '',
+    'Maintenance': '',
+    'Nurse': '/hasc-nurse.html',
+    'System': '/hasc-system.html',
+    'Apps': ''
+  };
+
+  const APP_KEYS = {
+    'Individuals': 'individuals',
+    'Checklists': 'checklists',
+    'Ledgers': 'ledgers',
+    'Residential Day Planner': 'planner',
+    'Training': 'training',
+    'OT Dashboard': 'ot',
+    'Life Plan Tracker': 'lifeplan',
+    'Staff': 'staff',
+    'Org Training': 'orgtraining',
+    'Forms': 'forms',
+    'Maintenance': 'maintenance',
+    'Nurse': 'nurse',
+    'System': 'system',
+    'Apps': 'apps'
+  };
+
+  const SHELL_APPS = new Set(['apps']);
+  let currentProfile = null;
+  let currentClient = null;
+  let toastTimer = null;
+
+  function showToast(message){
+    const toast = document.getElementById('m5Toast');
+    if(!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toast.classList.remove('show'), 2200);
+  }
+
+  function initSupabase(){
+    if(window.__hascClient){
+      currentClient = window.__hascClient;
+      return currentClient;
+    }
+
+    if(window.supabase && window.HASC_CONFIG &&
+       window.HASC_CONFIG.SUPABASE_URL &&
+       window.HASC_CONFIG.SUPABASE_ANON_KEY){
+      try{
+        currentClient = window.supabase.createClient(
+          window.HASC_CONFIG.SUPABASE_URL,
+          window.HASC_CONFIG.SUPABASE_ANON_KEY
+        );
+        window.__hascClient = currentClient;
+        return currentClient;
+      }catch(e){
+        console.error('Supabase init failed:', e);
+      }
+    }
+
+    console.error('HASC Supabase configuration is unavailable.');
+    return null;
+  }
+
+  function normalizeArray(v){
+    if(Array.isArray(v)) return v;
+    if(v == null) return [];
+
+    if(typeof v === 'string'){
+      const s = v.trim();
+      if(!s) return [];
+      try{
+        const parsed = JSON.parse(s);
+        if(Array.isArray(parsed)) return parsed;
+      }catch(e){}
+      return s.split(',').map(x=>x.trim()).filter(Boolean);
+    }
+
+    return [];
+  }
+
+  function normalizeEnabledApps(v){
+    if(v == null) return null;
+
+    if(Array.isArray(v)){
+      return v.map(x=>String(x).trim().toLowerCase()).filter(Boolean);
+    }
+
+    if(typeof v === 'object'){
+      return Object.keys(v)
+        .filter(k=>v[k])
+        .map(k=>String(k).trim().toLowerCase());
+    }
+
+    return normalizeArray(v)
+      .map(x=>String(x).trim().toLowerCase())
+      .filter(Boolean);
+  }
+
+  function residenceName(v){
+    if(v == null) return '';
+    if(typeof v === 'string') return v.trim();
+
+    if(typeof v === 'object'){
+      return String(
+        v.name ||
+        v.residence_name ||
+        v.residence ||
+        v.home ||
+        v.title ||
+        v.label ||
+        ''
+      ).trim();
+    }
+
+    return String(v).trim();
+  }
+
+  function initials(name, email){
+    const p = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if(p.length > 1){
+      return (p[0][0] + p[p.length-1][0]).toUpperCase();
+    }
+    if(p.length === 1){
+      return p[0][0].toUpperCase();
+    }
+    return String(email || 'U').charAt(0).toUpperCase();
+  }
+
+  function escapeHtml(v){
+    return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  async function loadProfile(client, user){
+    const email = String(user && user.email || '').trim();
+    if(!email) throw new Error('Authenticated user email is missing.');
+
+    // profiles is the same source used by System Settings / wb-guard.
+    const res = await client
+      .from('profiles')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if(res.error) throw res.error;
+
+    const row = res.data || {};
+    const profile = {
+      email,
+      full_name: row.full_name || row.name || '',
+      role: row.role || '',
+      department: row.department || '',
+      residences: ('residences' in row) ? row.residences : (row.homes || []),
+      apps: ('enabled_apps' in row) ? row.enabled_apps : (('apps' in row) ? row.apps : null),
+      raw: row
+    };
+
+    window.__hascProfile = profile;
+    currentProfile = profile;
+
     try{
-      if(window.__hascClient) await window.__hascClient.auth.signOut();
-      else if(window.supabase&&window.HASC_CONFIG){
-        const c=window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL,window.HASC_CONFIG.SUPABASE_ANON_KEY);
-        await c.auth.signOut();
+      sessionStorage.setItem('hasc_email', profile.email);
+      sessionStorage.setItem('hasc_name', profile.full_name || '');
+      sessionStorage.setItem('hasc_role', profile.role || '');
+      sessionStorage.setItem('hasc_department', profile.department || '');
+      sessionStorage.setItem('hasc_homes', JSON.stringify(profile.residences || []));
+      if(profile.apps != null){
+        sessionStorage.setItem('hasc_apps', JSON.stringify(profile.apps));
+      }else{
+        sessionStorage.removeItem('hasc_apps');
       }
     }catch(e){}
-    try{sessionStorage.clear();}catch(e){}
-    window.location.href='/';
-  });
-}
 
+    return profile;
+  }
+
+  async function getResidenceList(client, profile){
+    const role = String(profile.role || '').toLowerCase();
+    const broadAccess =
+      role === 'coo' ||
+      role === 'admin' ||
+      role === 'administrator';
+
+    // COO/Admin sees the live residence universe represented in resi_individuals.
+    if(broadAccess){
+      let result = await client
+        .from('resi_individuals')
+        .select('home_name')
+        .eq('active', true)
+        .order('home_name', {ascending:true});
+
+      // Backward compatibility if the current table does not expose active.
+      if(result.error){
+        result = await client
+          .from('resi_individuals')
+          .select('home_name')
+          .order('home_name', {ascending:true});
+      }
+
+      if(result.error) throw result.error;
+
+      return [...new Set(
+        (result.data || [])
+          .map(r=>String(r.home_name || '').trim())
+          .filter(Boolean)
+      )].sort((a,b)=>a.localeCompare(b));
+    }
+
+    // Everyone else sees only their profile/guard residence scope.
+    return normalizeArray(profile.residences)
+      .map(residenceName)
+      .filter(Boolean);
+  }
+
+  async function loadResidents(client, home){
+    const grid = document.getElementById('residentGrid');
+    if(!grid) return;
+
+    if(!home){
+      grid.innerHTML =
+        '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">No residence selected.</div>';
+      return;
+    }
+
+    grid.innerHTML =
+      '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">Loading residents…</div>';
+
+    try{
+      let result = await client
+        .from('resi_individuals')
+        .select('id,name,home_name,status,active')
+        .eq('home_name', home)
+        .eq('active', true)
+        .order('name', {ascending:true});
+
+      if(result.error){
+        result = await client
+          .from('resi_individuals')
+          .select('id,name,home_name,status')
+          .eq('home_name', home)
+          .order('name', {ascending:true});
+      }
+
+      if(result.error) throw result.error;
+
+      const rows = result.data || [];
+
+      if(!rows.length){
+        grid.innerHTML =
+          '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">No individuals recorded for this residence.</div>';
+        return;
+      }
+
+      grid.innerHTML = rows.map(function(r){
+        const nm = escapeHtml(r.name || 'Individual');
+        const st = escapeHtml(r.status || 'Open resident record');
+        const init = escapeHtml(initials(r.name, ''));
+        const url = '/hasc-nurse.html?resident=' +
+          encodeURIComponent(r.name || '') +
+          '&home=' + encodeURIComponent(home);
+
+        return '<button class="resident" type="button" data-resident-url="' + url + '">' +
+          '<div class="pball">' + init + '</div>' +
+          '<div><b>' + nm + '</b><small>' + st + '</small></div>' +
+          '<div class="chev">›</div></button>';
+      }).join('');
+
+      grid.querySelectorAll('[data-resident-url]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          location.href = btn.getAttribute('data-resident-url');
+        });
+      });
+    }catch(e){
+      console.error('Resident load failed:', e);
+      grid.innerHTML =
+        '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">Residents could not be loaded.</div>';
+    }
+  }
+
+  function wireAppPermissionsAndRoutes(profile){
+    const enabled = normalizeEnabledApps(profile.apps);
+
+    document.querySelectorAll('.full-app-grid .app-btn').forEach(function(btn){
+      const labelEl = btn.querySelector('b');
+      if(!labelEl) return;
+
+      const label = labelEl.textContent.trim();
+      const key = APP_KEYS[label] || '';
+      const route = APP_ROUTES[label] || '';
+
+      // Apps is a shell control. All other app visibility comes from enabled_apps
+      // when the profile has an explicit app configuration.
+      let allowed = true;
+      if(enabled !== null && !SHELL_APPS.has(key)){
+        allowed = enabled.includes(String(key).toLowerCase());
+      }
+
+      btn.style.display = allowed ? '' : 'none';
+      btn.removeAttribute('data-disabled');
+
+      if(!allowed) return;
+
+      btn.onclick = function(e){
+        e.preventDefault();
+
+        if(label === 'Apps'){
+          // Already on the Apps page. Keep this as a functional shell control.
+          const screens = document.getElementById('m5Screens');
+          if(screens){
+            screens.scrollTo({left:screens.clientWidth, behavior:'smooth'});
+          }
+          return;
+        }
+
+        if(route){
+          location.href = route;
+          return;
+        }
+
+        // No dead buttons: inventory apps without deployed destination files
+        // report their status instead of navigating to a broken URL.
+        showToast(label + ' is not deployed yet.');
+      };
+    });
+  }
+
+  async function buildResidencePicker(client, profile){
+    const residences = await getResidenceList(client, profile);
+    const select = document.getElementById('cooHouseSelect');
+    const currentResidence = document.getElementById('currentResidence');
+    const residenceMeta = document.getElementById('residenceMeta');
+    const picker = document.getElementById('cooPicker');
+
+    if(!select) return;
+
+    select.innerHTML = '';
+
+    if(!residences.length){
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'No residences available';
+      select.appendChild(opt);
+    }else{
+      residences.forEach(function(home){
+        const opt = document.createElement('option');
+        opt.value = home;
+        opt.textContent = home;
+        select.appendChild(opt);
+      });
+    }
+
+    const role = String(profile.role || '').toLowerCase();
+    const broadAccess =
+      role === 'coo' ||
+      role === 'admin' ||
+      role === 'administrator';
+
+    if(picker){
+      picker.classList.toggle('show', broadAccess || residences.length > 1);
+    }
+
+    const initialHome = residences[0] || '';
+    select.value = initialHome;
+
+    if(currentResidence){
+      currentResidence.textContent = initialHome || 'No Residence Assigned';
+    }
+
+    if(residenceMeta){
+      residenceMeta.textContent = broadAccess
+        ? 'COO access · live Supabase residences'
+        : (residences.length > 1
+            ? residences.length + ' assigned residences'
+            : 'Assigned residence');
+    }
+
+    await loadResidents(client, initialHome);
+
+    select.addEventListener('change', async function(){
+      const home = select.value || '';
+      if(currentResidence){
+        currentResidence.textContent = home || 'No Residence Selected';
+      }
+      await loadResidents(client, home);
+    });
+  }
+
+  function wireLogout(client){
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(!logoutBtn || logoutBtn.dataset.wired === '1') return;
+    logoutBtn.dataset.wired = '1';
+
+    logoutBtn.addEventListener('click', async function(){
+      try{
+        await client.auth.signOut();
+      }catch(e){
+        console.error('Sign out failed:', e);
+      }
+
+      try{ sessionStorage.clear(); }catch(e){}
+      location.href = '/';
+    });
+  }
+
+  async function boot(){
+    const client = initSupabase();
+
+    if(!client){
+      showToast('Unable to connect to HASC data.');
+      return;
+    }
+
+    try{
+      const sessionResult = await client.auth.getSession();
+      if(sessionResult.error) throw sessionResult.error;
+
+      const session = sessionResult.data && sessionResult.data.session;
+      if(!session){
+        location.href = '/';
+        return;
+      }
+
+      const profile = await loadProfile(client, session.user);
+
+      // Let the existing guard publish/enforce its policy too, if it exposes a hook.
+      if(typeof window.HASC_GUARD_HYDRATE === 'function'){
+        try{
+          await window.HASC_GUARD_HYDRATE(session.user, client);
+        }catch(e){
+          console.error('Guard hydration failed:', e);
+        }
+      }
+
+      const avatar = document.getElementById('userAvatar');
+      if(avatar){
+        avatar.textContent = initials(profile.full_name, profile.email);
+        avatar.setAttribute('aria-label', profile.full_name || profile.email || 'Logged in user');
+      }
+
+      wireLogout(client);
+      wireAppPermissionsAndRoutes(profile);
+      await buildResidencePicker(client, profile);
+
+    }catch(e){
+      console.error('Mark 5 production boot failed:', e);
+
+      const grid = document.getElementById('residentGrid');
+      if(grid){
+        grid.innerHTML =
+          '<div style="grid-column:1/-1;padding:18px;text-align:center;color:var(--muted);font-size:11px">Unable to load live HASC data.</div>';
+      }
+
+      const sel = document.getElementById('cooHouseSelect');
+      if(sel){
+        sel.innerHTML = '<option value="">Unable to load residences</option>';
+      }
+
+      showToast('Unable to load HASC data.');
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', boot);
+  }else{
+    boot();
+  }
+})();
 </script>
 
 <script>
@@ -593,52 +1076,10 @@ if(logoutBtn){
 </script>
 
 
-<script>
-(function(){
-  const sel=document.getElementById('cooHouseSelect');
-  const hn=document.getElementById('currentResidence');
-  const grid=document.getElementById('residentGrid');
-  if(!sel||!hn||!grid)return;
-
-  const sample={
-    'Ocean Parkway':['Aaron B.','David G.','Joseph L.','Moshe R.','Sam S.','Yitz T.'],
-    'Avenue J':['Daniel A.','Eli C.','Jacob F.','Nathan H.'],
-    'East 15th Street':['Avi K.','Benjamin L.','Chaim M.','Isaac P.','Noah R.'],
-    'East 29th Street':['David S.','Ezra T.','Joshua W.'],
-    'Flatbush Residence':['Adam B.','Gabriel D.','Michael F.','Samuel G.']
-  };
-
-  function initials(n){
-    const p=n.split(/\s+/); return ((p[0]||'')[0]||'')+((p[1]||'')[0]||'');
-  }
-  function render(home){
-    hn.textContent=home;
-    const people=sample[home]||[];
-    grid.innerHTML=people.map((n,i)=>
-      '<button class="resident"><div class="pball">'+initials(n)+'</div><div><b>'+n+
-      '</b><small>ER Sheet · '+(i===3?'Jul':'Aug')+' 2026'+(i===3?' · latest':'')+
-      '</small></div><div class="chev">›</div></button>'
-    ).join('');
-  }
-  sel.addEventListener('change',()=>render(sel.value));
-})();
-</script>
 
 
-<script>
-(function(){
-  const screens=document.getElementById('m5Screens');
-  document.querySelectorAll('.full-app-grid .app-btn').forEach(function(btn){
-    const label=(btn.querySelector('b')||{}).textContent||'';
-    if(label.trim()==='Dashboard'){
-      btn.addEventListener('click',function(e){
-        e.preventDefault();
-        screens.scrollTo({left:0,behavior:'smooth'});
-      });
-    }
-  });
-})();
-</script>
+
+
 
 </body>
 </html>
