@@ -332,6 +332,88 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
   
   renderAll();
 function __hascStyleOverview(){try{if(document.getElementById('__naOvStyle'))return;var css='';var ss=document.styleSheets;for(var i=0;i<ss.length;i++){var rs;try{rs=ss[i].cssRules;}catch(e){continue;}if(!rs)continue;for(var j=0;j<rs.length;j++){var ct=rs[j].cssText;if(ct&&ct.indexOf('naps')>-1)css+=ct.split('#na-print-sheet').join('#naCoverageSummary');}}css+='#naCoverageSummary th,#naCoverageSummary td{text-align:left;}#naCoverageSummary table{table-layout:fixed;width:100%;}#naCoverageSummary td.naps-res,#naCoverageSummary th:first-child{width:26%;}#naCoverageSummary td.naps-cnt,#naCoverageSummary th.naps-cnt{width:10%;}#naCoverageSummary td.naps-nurse,#naCoverageSummary th.naps-nurse{width:32%;}';var st=document.createElement('style');st.id='__naOvStyle';st.textContent=css;document.head.appendChild(st);}catch(e){}}__hascStyleOverview();__hascLoadFromSupabase();
+/* ===== MARK 5 HANDOFF: selected residence -> nurse_coverage display (added) =====
+   Reads ?resident=&home= from the launcher (mobile.html), resolves the
+   resi_individuals.home_name to the matching nurse_coverage.residence value,
+   and applies it to the existing Coverage view. No new tables; uses existing
+   nurse_coverage columns (area_coord, residence, beds, primary_nurse,
+   backup_nurse, note). guard.js remains the visibility authority. */
+function __hascHomeToCoverageAlias(){
+  return {
+    "1068 east 14th street":"1068 E14",
+    "1503 east 14th street":"1503 East 14th",
+    "46th street - 1771 1st fl":"1771 1st Floor",
+    "46th street - 1771 2nd fl":"1771 2nd Floor",
+    "48th street - 1268":"48th",
+    "50th street - 918":"50 St",
+    "53rd street - 1038":"53rd",
+    "avenue h - 824":"Ave H",
+    "avenue i - 2802":"2802 Avenue I",
+    "avenue j - 1010":"1010",
+    "avenue k - 1010":"1010 K",
+    "avenue l - 1122":"1122 Ave L",
+    "avenue s":"Ave S",
+    "bedford avenue - 3245":"Bedford Ave",
+    "coney island ave - 2173":"Coney",
+    "crown heights - 580":"580 ENYA",
+    "ditmas avenue - 804":"Ditmas",
+    "east 13th street - 1857":"East 13",
+    "east 21 - 2102 ave i":"2102",
+    "east 35th st - 1431":"East 35th",
+    "east 36th street - 3521":"E 36 St",
+    "east 7th street (ave n)":"689 East 7th",
+    "east 8th street - 536":"East 8th",
+    "east 9th - 1367":"1367 East 9",
+    "kings highway - 2416":"Kingsway",
+    "mill basin":"Mill Basin",
+    "montgomery st (fmr kingston ave)":"777 Montgomery",
+    "new york avenue":"1831 New York Ave",
+    "staten island":"Staten Island",
+    "webster avenue - 373":"Webster"
+  };
+}
+function __hascNorm(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
+function __hascResolveCoverageResidence(home){
+  if(!home) return '';
+  var alias=__hascHomeToCoverageAlias();
+  var key=__hascNorm(home);
+  var nmap={}; for(var k in alias){ nmap[__hascNorm(k)]=alias[k]; }
+  if(nmap[key]) return nmap[key];
+  try{
+    var hit='';
+    (COVERAGE||[]).forEach(function(ac){ (ac.residences||[]).forEach(function(r){ if(!hit&&__hascNorm(r.res)===key) hit=r.res; }); });
+    if(hit) return hit;
+  }catch(e){}
+  return home;
+}
+function __hascGetSelectedHome(){
+  try{ var p=new URLSearchParams(location.search); return p.get('home')||p.get('residence')||''; }catch(e){ return ''; }
+}
+function __hascApplySelectedResidence(){
+  try{
+    var home=__hascGetSelectedHome();
+    if(!home) return false;
+    var target=__hascResolveCoverageResidence(home);
+    if(!target) return false;
+    if(window.HASCNurseApp&&typeof window.HASCNurseApp.openResidence==='function'){
+      window.HASCNurseApp.openResidence('',target); return true;
+    }
+    var q=document.getElementById('naCoverageSearch');
+    if(q){ q.value=target; if(typeof renderCoverage==='function') renderCoverage(); return true; }
+  }catch(e){ console.warn('HASC residence handoff failed',e); }
+  return false;
+}
+function __hascWireSelectedResidence(){
+  if(!__hascGetSelectedHome()) return;
+  var tries=0;
+  (function poll(){
+    var ready=false;
+    try{ ready=(COVERAGE||[]).length>0; }catch(e){}
+    if(ready){ __hascApplySelectedResidence(); return; }
+    if(tries++<40){ setTimeout(poll,150); } else { __hascApplySelectedResidence(); }
+  })();
+}
+__hascWireSelectedResidence();
 })();
 </script>
 </body>
