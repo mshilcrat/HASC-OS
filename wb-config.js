@@ -10,7 +10,7 @@ window.HASC_CONFIG = {
 /* HASC live updates: re-fetch + re-render whenever watched tables change */
 (function(){
     var WATCH = ['resi_individuals','resi_ledger_accounts','resi_ledger_entries','cl_submissions','cl_tasks','cl_done','certificates','training_sessions','profiles','cl_homes'];
-    function reload(){
+    function reload(){h
           try{ if(typeof window.sbLoadLedgers==='function'){ Promise.resolve(window.sbLoadLedgers()).then(function(){ if(typeof window.renderLedgers==='function') window.renderLedgers(); }); } }catch(e){}
           var fns = ['loadIndividuals','renderLedgers','renderChecklists','loadChecklistSummary','renderTraining','renderDashboard','renderDayHabCounts','renderIndividuals'];
           fns.forEach(function(n){ try{ if(typeof window[n]==='function') window[n](); }catch(e){} });
@@ -603,8 +603,8 @@ window.HASC_CONFIG = {
     var store = [];
     function mk(id,type,title,date,hour,min,who){ var o={id:id,type:type,title:title,hour:hour,min:min,who:who}; o['d'+'ate']=date; return o; }
 
-    var TODAY = new Date(2026,7,18);
-    var cursor = new Date(2026,7,18);
+    var TODAY = new Date();
+    var cursor = new Date();
     var view = 'week';
 
     function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
