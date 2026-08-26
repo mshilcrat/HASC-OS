@@ -7,6 +7,9 @@
 
 <title>Residential Day Planner</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/wb-config.js"></script>
+<script src="/wb-guard.js"></script>
 <style>
 :root{
   --violet:#7C5192;
@@ -853,13 +856,12 @@ button{
 }
 </style>
 </head>
-
 <body>
 
 <main id="plannerApp">
-  <div class="planner-shell">
-    <div id="wowPlanner"></div>
-  </div>
+<div class="planner-shell">
+<div id="wowPlanner"></div>
+</div>
 </main>
 
 <script>
@@ -3038,8 +3040,61 @@ document.addEventListener(
 
 
 /* START */
+/* === HASC Supabase integration seam (added) === */
+try {
+  loadStore = function(){ return []; };
+  saveStore = function(){ try { if (window.__RDP && typeof window.__RDP.onSave === "function") window.__RDP.onSave(); } catch(e){ console.error("[planner] onSave hook", e); } };
+} catch(e){ console.error("[planner] persistence override failed", e); }
+window.__RDP = window.__RDP || {};
+window.__RDP.getStore  = function(){ return store; };
+window.__RDP.setStore  = function(v){ store = v; };
+window.__RDP.paint     = function(){ var r = paint(); try { if (typeof window.__RDP.afterPaint === "function") window.__RDP.afterPaint(); } catch(e){ console.error("[planner] afterPaint", e); } return r; };
+window.__RDP.findEvent = function(id){ return findEvent(id); };
 paint();
+if (typeof window.setMutationUIEnabled === "function") { try{ window.setMutationUIEnabled(false); }catch(e){} }
+if (window.__RDP.__ready) { try{ window.__RDP.boot(); }catch(e){} }
 
+})();
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var RDP = window.__RDP = window.__RDP || {};
+  var PROFILE=null, MY_HOMES=[], CURRENT_HOME=null;
+  var PLANNER_DB_READY=false, rtChannel=null, booted=false;
+  var indCache=[], dbSnapshot={}, busy=false, pendingIndividual=null;
+  function log(){ try{ console.log.apply(console,["[planner]"].concat([].slice.call(arguments))); }catch(e){} }
+  function derr(){ try{ console.error.apply(console,["[planner]"].concat([].slice.call(arguments))); }catch(e){} }
+  function client(){ return window.__hascClient; }
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function isAdmin(){ return !!(PROFILE && String(PROFILE.role||"").toLowerCase()==="admin"); }
+  function isTempId(id){ return typeof id==="string" && id.charAt(0)==="n"; }
+  function canMutate(){ return PLANNER_DB_READY && !!window.__hascClient && !!CURRENT_HOME; }
+  RDP.canMutate=canMutate;
+  window.setMutationUIEnabled=function(on){ try{ document.querySelectorAll(".wp-add").forEach(function(b){ b.disabled=!on; b.style.opacity=on?"":"0.5"; b.style.pointerEvents=on?"":"none"; b.setAttribute("aria-disabled",String(!on)); }); }catch(e){ derr("setMutationUIEnabled",e); } };
+  function showErr(msg){ try{ var el=document.getElementById("rdpErrToast"); if(!el){ el=document.createElement("div"); el.id="rdpErrToast"; el.style.cssText="position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#C96A44;color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;z-index:99999;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:90vw;text-align:center;"; document.body.appendChild(el); } el.textContent=msg; el.style.display="block"; clearTimeout(el.__t); el.__t=setTimeout(function(){ el.style.display="none"; },4000); }catch(e){ derr("showErr",e); } }
+  RDP.showErr=showErr;
+  function rowToEv(r){ var st=(r.start_time||"00:00:00").split(":"); return { id:r.id, title:r.title||"", date:r.event_date, hour:parseInt(st[0],10)||0, min:parseInt(st[1],10)||0, who:r.assigned_to||"", type:r.activity_type||"", customLabel:r.custom_label||"", customColor:r.color||"", customIcon:r.icon||"", individual_id:r.individual_id||null, individual_name:r.individual_name||null }; }
+  function evToRow(ev){ return { home_name:CURRENT_HOME, title:ev.title||"", event_date:ev.date, start_time:pad2(ev.hour||0)+":"+pad2(ev.min||0)+":00", assigned_to:ev.who||null, activity_type:ev.type||null, custom_label:ev.customLabel||null, color:ev.customColor||null, icon:ev.customIcon||null, individual_id:ev.individual_id||null, individual_name:ev.individual_name||null }; }
+  function sig(ev){ return [ev.title,ev.date,ev.hour,ev.min,ev.who,ev.type,ev.customLabel,ev.customColor,ev.customIcon,ev.individual_id,ev.individual_name].join("\u0001"); }
+  async function loadEvents(){ if(!client()||!CURRENT_HOME) return; var res=await client().from("resi_day_planner_events").select("*").eq("home_name",CURRENT_HOME); if(res.error){ derr("read failed",res.error); showErr("Could not load appointments"); return; } var rows=res.data||[]; dbSnapshot={}; var arr=rows.map(function(r){ dbSnapshot[r.id]={sig:sig(rowToEv(r))}; return rowToEv(r); }); RDP.setStore(arr); RDP.paint(); log("loaded",arr.length,"events for",CURRENT_HOME); }
+  RDP.reload=loadEvents;
+  async function onSave(){ if(busy) return; if(!canMutate()){ log("mutation ignored - DB not ready"); return; } busy=true; try{ var store=RDP.getStore()||[]; for(var i=0;i<store.length;i++){ var ev=store[i]; if(isTempId(ev.id) || !dbSnapshot[ev.id]){ if((ev.individual_id==null) && pendingIndividual){ ev.individual_id=pendingIndividual.id; ev.individual_name=pendingIndividual.name; } var ins=await client().from("resi_day_planner_events").insert(evToRow(ev)).select().single(); if(ins.error){ derr("create failed",ins.error); showErr("Save failed"); await loadEvents(); busy=false; return; } var ne=rowToEv(ins.data); store[i]=ne; dbSnapshot[ne.id]={sig:sig(ne)}; } } pendingIndividual=null; var byId={}; store.forEach(function(e){ byId[e.id]=e; }); for(var id in byId){ if(dbSnapshot[id] && dbSnapshot[id].sig!==sig(byId[id])){ var up=await client().from("resi_day_planner_events").update(evToRow(byId[id])).eq("id",id); if(up.error){ derr("update failed",up.error); showErr("Update failed"); await loadEvents(); busy=false; return; } dbSnapshot[id]={sig:sig(byId[id])}; } } for(var sid in dbSnapshot){ if(!byId[sid]){ var del=await client().from("resi_day_planner_events").delete().eq("id",sid); if(del.error){ derr("delete failed",del.error); showErr("Delete failed"); await loadEvents(); busy=false; return; } delete dbSnapshot[sid]; } } RDP.paint(); }catch(e){ derr("reconcile error",e); showErr("Sync error"); try{ await loadEvents(); }catch(_){} } finally { busy=false; } }
+  RDP.onSave=onSave;
+  async function initHomes(){ PROFILE=window.__hascProfile||{}; MY_HOMES=Array.isArray(PROFILE.residences)?PROFILE.residences.slice().filter(Boolean):[]; if(CURRENT_HOME==null){ CURRENT_HOME=MY_HOMES.length?MY_HOMES[0]:null; } log("homes:",MY_HOMES); }
+  function ensureResidenceSelector(){ try{ var top=document.querySelector(".planner-top"); if(!top) return; if(MY_HOMES.length<=1){ var ex=document.getElementById("wpResidence"); if(ex&&ex.parentNode&&ex.parentNode.parentNode) ex.parentNode.parentNode.removeChild(ex.parentNode); return; } if(document.getElementById("wpResidence")) return; var wrap=document.createElement("div"); wrap.className="rdp-res-wrap"; wrap.style.cssText="display:inline-flex;align-items:center;gap:6px;"; var lbl=document.createElement("span"); lbl.textContent="Residence:"; lbl.style.cssText="font-weight:800;font-size:12px;color:var(--muted);"; var sel=document.createElement("select"); sel.id="wpResidence"; sel.style.cssText="min-height:38px;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-weight:700;font-size:13px;background:#fff;color:var(--ink);"; sel.innerHTML=MY_HOMES.map(function(h){ return '<option value="'+String(h).replace(/"/g,"&quot;")+'"'+(h===CURRENT_HOME?" selected":"")+'>'+String(h).replace(/</g,"&lt;")+'</option>'; }).join(""); sel.addEventListener("change", async function(){ CURRENT_HOME=sel.value; PLANNER_DB_READY=false; window.setMutationUIEnabled(false); await loadIndividuals(CURRENT_HOME); await loadEvents(); subscribeRealtime(); PLANNER_DB_READY=true; window.setMutationUIEnabled(true); log("residence ->",CURRENT_HOME); }); wrap.appendChild(lbl); wrap.appendChild(sel); top.appendChild(wrap); }catch(e){ derr("ensureResidenceSelector",e); } }
+  RDP.afterPaint=ensureResidenceSelector;
+  async function loadIndividuals(home){ indCache=[]; return Promise.resolve([]); }
+  function individualOptionsHTML(selId){ return ""; }
+  function augmentModalIfPresent(){ return; }
+  function currentModalIndividual(){ return { id:null, name:null }; }
+  document.addEventListener("click", function(ev){ var tgt=ev.target; if(tgt && (tgt.id==="wpNSave" || (tgt.closest && tgt.closest("#wpNSave")))){ pendingIndividual=currentModalIndividual(); } }, true);
+  function subscribeRealtime(){ try{ if(rtChannel){ try{ client().removeChannel(rtChannel); }catch(e){} rtChannel=null; } if(!CURRENT_HOME) return; rtChannel=client().channel("rdp_"+CURRENT_HOME).on("postgres_changes",{ event:"*", schema:"public", table:"resi_day_planner_events", filter:"home_name=eq."+CURRENT_HOME }, function(){ if(!busy){ loadEvents(); } }).subscribe(function(status){ log("realtime:",status); }); }catch(e){ derr("realtime subscribe failed",e); } }
+  function waitForContext(timeoutMs){ timeoutMs=timeoutMs||15000; return new Promise(function(resolve){ function ready(){ return window.__hascClient && window.__hascProfile && typeof window.__hascProfile==="object"; } if(ready()) return resolve(true); var t0=Date.now(); var iv=setInterval(function(){ if(ready()){ clearInterval(iv); resolve(true); } else if(Date.now()-t0>timeoutMs){ clearInterval(iv); resolve(false); } },100); }); }
+  async function boot(){ if(booted) return; booted=true; window.setMutationUIEnabled(false); var ok=await waitForContext(); if(!ok){ derr("HASC context not ready - DB init aborted"); showErr("Could not connect. Please reload."); booted=false; return; } try{ await initHomes(); ensureResidenceSelector(); if(!CURRENT_HOME){ derr("no authorized homes"); showErr("No residences available for your account."); return; } await loadIndividuals(CURRENT_HOME); await loadEvents(); subscribeRealtime(); PLANNER_DB_READY=true; window.setMutationUIEnabled(true); setInterval(function(){ augmentModalIfPresent(); ensureResidenceSelector(); },400); log("boot complete"); }catch(e){ derr("boot failed",e); showErr("Could not load planner data."); window.setMutationUIEnabled(false); } }
+  RDP.boot=boot; RDP.__ready=true;
+  if(document.readyState==="loading"){ document.addEventListener("DOMContentLoaded", function(){ boot(); }); } else { boot(); }
 })();
 </script>
 
