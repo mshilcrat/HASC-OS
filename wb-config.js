@@ -643,7 +643,7 @@ window.HASC_CONFIG = {
     function renderWeek(){
       var sow=startOfWeek(cursor), days=[]; for(var i=0;i<7;i++) days.push(addDays(sow,i));
       var DOW=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-      var out='<div style="overflow:auto;"><div style="display:grid;grid-template-columns:60px repeat(7,1fr);min-width:820px;"><div></div>';
+      var out='<div style="overflow:auto;"><div style="display:grid;grid-template-columns:60px repeat(7,minmax(105px,1fr));min-width:0;"><div></div>';
       days.forEach(function(d,i){
         var today=sameDay(d,TODAY);
         out+='<div style="padding:8px 4px;text-align:center;background:linear-gradient(135deg,'+PAL.violet+','+PAL.plum+');color:#fff;border-radius:'+(i===0?'8px 0 0 0':i===6?'0 8px 0 0':'0')+';"><div style="font-size:11px;letter-spacing:.06em;opacity:.85;">'+DOW[i]+'</div><div style="font-size:16px;font-weight:800;">'+d.getDate()+(today?' \u2022':'')+'</div></div>';
