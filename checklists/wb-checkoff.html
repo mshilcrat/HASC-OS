@@ -2,62 +2,46 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
-<meta
-  name="description"
-  content="HASC Residential OS checklist module"
->
-
+<meta name="description" content="HASC Residential OS checklist module">
 <title>HASC — Checklists</title>
 
 <style>
-
 @font-face{
   font-family:'Plus Jakarta Sans';
   font-weight:500;
-  src:url('/assets/plus-jakarta-500.woff2') format('woff2');
+  src:url('/assets/plus-jakarta-500.woff2') format('woff2')
 }
-
 @font-face{
   font-family:'Plus Jakarta Sans';
   font-weight:600;
-  src:url('/assets/plus-jakarta-600.woff2') format('woff2');
+  src:url('/assets/plus-jakarta-600.woff2') format('woff2')
 }
-
 @font-face{
   font-family:'Plus Jakarta Sans';
   font-weight:700;
-  src:url('/assets/plus-jakarta-700.woff2') format('woff2');
+  src:url('/assets/plus-jakarta-700.woff2') format('woff2')
 }
-
 @font-face{
   font-family:'Plus Jakarta Sans';
   font-weight:800;
-  src:url('/assets/plus-jakarta-800.woff2') format('woff2');
+  src:url('/assets/plus-jakarta-800.woff2') format('woff2')
 }
 
 :root{
   --ui:'Plus Jakarta Sans',sans-serif;
-
   --paper:#f1efe9;
-  --card:#ffffff;
-
+  --card:#fff;
   --ink:#233038;
   --muted:#6a7a84;
   --faint:#9fb0b8;
-
   --line:#e7e2d9;
   --line2:#eef1f4;
-
   --teal:#17a2b8;
   --teal-dark:#0f7d8f;
   --teal-wash:#e8f6f8;
-
   --green:#568e62;
   --green-wash:#eef4ef;
-
   --danger:#a84d36;
 }
 
@@ -67,14 +51,15 @@
 
 html,
 body{
-  margin:0;
   width:100%;
   min-height:100%;
+  margin:0;
+  padding:0;
+  background:transparent;
 }
 
 body{
   font-family:var(--ui);
-  background:transparent;
   color:var(--ink);
   letter-spacing:-.01em;
 }
@@ -92,96 +77,46 @@ button{
 
 
 /* =========================================================
-   MARK 4 MODULE
-   ---------------------------------------------------------
-   This file intentionally does NOT contain:
+   EMBEDDED MARK 4 MODULE
+
+   NO:
    - HASC header
-   - Residential department header
+   - Residential header
    - user profile
    - clock
    - application rail
+   - duplicate Checklists title
 
-   Those belong to the main Mark 4 index.
+   Mark 4 owns all of that.
    ========================================================= */
 
 .module{
   width:100%;
-  padding:0;
-}
-
-.module-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-end;
-  gap:20px;
-  margin-bottom:18px;
-}
-
-.module-heading{
-  display:flex;
-  align-items:center;
-  gap:13px;
-}
-
-.module-icon{
-  width:42px;
-  height:42px;
-  flex:none;
-
-  display:grid;
-  place-items:center;
-
-  border-radius:12px;
-
-  background:var(--green);
-  color:#fff;
-
-  box-shadow:
-    0 8px 18px -9px rgba(86,142,98,.75);
-}
-
-.module-icon svg{
-  width:23px;
-  height:23px;
-}
-
-.module-title{
   margin:0;
-  font-size:31px;
-  line-height:1.05;
-  font-weight:800;
-}
-
-.module-description{
-  margin:6px 0 0 55px;
-  color:var(--muted);
-  font-size:15px;
+  padding:0;
 }
 
 
 /* =========================================================
-   MAIN PANEL
+   CHECKLIST PANEL
    ========================================================= */
 
 .panel{
   width:100%;
+  overflow:hidden;
 
   background:#fff;
 
-  border:
-    1px solid rgba(60,50,35,.06);
-
+  border:1px solid rgba(60,50,35,.06);
   border-radius:18px;
 
   box-shadow:
     0 1px 2px rgba(60,50,35,.04),
     0 10px 24px -14px rgba(60,50,35,.20);
-
-  overflow:hidden;
 }
 
 .panel-head{
-  height:59px;
+  min-height:59px;
 
   display:flex;
   align-items:center;
@@ -203,6 +138,8 @@ button{
 .panel-dot{
   width:9px;
   height:9px;
+
+  flex:none;
 
   border-radius:50%;
 
@@ -254,10 +191,10 @@ button{
   border:1px solid var(--line);
   border-radius:10px;
 
+  outline:none;
+
   background:#fff;
   color:var(--ink);
-
-  outline:none;
 }
 
 .control select:focus{
@@ -280,9 +217,9 @@ button{
 
   padding:18px 20px;
 
-  color:#fff;
-
   border-radius:14px;
+
+  color:#fff;
 
   background:
     linear-gradient(
@@ -321,25 +258,20 @@ button{
   background:
     rgba(255,255,255,.18);
 
-  display:grid;
-  place-items:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 
-  text-align:center;
   line-height:1;
 }
 
 .day b{
-  display:block;
-
-  margin-top:8px;
-
   font-size:21px;
 }
 
 .day span{
-  display:block;
-
-  margin-bottom:8px;
+  margin-top:5px;
 
   font-size:10px;
   font-weight:800;
@@ -347,7 +279,7 @@ button{
 
 
 /* =========================================================
-   FREQUENCY TABS
+   FREQUENCY
    ========================================================= */
 
 .freqs{
@@ -372,9 +304,9 @@ button{
   font-weight:800;
 
   transition:
-    background .15s ease,
-    color .15s ease,
-    border-color .15s ease;
+    background .15s,
+    color .15s,
+    border-color .15s;
 }
 
 .freq:hover{
@@ -390,7 +322,7 @@ button{
 
 
 /* =========================================================
-   CHECKLIST
+   TASKS
    ========================================================= */
 
 .section{
@@ -398,8 +330,7 @@ button{
 }
 
 .section-title{
-  margin:
-    0 0 8px 3px;
+  margin:0 0 8px 3px;
 
   color:var(--faint);
 
@@ -419,24 +350,22 @@ button{
   margin-bottom:7px;
   padding:11px 13px;
 
-  text-align:left;
-
-  border:
-    1px solid var(--line2);
-
+  border:1px solid var(--line2);
   border-radius:11px;
 
   background:#fff;
 
   color:var(--ink);
 
+  text-align:left;
+
   font-size:13px;
   font-weight:700;
 
   transition:
-    border-color .15s ease,
-    background .15s ease,
-    transform .1s ease;
+    border-color .15s,
+    background .15s,
+    transform .1s;
 }
 
 .task:hover{
@@ -457,9 +386,7 @@ button{
   display:grid;
   place-items:center;
 
-  border:
-    2px solid #d5dfe3;
-
+  border:2px solid #d5dfe3;
   border-radius:7px;
 
   color:#fff;
@@ -487,19 +414,16 @@ button{
 .signoff{
   margin-top:20px;
 
-  border:
-    1px solid var(--line2);
-
-  border-radius:13px;
-
   overflow:hidden;
+
+  border:1px solid var(--line2);
+  border-radius:13px;
 }
 
 .sign-head{
   padding:14px 16px;
 
-  border-bottom:
-    1px solid var(--line2);
+  border-bottom:1px solid var(--line2);
 
   font-size:14px;
   font-weight:800;
@@ -526,9 +450,7 @@ button{
 
   resize:vertical;
 
-  border:
-    1px solid var(--line);
-
+  border:1px solid var(--line);
   border-radius:10px;
 
   outline:none;
@@ -546,9 +468,7 @@ button{
 
   padding:11px 13px;
 
-  border-left:
-    3px solid var(--teal);
-
+  border-left:3px solid var(--teal);
   border-radius:8px;
 
   background:#faf9f6;
@@ -561,11 +481,12 @@ button{
 
 
 /* =========================================================
-   DIGITAL SIGNATURE
+   SIGNATURE
    ========================================================= */
 
 .signature-entry{
   display:grid;
+
   grid-template-columns:
     minmax(0,1fr) auto;
 
@@ -577,9 +498,7 @@ button{
 
   padding:11px 12px;
 
-  border:
-    1px solid var(--line);
-
+  border:1px solid var(--line);
   border-radius:10px;
 
   outline:none;
@@ -595,9 +514,7 @@ button{
 .create-signature{
   padding:10px 15px;
 
-  border:
-    1px solid var(--teal);
-
+  border:1px solid var(--teal);
   border-radius:10px;
 
   background:var(--teal);
@@ -606,7 +523,7 @@ button{
   font-weight:800;
 }
 
-.create-signature:hover{
+.create-signature:hover:not(:disabled){
   background:var(--teal-dark);
   border-color:var(--teal-dark);
 }
@@ -628,9 +545,7 @@ button{
   margin-top:10px;
   padding:13px 16px;
 
-  border:
-    1px solid #bfe2e7;
-
+  border:1px solid #bfe2e7;
   border-radius:10px;
 
   background:var(--teal-wash);
@@ -665,15 +580,10 @@ button{
 
 
 /* =========================================================
-   SUBMISSION
+   SUBMIT
    ========================================================= */
 
 .actions{
-  display:grid;
-  grid-template-columns:1fr;
-
-  gap:10px;
-
   margin-top:14px;
 }
 
@@ -682,9 +592,7 @@ button{
 
   padding:12px;
 
-  border:
-    1px solid var(--teal);
-
+  border:1px solid var(--teal);
   border-radius:10px;
 
   background:var(--teal);
@@ -711,9 +619,7 @@ button{
   margin-top:12px;
   padding:12px;
 
-  border:
-    1px solid #cfe3d3;
-
+  border:1px solid #cfe3d3;
   border-radius:10px;
 
   background:var(--green-wash);
@@ -731,9 +637,7 @@ button{
 
   padding:9px 13px;
 
-  border:
-    1px solid #badac1;
-
+  border:1px solid #badac1;
   border-radius:9px;
 
   background:#fff;
@@ -744,7 +648,7 @@ button{
 
 
 /* =========================================================
-   EMPTY STATE
+   EMPTY / ERROR
    ========================================================= */
 
 .empty{
@@ -756,14 +660,15 @@ button{
 }
 
 .empty h3{
-  margin:
-    0 0 7px;
+  margin:0 0 7px;
 
   color:var(--ink);
 }
 
 .empty p{
   margin:0;
+
+  line-height:1.5;
 }
 
 
@@ -793,8 +698,7 @@ button{
 
   pointer-events:none;
 
-  transform:
-    translateY(8px);
+  transform:translateY(8px);
 
   transition:.2s;
 }
@@ -810,15 +714,6 @@ button{
    ========================================================= */
 
 @media(max-width:720px){
-
-  .module-title{
-    font-size:26px;
-  }
-
-  .module-description{
-    margin-left:0;
-    margin-top:10px;
-  }
 
   .workspace{
     padding:14px;
@@ -871,62 +766,13 @@ button{
   }
 
 }
-
 </style>
 </head>
+
 
 <body>
 
 <main class="module">
-
-  <div class="module-header">
-
-    <div>
-
-      <div class="module-heading">
-
-        <span class="module-icon">
-
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-
-            <rect
-              x="4"
-              y="3"
-              width="16"
-              height="18"
-              rx="3"
-            />
-
-            <path
-              d="m8 12 2.3 2.3L16 8.7"
-            />
-
-          </svg>
-
-        </span>
-
-        <h1 class="module-title">
-          Checklists
-        </h1>
-
-      </div>
-
-      <p class="module-description">
-        Complete, sign, and submit your assigned residence checklists.
-      </p>
-
-    </div>
-
-  </div>
-
 
   <section class="panel">
 
@@ -934,9 +780,7 @@ button{
 
       <span class="panel-dot"></span>
 
-      <h2>
-        MY CHECKLISTS
-      </h2>
+      <h2>MY CHECKLISTS</h2>
 
     </div>
 
@@ -957,16 +801,14 @@ button{
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script src="../wb-config.js"></script>
-
 <script src="../wb-guard.js"></script>
 
 
 <script>
 
 /* =========================================================
-   CHECKLIST CONFIG
+   CONFIG
    ========================================================= */
 
 const TYPES = [
@@ -1062,50 +904,210 @@ const DEMO_LIBRARY = [
 
 
 /* =========================================================
-   SESSION HELPERS
+   HASC OS SESSION
+
+   The Mark 4 shell / guard already establishes:
+   - authenticated user
+   - role
+   - assigned homes
+
+   The checklist app consumes that information.
+   It does NOT create another authorization layer.
    ========================================================= */
 
-function read(key,fallback){
+function sessionValue(key){
+
+  /*
+   * Same-origin embedded modules normally share sessionStorage
+   * with Mark 4.
+   *
+   * The parent fallback makes the module more resilient when
+   * loaded inside the OS iframe.
+   */
 
   try{
 
-    const raw =
-      sessionStorage.getItem(key);
+    const local =
+      window.sessionStorage.getItem(key);
 
-    return raw === null
-      ? fallback
-      : JSON.parse(raw);
+    if(
+      local !== null
+    ){
 
-  }catch{
+      return local;
 
-    return (
-      sessionStorage.getItem(key)
-      || fallback
-    );
+    }
+
+  }catch(error){}
+
+
+  try{
+
+    if(
+      window.parent
+      &&
+      window.parent !== window
+      &&
+      window.parent.sessionStorage
+    ){
+
+      return (
+        window.parent
+          .sessionStorage
+          .getItem(key)
+      );
+
+    }
+
+  }catch(error){}
+
+
+  return null;
+}
+
+
+function parseSessionJSON(
+  key,
+  fallback
+){
+
+  const raw =
+    sessionValue(key);
+
+
+  if(
+    raw === null
+    ||
+    raw === undefined
+    ||
+    raw === ''
+  ){
+
+    return fallback;
+
+  }
+
+
+  try{
+
+    return JSON.parse(raw);
+
+  }catch(error){
+
+    return raw;
 
   }
 
 }
 
 
+function normalizeHomes(value){
+
+  let list = value;
+
+
+  if(
+    !Array.isArray(list)
+  ){
+
+    if(
+      list === null
+      ||
+      list === undefined
+      ||
+      list === ''
+    ){
+
+      return [];
+
+    }
+
+    list = [list];
+
+  }
+
+
+  return [
+
+    ...new Set(
+
+      list
+        .map(
+
+          item => {
+
+            if(
+              typeof item === 'string'
+            ){
+
+              return item.trim();
+
+            }
+
+
+            if(
+              item
+              &&
+              typeof item === 'object'
+            ){
+
+              return String(
+
+                item.home_name
+                ||
+                item.homeName
+                ||
+                item.residence_name
+                ||
+                item.residence
+                ||
+                item.name
+                ||
+                ''
+
+              ).trim();
+
+            }
+
+
+            return '';
+
+          }
+
+        )
+        .filter(Boolean)
+
+    )
+
+  ];
+
+}
+
+
+/* =========================================================
+   USER
+   ========================================================= */
+
 const rawUser =
-  read(
+  parseSessionJSON(
     'hasc_user',
     {}
   );
 
 
 const profile =
+  rawUser
+  &&
   typeof rawUser === 'object'
+
     ? rawUser
-    : {
-        name:rawUser
-      };
+
+    : {};
 
 
 let role = String(
 
-  sessionStorage.getItem(
+  sessionValue(
     'hasc_role'
   )
 
@@ -1115,20 +1117,20 @@ let role = String(
 
   ||
 
-  'rm'
+  ''
 
-).toLowerCase();
+).trim();
 
 
-let name =
+let name = String(
 
-  sessionStorage.getItem(
+  sessionValue(
     'hasc_user_name'
   )
 
   ||
 
-  sessionStorage.getItem(
+  sessionValue(
     'hasc_name'
   )
 
@@ -1142,23 +1144,20 @@ let name =
 
   ||
 
-  'Residence Manager';
+  'Residence Manager'
+
+).trim();
 
 
 let homes =
-  read(
-    'hasc_homes',
-    []
+  normalizeHomes(
+
+    parseSessionJSON(
+      'hasc_homes',
+      []
+    )
+
   );
-
-
-if(
-  !Array.isArray(homes)
-){
-
-  homes = [];
-
-}
 
 
 /* =========================================================
@@ -1185,17 +1184,73 @@ let freq =
   'Daily';
 
 
-let comment = '';
+let comment =
+  '';
 
 
-let signatureName = '';
+let signatureName =
+  '';
 
 
-let signatureError = '';
+let signatureError =
+  '';
 
 
 let submitted =
   false;
+
+
+/* =========================================================
+   NEW YORK DATE
+   ========================================================= */
+
+function nyDate(){
+
+  const parts =
+    new Intl.DateTimeFormat(
+
+      'en-CA',
+
+      {
+        timeZone:
+          'America/New_York',
+
+        year:
+          'numeric',
+
+        month:
+          '2-digit',
+
+        day:
+          '2-digit'
+      }
+
+    )
+    .formatToParts(
+      new Date()
+    );
+
+
+  const map = {};
+
+
+  parts.forEach(
+
+    part => {
+
+      map[part.type] =
+        part.value;
+
+    }
+
+  );
+
+
+  return (
+    `${map.year}-${map.month}-${map.day}`
+  );
+
+}
 
 
 let activeNyDate =
@@ -1274,11 +1329,14 @@ function notify(message){
   toast.textContent =
     message;
 
+
   toast.classList.add(
     'show'
   );
 
+
   setTimeout(
+
     () => {
 
       toast.classList.remove(
@@ -1286,250 +1344,82 @@ function notify(message){
       );
 
     },
+
     1900
+
   );
 
 }
 
 
 /* =========================================================
-   NEW YORK DATE
+   SESSION REFRESH
+
+   Mark 4 remains the source of truth.
    ========================================================= */
 
-function nyDate(){
+function refreshOSContext(){
 
-  const parts =
-    new Intl.DateTimeFormat(
+  const newHomes =
+    normalizeHomes(
 
-      'en-CA',
-
-      {
-
-        timeZone:
-          'America/New_York',
-
-        year:
-          'numeric',
-
-        month:
-          '2-digit',
-
-        day:
-          '2-digit'
-
-      }
-
-    ).formatToParts(
-      new Date()
-    );
-
-
-  const map = {};
-
-
-  parts.forEach(
-    part => {
-
-      map[part.type] =
-        part.value;
-
-    }
-  );
-
-
-  return (
-    `${map.year}-${map.month}-${map.day}`
-  );
-
-}
-
-
-/* =========================================================
-   ACCESS
-   ========================================================= */
-
-function assignedOnly(){
-
-  if(
-    role !== 'rm'
-  ){
-
-    workspace.innerHTML = `
-
-      <div class="empty">
-
-        <h3>
-          RM access only
-        </h3>
-
-        <p>
-          This checklist workspace is currently assigned to Residence Managers.
-        </p>
-
-      </div>
-
-    `;
-
-    return false;
-
-  }
-
-
-  if(
-    !homes.length
-  ){
-
-    workspace.innerHTML = `
-
-      <div class="empty">
-
-        <h3>
-          No assigned residences
-        </h3>
-
-        <p>
-          Your account does not currently have a residence assignment.
-        </p>
-
-      </div>
-
-    `;
-
-    return false;
-
-  }
-
-
-  return true;
-
-}
-
-
-/* =========================================================
-   LOAD ASSIGNED RESIDENCES
-   ========================================================= */
-
-async function loadAssignedHomes(){
-
-  if(
-    !client
-  ){
-
-    return;
-
-  }
-
-
-  try{
-
-    const sessionResult =
-      await client.auth.getSession();
-
-
-    const email =
-
-      sessionResult
-        ?.data
-        ?.session
-        ?.user
-        ?.email;
-
-
-    if(
-      !email
-    ){
-
-      return;
-
-    }
-
-
-    const [
-      homeResult,
-      profileResult
-    ] = await Promise.all([
-
-      client
-        .from('cl_homes')
-        .select('home_name')
-        .eq(
-          'rm_email',
-          email
-        )
-        .order(
-          'home_name'
-        ),
-
-      client
-        .from('profiles')
-        .select(
-          'full_name,role'
-        )
-        .eq(
-          'email',
-          email
-        )
-        .maybeSingle()
-
-    ]);
-
-
-    if(
-      homeResult.error
-    ){
-
-      throw homeResult.error;
-
-    }
-
-
-    homes = (
-      homeResult.data || []
-    )
-      .map(
-        row => row.home_name
+      parseSessionJSON(
+        'hasc_homes',
+        []
       )
-      .filter(Boolean);
 
-
-    currentHome =
-      homes[0] || '';
-
-
-    if(
-      profileResult
-        .data
-        ?.full_name
-    ){
-
-      name =
-        profileResult
-          .data
-          .full_name;
-
-    }
-
-
-    if(
-      profileResult
-        .data
-        ?.role
-    ){
-
-      role = String(
-        profileResult
-          .data
-          .role
-      ).toLowerCase();
-
-    }
-
-  }catch(error){
-
-    console.warn(
-      'Could not load assigned residences.',
-      error
     );
+
+
+  if(
+    newHomes.length
+  ){
+
+    homes =
+      newHomes;
+
+  }
+
+
+  const sessionName =
+
+    sessionValue(
+      'hasc_user_name'
+    )
+
+    ||
+
+    sessionValue(
+      'hasc_name'
+    );
+
+
+  if(
+    sessionName
+  ){
+
+    name =
+      String(
+        sessionName
+      ).trim();
+
+  }
+
+
+  const sessionRole =
+    sessionValue(
+      'hasc_role'
+    );
+
+
+  if(
+    sessionRole
+  ){
+
+    role =
+      String(
+        sessionRole
+      ).trim();
 
   }
 
@@ -1537,7 +1427,47 @@ async function loadAssignedHomes(){
 
 
 /* =========================================================
-   LOAD CHECKLIST DATA
+   HOME SCOPE
+
+   No role === "rm" check here.
+
+   Access is handled by HASC OS / wb-guard.js.
+   ========================================================= */
+
+function hasAssignedHome(){
+
+  if(
+    homes.length
+  ){
+
+    return true;
+
+  }
+
+
+  workspace.innerHTML = `
+
+    <div class="empty">
+
+      <h3>
+        No assigned residence
+      </h3>
+
+      <p>
+        HASC OS did not provide a residence assignment for this account.
+      </p>
+
+    </div>
+
+  `;
+
+
+  return false;
+}
+
+
+/* =========================================================
+   LOAD LIVE CHECKLIST DATA
    ========================================================= */
 
 async function loadLive(){
@@ -1556,10 +1486,13 @@ async function loadLive(){
   try{
 
     const [
+
       libraryResult,
       disabledResult,
       doneResult
+
     ] = await Promise.all([
+
 
       client
         .from('cl_library')
@@ -1570,6 +1503,7 @@ async function loadLive(){
           'sort_order'
         ),
 
+
       client
         .from('cl_home_off')
         .select(
@@ -1579,6 +1513,7 @@ async function loadLive(){
           'home_name',
           currentHome
         ),
+
 
       client
         .from('cl_done')
@@ -1606,11 +1541,13 @@ async function loadLive(){
     ){
 
       throw (
+
         libraryResult.error
         ||
         disabledResult.error
         ||
         doneResult.error
+
       );
 
     }
@@ -1621,18 +1558,24 @@ async function loadLive(){
         libraryResult.data
         ||
         []
-      ).map(
+      )
+      .map(
 
         task => [
 
-          String(task.id),
+          String(
+            task.id
+          ),
 
           String(
-            task.frequency || ''
+            task.frequency
+            ||
+            ''
           ),
 
           task.section
-            || 'GENERAL',
+          ||
+          'GENERAL',
 
           task.task_name
 
@@ -1648,7 +1591,8 @@ async function loadLive(){
           disabledResult.data
           ||
           []
-        ).map(
+        )
+        .map(
 
           item =>
             String(
@@ -1667,7 +1611,8 @@ async function loadLive(){
           doneResult.data
           ||
           []
-        ).map(
+        )
+        .map(
 
           item =>
             `${currentHome}:${item.task_id}`
@@ -1681,10 +1626,28 @@ async function loadLive(){
 
   }catch(error){
 
-    console.warn(
-      'Could not load live checklist data.',
+    console.error(
+      'Checklist data load failed:',
       error
     );
+
+
+    workspace.innerHTML = `
+
+      <div class="empty">
+
+        <h3>
+          Checklist data could not load
+        </h3>
+
+        <p>
+          The residence was found, but the checklist records could not be loaded.
+        </p>
+
+      </div>
+
+    `;
+
 
     return false;
 
@@ -1694,7 +1657,7 @@ async function loadLive(){
 
 
 /* =========================================================
-   LOCAL DEMO STORAGE
+   DEMO / LOCAL FALLBACK
    ========================================================= */
 
 function demoDoneKey(){
@@ -1710,26 +1673,33 @@ function loadDemoToday(){
 
   try{
 
-    done = new Set(
+    const saved =
+      JSON.parse(
 
-      (
-        JSON.parse(
-          localStorage.getItem(
-            demoDoneKey()
-          )
-          ||
-          '[]'
+        localStorage.getItem(
+          demoDoneKey()
         )
-      ).map(
 
-        id =>
-          `${currentHome}:${id}`
+        ||
 
-      )
+        '[]'
 
-    );
+      );
 
-  }catch{
+
+    done =
+      new Set(
+
+        saved.map(
+
+          id =>
+            `${currentHome}:${id}`
+
+        )
+
+      );
+
+  }catch(error){
 
     done =
       new Set();
@@ -1743,43 +1713,43 @@ function saveDemoToday(){
 
   try{
 
+    const ids =
+      [...done]
+
+        .filter(
+
+          key =>
+            key.startsWith(
+              `${currentHome}:`
+            )
+
+        )
+
+        .map(
+
+          key =>
+            key.slice(
+              currentHome.length + 1
+            )
+
+        );
+
+
     localStorage.setItem(
 
       demoDoneKey(),
 
-      JSON.stringify(
-
-        [
-          ...done
-        ]
-          .filter(
-
-            key =>
-              key.startsWith(
-                `${currentHome}:`
-              )
-
-          )
-          .map(
-
-            key =>
-              key.slice(
-                currentHome.length + 1
-              )
-
-          )
-
-      )
+      JSON.stringify(ids)
 
     );
 
-  }catch{}
+  }catch(error){}
 
 }
 
 
 /* =========================================================
-   TASK PERSISTENCE
+   SAVE CHECK / UNCHECK
    ========================================================= */
 
 async function persistTask(
@@ -1871,10 +1841,11 @@ async function persistTask(
 
   }catch(error){
 
-    console.warn(
-      'Could not save checklist task.',
+    console.error(
+      'Checklist check-off save failed:',
       error
     );
+
 
     return false;
 
@@ -1930,7 +1901,7 @@ function validFullName(value){
 
 
 /* =========================================================
-   ACTIVE SUBMISSION
+   CURRENT CHECKLIST
    ========================================================= */
 
 function activeSubmission(){
@@ -1959,27 +1930,27 @@ function activeSubmission(){
     );
 
 
+  const completed =
+    tasks.filter(
+
+      task =>
+        done.has(
+          `${currentHome}:${task[0]}`
+        )
+
+    );
+
+
   return {
-
     tasks,
-
-    completed:
-      tasks.filter(
-
-        task =>
-          done.has(
-            `${currentHome}:${task[0]}`
-          )
-
-      )
-
+    completed
   };
 
 }
 
 
 /* =========================================================
-   SUBMIT CHECKLIST
+   SUBMIT SIGNED CHECKLIST
    ========================================================= */
 
 async function submitChecklistRecord(){
@@ -2022,7 +1993,9 @@ async function submitChecklistRecord(){
             record.tasks.length,
 
           comments:
-            comment || null,
+            comment
+            ||
+            null,
 
           signature:
             signatureName,
@@ -2070,10 +2043,11 @@ async function submitChecklistRecord(){
 
   }catch(error){
 
-    console.warn(
-      'Could not submit checklist.',
+    console.error(
+      'Checklist submission failed:',
       error
     );
+
 
     return false;
 
@@ -2089,7 +2063,7 @@ async function submitChecklistRecord(){
 function render(){
 
   if(
-    !assignedOnly()
+    !hasAssignedHome()
   ){
 
     return;
@@ -2186,7 +2160,9 @@ function render(){
                 value="${esc(home)}"
                 ${home === currentHome ? 'selected' : ''}
               >
+
                 ${esc(home)}
+
               </option>
 
             `
@@ -2209,7 +2185,7 @@ function render(){
         </h3>
 
         <p>
-          ${esc(name)} · Residence Manager
+          ${esc(name)}
         </p>
 
       </div>
@@ -2260,64 +2236,78 @@ function render(){
     </div>
 
 
-    ${Object.keys(groups).map(
+    ${
+      Object
+        .keys(groups)
+        .map(
 
-      section => `
+          section => `
 
-        <section class="section">
+            <section class="section">
 
-          <div class="section-title">
-            ${esc(section)}
-          </div>
+              <div class="section-title">
+                ${esc(section)}
+              </div>
 
-          ${groups[section].map(
+              ${groups[section]
+                .map(
 
-            task => {
+                  task => {
 
-              const checked =
-                done.has(
-                  `${currentHome}:${task[0]}`
-                );
+                    const checked =
+                      done.has(
+                        `${currentHome}:${task[0]}`
+                      );
 
 
-              return `
+                    return `
 
-                <button
-                  class="task ${checked ? 'checked' : ''}"
-                  data-task="${esc(task[0])}"
-                >
+                      <button
+                        class="task ${checked ? 'checked' : ''}"
+                        data-task="${esc(task[0])}"
+                      >
 
-                  <span class="box"></span>
+                        <span class="box"></span>
 
-                  <span class="task-name">
-                    ${esc(task[3])}
-                  </span>
+                        <span class="task-name">
+                          ${esc(task[3])}
+                        </span>
 
-                </button>
+                      </button>
 
-              `;
+                    `;
 
-            }
+                  }
 
-          ).join('')}
+                )
+                .join('')
+              }
 
-        </section>
+            </section>
+
+          `
+
+        )
+        .join('')
+
+      ||
 
       `
 
-    ).join('')
+        <div class="empty">
 
-    ||
+          <h3>
+            No checklist items
+          </h3>
 
-    `
+          <p>
+            No ${esc(freq.toLowerCase())} checklist items are assigned to this residence.
+          </p>
 
-      <div class="empty">
+        </div>
 
-        No tasks assigned for this checklist.
-
-      </div>
-
-    `}
+      `
+    }
 
 
     <section class="signoff">
@@ -2379,20 +2369,23 @@ function render(){
           class="signature-help ${signatureError ? 'signature-error' : ''}"
         >
 
-          ${signatureError
+          ${
+            signatureError
 
             ||
 
             'Initials and single names are not accepted. Enter at least a complete first and last name.'
-
           }
 
         </div>
 
 
-        ${signatureName && !signatureError
+        ${
+          signatureName
+          &&
+          !signatureError
 
-          ? `
+            ? `
 
               <div class="digital-signature">
 
@@ -2408,8 +2401,7 @@ function render(){
 
             `
 
-          : ''
-
+            : ''
         }
 
 
@@ -2418,12 +2410,13 @@ function render(){
           <button
             class="submit"
             id="submitChecklist"
+
             ${
               signatureName
               &&
               !signatureError
               &&
-              complete
+              complete > 0
               &&
               !submitted
 
@@ -2446,9 +2439,10 @@ function render(){
         </div>
 
 
-        ${submitted
+        ${
+          submitted
 
-          ? `
+            ? `
 
               <div class="submitted-copy">
 
@@ -2464,8 +2458,7 @@ function render(){
 
             `
 
-          : ''
-
+            : ''
         }
 
       </div>
@@ -2481,7 +2474,7 @@ function render(){
 
 
 /* =========================================================
-   EVENT BINDINGS
+   EVENTS
    ========================================================= */
 
 function bindEvents(){
@@ -2503,17 +2496,34 @@ function bindEvents(){
           event.target.value;
 
 
-        signatureName = '';
-        signatureError = '';
-        submitted = false;
-        comment = '';
+        signatureName =
+          '';
+
+        signatureError =
+          '';
+
+        submitted =
+          false;
+
+        comment =
+          '';
 
 
         if(
           client
         ){
 
-          await loadLive();
+          const loaded =
+            await loadLive();
+
+
+          if(
+            !loaded
+          ){
+
+            return;
+
+          }
 
         }else{
 
@@ -2544,9 +2554,14 @@ function bindEvents(){
               button.dataset.frequency;
 
 
-            signatureName = '';
-            signatureError = '';
-            submitted = false;
+            signatureName =
+              '';
+
+            signatureError =
+              '';
+
+            submitted =
+              false;
 
 
             render();
@@ -2594,7 +2609,8 @@ function bindEvents(){
             }
 
 
-            submitted = false;
+            submitted =
+              false;
 
 
             render();
@@ -2638,9 +2654,13 @@ function bindEvents(){
 
 
             notify(
+
               client
+
                 ? 'Saved for today.'
+
                 : 'Demo check-off saved for today.'
+
             );
 
           };
@@ -2666,6 +2686,7 @@ function bindEvents(){
         comment =
           event.target.value;
 
+
         submitted =
           false;
 
@@ -2690,8 +2711,10 @@ function bindEvents(){
         signatureName =
           event.target.value;
 
+
         signatureError =
           '';
+
 
         submitted =
           false;
@@ -2808,11 +2831,13 @@ function bindEvents(){
 
 
         notify(
+
           client
 
-            ? 'Signed checklist submitted to Supabase.'
+            ? 'Signed checklist submitted.'
 
             : 'Demo checklist submitted.'
+
         );
 
       };
@@ -2843,7 +2868,7 @@ function bindEvents(){
 
 
 /* =========================================================
-   MIDNIGHT RESET
+   NEW DAY RESET
    ========================================================= */
 
 async function resetAtNewYorkMidnight(){
@@ -2865,10 +2890,17 @@ async function resetAtNewYorkMidnight(){
     nextDate;
 
 
-  signatureName = '';
-  signatureError = '';
-  submitted = false;
-  comment = '';
+  signatureName =
+    '';
+
+  signatureError =
+    '';
+
+  submitted =
+    false;
+
+  comment =
+    '';
 
 
   if(
@@ -2896,34 +2928,60 @@ async function resetAtNewYorkMidnight(){
 
 /* =========================================================
    BOOT
+
+   Important:
+   We do NOT test role === "rm".
+
+   Mark 4 / wb-guard.js owns access control.
+
+   We only require HASC OS to provide at least one home.
    ========================================================= */
 
 async function boot(){
 
+  refreshOSContext();
+
+
   if(
-    role === 'rm'
+    !homes.length
   ){
 
-    await loadAssignedHomes();
+    render();
+
+    return;
+
+  }
+
+
+  currentHome =
+    homes.includes(
+      currentHome
+    )
+
+      ? currentHome
+
+      : homes[0];
+
+
+  if(
+    client
+  ){
+
+    const loaded =
+      await loadLive();
 
 
     if(
-      homes.length
+      !loaded
     ){
 
-      if(
-        client
-      ){
-
-        await loadLive();
-
-      }else{
-
-        loadDemoToday();
-
-      }
+      return;
 
     }
+
+  }else{
+
+    loadDemoToday();
 
   }
 
@@ -2932,6 +2990,10 @@ async function boot(){
 
 }
 
+
+/* =========================================================
+   START
+   ========================================================= */
 
 setInterval(
   resetAtNewYorkMidnight,
