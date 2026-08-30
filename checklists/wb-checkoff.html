@@ -2,56 +2,2946 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="HASC Residence Manager checklist workspace">
-<title>HASC — RM Checklists</title>
+
+<meta
+  name="description"
+  content="HASC Residential OS checklist module"
+>
+
+<title>HASC — Checklists</title>
+
 <style>
-@font-face{font-family:'Plus Jakarta Sans';font-weight:500;src:url('/assets/plus-jakarta-500.woff2') format('woff2')}@font-face{font-family:'Plus Jakarta Sans';font-weight:600;src:url('/assets/plus-jakarta-600.woff2') format('woff2')}@font-face{font-family:'Plus Jakarta Sans';font-weight:700;src:url('/assets/plus-jakarta-700.woff2') format('woff2')}@font-face{font-family:'Plus Jakarta Sans';font-weight:800;src:url('/assets/plus-jakarta-800.woff2') format('woff2')}
-:root{--ui:'Plus Jakarta Sans',sans-serif;--paper:#f1efe9;--card:#fff;--ink:#233038;--muted:#6a7a84;--faint:#9fb0b8;--line:#e7e2d9;--line2:#eef1f4;--teal:#17a2b8;--teal-dark:#0f7d8f;--teal-wash:#e8f6f8;--green:#568e62;--green-wash:#eef4ef}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{font-family:var(--ui);background:var(--paper);color:var(--ink);letter-spacing:-.01em}button,select,textarea{font:inherit}button{cursor:pointer}
-.topbar{height:86px;padding:0 46px;gap:14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:sticky;top:0;z-index:20}.brand img{height:42px;max-width:150px;object-fit:contain}.divider{width:1px;height:31px;background:var(--line);margin:0 2px}.dept{font-size:15.5px;font-weight:800;letter-spacing:.18em;color:var(--teal);white-space:nowrap}.topright{margin-left:auto;display:flex;align-items:center;gap:13px}.iconbtn{width:39px;height:39px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--muted);display:grid;place-items:center}.datetime{text-align:right;line-height:1.25}.datetime b{display:block;font-size:14.5px}.datetime span{font-size:13px;color:var(--faint)}.avatar{width:34px;height:34px;border-radius:9px;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:800}.user b{display:block;font-size:15px}.user span{display:block;font-size:11px;letter-spacing:.08em;font-weight:800;color:var(--faint)}
-.content{max-width:1040px;margin:auto;padding:34px 28px 60px}.meta{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:17px}.workspace-title{display:flex;align-items:center;gap:12px}.workspace-icon{width:40px;height:40px;border-radius:11px;background:var(--green);color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px -9px var(--green)}.workspace-icon svg{width:22px}.meta h1{font-size:33px;margin:0 0 5px}.meta p{font-size:17px;color:var(--muted);margin:0}.phase{border-radius:999px;padding:7px 10px;background:var(--teal-wash);color:var(--teal-dark);font-size:12px;font-weight:800;letter-spacing:.065em;white-space:nowrap}.panel{background:#fff;border:1px solid rgba(60,50,35,.06);border-radius:18px;box-shadow:0 1px 2px rgba(60,50,35,.04),0 10px 24px -14px rgba(60,50,35,.20);overflow:hidden}.panelhead{height:59px;display:flex;align-items:center;gap:9px;padding:0 18px;border-bottom:1px solid var(--line2)}.panelhead h2{font-size:15.5px;letter-spacing:.055em;margin:0}.dot{width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 5px var(--teal-wash)}.workspace{padding:20px}.homebar{display:flex;align-items:end;gap:14px;margin-bottom:16px}.control{flex:1;max-width:440px}.control label{display:block;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px}.control select{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fff}.scope{font-size:11px;color:var(--muted);padding-bottom:11px}.banner{background:linear-gradient(135deg,#21a7ba,#0f7d8f);color:#fff;border-radius:14px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 12px 25px -18px #0f7d8f}.banner h3{margin:0 0 3px;font-size:20px}.banner p{margin:0;font-size:12px;opacity:.9}.day{width:58px;height:58px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;line-height:1}.day b{font-size:21px}.day span{font-size:10px;font-weight:800}.progress{border:1px solid var(--line2);border-radius:13px;padding:15px;margin:14px 0}.progress-top{display:flex;justify-content:space-between;gap:14px;font-size:13px}.progress-top span{color:var(--muted)}.track{height:8px;background:var(--paper);border-radius:99px;margin-top:10px;overflow:hidden}.fill{height:100%;background:var(--teal);transition:.2s}.freqs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}.freq{border:1px solid var(--line);background:#fff;color:var(--muted);padding:8px 11px;border-radius:9px;font-size:12px;font-weight:800}.freq.active{background:var(--teal);border-color:var(--teal);color:#fff}.section{margin-bottom:14px}.section-title{font-size:10px;font-weight:800;color:var(--faint);letter-spacing:.08em;margin:0 0 7px 3px}.task{width:100%;min-height:50px;border:1px solid var(--line2);background:#fff;border-radius:11px;display:flex;align-items:center;gap:12px;padding:11px 13px;text-align:left;margin-bottom:7px;font-size:13px;font-weight:700}.task:hover{border-color:#cce4e8}.box{width:23px;height:23px;border:2px solid #d5dfe3;border-radius:7px;display:grid;place-items:center;color:#fff;flex:none}.task.checked .box{background:var(--teal);border-color:var(--teal)}.task.checked .box:after{content:'✓';font-weight:800}.task.checked .task-name{color:var(--muted)}.signoff{border:1px solid var(--line2);border-radius:13px;overflow:hidden;margin-top:18px}.signhead{padding:14px 16px;border-bottom:1px solid var(--line2);font-weight:800}.signbody{padding:16px}.signbody label{display:block;font-size:12px;font-weight:800;margin-bottom:7px}.signbody textarea{width:100%;min-height:72px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}.cert{background:#faf9f6;border-left:3px solid var(--teal);border-radius:8px;padding:11px 13px;color:var(--muted);font-size:11.5px;line-height:1.5;margin:14px 0}.signline{width:100%;border:2px dashed var(--line);background:#fff;border-radius:10px;padding:13px;color:var(--muted);font-weight:700}.signline.signed{border-style:solid;border-color:var(--teal);color:var(--teal-dark);background:var(--teal-wash)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.actions button{border-radius:10px;padding:11px;font-weight:800}.preview{border:1px solid #cce4e8;background:#fff;color:var(--teal-dark)}.submit{border:1px solid var(--teal);background:var(--teal);color:#fff}.submit:disabled{opacity:.42;cursor:not-allowed}.empty{padding:60px 25px;text-align:center;color:var(--muted)}.empty h3{color:var(--ink)}.toast{position:fixed;right:22px;bottom:22px;background:var(--ink);color:#fff;padding:13px 16px;border-radius:11px;opacity:0;transform:translateY(8px);transition:.2s}.toast.show{opacity:1;transform:none}
-@media(max-width:720px){.topbar{height:72px;padding:0 16px}.brand img{height:34px}.dept{font-size:12px}.datetime,.iconbtn{display:none}.content{padding:22px 13px}.meta{align-items:flex-start}.meta h1{font-size:26px}.meta p{font-size:14px}.phase{display:none}.workspace{padding:14px}.homebar{display:block}.scope{padding-top:7px}.progress-top{display:block}.progress-top span{display:block;margin-top:4px}.actions{grid-template-columns:1fr}}
-.signature-entry{display:grid;grid-template-columns:1fr auto;gap:9px}.signature-entry input{min-width:0;border:1px solid var(--line);border-radius:10px;padding:11px 12px}.signature-entry input:focus{outline:0;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-wash)}.create-signature{border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:10px;padding:10px 15px;font-weight:800}.signature-help{font-size:10.5px;color:var(--muted);margin:6px 0 12px}.signature-error{color:#a84d36;font-weight:700}.digital-signature{border:1px solid #bfe2e7;background:var(--teal-wash);border-radius:10px;padding:13px 16px;margin-top:10px}.digital-signature small{display:block;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.digital-signature strong{display:block;color:var(--teal-dark);font-family:'Segoe Script','Bradley Hand',cursive;font-size:22px;margin-top:5px;font-weight:600}.submitted-copy{margin-top:12px;border:1px solid #cfe3d3;background:var(--green-wash);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px}.submitted-copy span{color:#39684a;font-size:12px;font-weight:800}.submitted-copy button{margin-left:auto;border:1px solid #badac1;background:#fff;color:#39684a;border-radius:9px;padding:9px 13px;font-weight:800}@media(max-width:720px){.signature-entry{grid-template-columns:1fr}.submitted-copy{align-items:stretch;flex-direction:column}.submitted-copy button{margin-left:0}}
-.scope,.progress{display:none}.freqs{margin-top:16px}
+
+@font-face{
+  font-family:'Plus Jakarta Sans';
+  font-weight:500;
+  src:url('/assets/plus-jakarta-500.woff2') format('woff2');
+}
+
+@font-face{
+  font-family:'Plus Jakarta Sans';
+  font-weight:600;
+  src:url('/assets/plus-jakarta-600.woff2') format('woff2');
+}
+
+@font-face{
+  font-family:'Plus Jakarta Sans';
+  font-weight:700;
+  src:url('/assets/plus-jakarta-700.woff2') format('woff2');
+}
+
+@font-face{
+  font-family:'Plus Jakarta Sans';
+  font-weight:800;
+  src:url('/assets/plus-jakarta-800.woff2') format('woff2');
+}
+
+:root{
+  --ui:'Plus Jakarta Sans',sans-serif;
+
+  --paper:#f1efe9;
+  --card:#ffffff;
+
+  --ink:#233038;
+  --muted:#6a7a84;
+  --faint:#9fb0b8;
+
+  --line:#e7e2d9;
+  --line2:#eef1f4;
+
+  --teal:#17a2b8;
+  --teal-dark:#0f7d8f;
+  --teal-wash:#e8f6f8;
+
+  --green:#568e62;
+  --green-wash:#eef4ef;
+
+  --danger:#a84d36;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+}
+
+body{
+  font-family:var(--ui);
+  background:transparent;
+  color:var(--ink);
+  letter-spacing:-.01em;
+}
+
+button,
+select,
+textarea,
+input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+
+/* =========================================================
+   MARK 4 MODULE
+   ---------------------------------------------------------
+   This file intentionally does NOT contain:
+   - HASC header
+   - Residential department header
+   - user profile
+   - clock
+   - application rail
+
+   Those belong to the main Mark 4 index.
+   ========================================================= */
+
+.module{
+  width:100%;
+  padding:0;
+}
+
+.module-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:20px;
+  margin-bottom:18px;
+}
+
+.module-heading{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.module-icon{
+  width:42px;
+  height:42px;
+  flex:none;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:12px;
+
+  background:var(--green);
+  color:#fff;
+
+  box-shadow:
+    0 8px 18px -9px rgba(86,142,98,.75);
+}
+
+.module-icon svg{
+  width:23px;
+  height:23px;
+}
+
+.module-title{
+  margin:0;
+  font-size:31px;
+  line-height:1.05;
+  font-weight:800;
+}
+
+.module-description{
+  margin:6px 0 0 55px;
+  color:var(--muted);
+  font-size:15px;
+}
+
+
+/* =========================================================
+   MAIN PANEL
+   ========================================================= */
+
+.panel{
+  width:100%;
+
+  background:#fff;
+
+  border:
+    1px solid rgba(60,50,35,.06);
+
+  border-radius:18px;
+
+  box-shadow:
+    0 1px 2px rgba(60,50,35,.04),
+    0 10px 24px -14px rgba(60,50,35,.20);
+
+  overflow:hidden;
+}
+
+.panel-head{
+  height:59px;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  padding:0 19px;
+
+  border-bottom:1px solid var(--line2);
+}
+
+.panel-head h2{
+  margin:0;
+
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:.055em;
+}
+
+.panel-dot{
+  width:9px;
+  height:9px;
+
+  border-radius:50%;
+
+  background:var(--teal);
+
+  box-shadow:
+    0 0 0 5px var(--teal-wash);
+}
+
+.workspace{
+  padding:20px;
+}
+
+
+/* =========================================================
+   RESIDENCE SELECTOR
+   ========================================================= */
+
+.homebar{
+  display:flex;
+  align-items:flex-end;
+  gap:14px;
+
+  margin-bottom:16px;
+}
+
+.control{
+  flex:1;
+  max-width:460px;
+}
+
+.control label{
+  display:block;
+
+  margin-bottom:6px;
+
+  color:var(--muted);
+
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+
+.control select{
+  width:100%;
+
+  padding:11px 12px;
+
+  border:1px solid var(--line);
+  border-radius:10px;
+
+  background:#fff;
+  color:var(--ink);
+
+  outline:none;
+}
+
+.control select:focus{
+  border-color:var(--teal);
+
+  box-shadow:
+    0 0 0 3px var(--teal-wash);
+}
+
+
+/* =========================================================
+   RESIDENCE BANNER
+   ========================================================= */
+
+.banner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+
+  padding:18px 20px;
+
+  color:#fff;
+
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #21a7ba,
+      #0f7d8f
+    );
+
+  box-shadow:
+    0 12px 25px -18px #0f7d8f;
+}
+
+.banner h3{
+  margin:0 0 4px;
+
+  font-size:20px;
+  font-weight:800;
+}
+
+.banner p{
+  margin:0;
+
+  font-size:12px;
+
+  opacity:.9;
+}
+
+.day{
+  width:58px;
+  height:58px;
+
+  flex:none;
+
+  border-radius:12px;
+
+  background:
+    rgba(255,255,255,.18);
+
+  display:grid;
+  place-items:center;
+
+  text-align:center;
+  line-height:1;
+}
+
+.day b{
+  display:block;
+
+  margin-top:8px;
+
+  font-size:21px;
+}
+
+.day span{
+  display:block;
+
+  margin-bottom:8px;
+
+  font-size:10px;
+  font-weight:800;
+}
+
+
+/* =========================================================
+   FREQUENCY TABS
+   ========================================================= */
+
+.freqs{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+
+  margin:17px 0 18px;
+}
+
+.freq{
+  padding:8px 12px;
+
+  border:1px solid var(--line);
+  border-radius:9px;
+
+  background:#fff;
+
+  color:var(--muted);
+
+  font-size:12px;
+  font-weight:800;
+
+  transition:
+    background .15s ease,
+    color .15s ease,
+    border-color .15s ease;
+}
+
+.freq:hover{
+  border-color:#b9dfe4;
+  color:var(--teal-dark);
+}
+
+.freq.active{
+  background:var(--teal);
+  border-color:var(--teal);
+  color:#fff;
+}
+
+
+/* =========================================================
+   CHECKLIST
+   ========================================================= */
+
+.section{
+  margin-bottom:17px;
+}
+
+.section-title{
+  margin:
+    0 0 8px 3px;
+
+  color:var(--faint);
+
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+
+.task{
+  width:100%;
+  min-height:52px;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  margin-bottom:7px;
+  padding:11px 13px;
+
+  text-align:left;
+
+  border:
+    1px solid var(--line2);
+
+  border-radius:11px;
+
+  background:#fff;
+
+  color:var(--ink);
+
+  font-size:13px;
+  font-weight:700;
+
+  transition:
+    border-color .15s ease,
+    background .15s ease,
+    transform .1s ease;
+}
+
+.task:hover{
+  border-color:#cce4e8;
+  background:#fcffff;
+}
+
+.task:active{
+  transform:scale(.998);
+}
+
+.box{
+  width:23px;
+  height:23px;
+
+  flex:none;
+
+  display:grid;
+  place-items:center;
+
+  border:
+    2px solid #d5dfe3;
+
+  border-radius:7px;
+
+  color:#fff;
+}
+
+.task.checked .box{
+  background:var(--teal);
+  border-color:var(--teal);
+}
+
+.task.checked .box::after{
+  content:'✓';
+  font-weight:800;
+}
+
+.task.checked .task-name{
+  color:var(--muted);
+}
+
+
+/* =========================================================
+   SIGN OFF
+   ========================================================= */
+
+.signoff{
+  margin-top:20px;
+
+  border:
+    1px solid var(--line2);
+
+  border-radius:13px;
+
+  overflow:hidden;
+}
+
+.sign-head{
+  padding:14px 16px;
+
+  border-bottom:
+    1px solid var(--line2);
+
+  font-size:14px;
+  font-weight:800;
+}
+
+.sign-body{
+  padding:17px;
+}
+
+.sign-body label{
+  display:block;
+
+  margin-bottom:7px;
+
+  font-size:12px;
+  font-weight:800;
+}
+
+.sign-body textarea{
+  width:100%;
+  min-height:78px;
+
+  padding:10px 12px;
+
+  resize:vertical;
+
+  border:
+    1px solid var(--line);
+
+  border-radius:10px;
+
+  outline:none;
+}
+
+.sign-body textarea:focus{
+  border-color:var(--teal);
+
+  box-shadow:
+    0 0 0 3px var(--teal-wash);
+}
+
+.cert{
+  margin:14px 0;
+
+  padding:11px 13px;
+
+  border-left:
+    3px solid var(--teal);
+
+  border-radius:8px;
+
+  background:#faf9f6;
+
+  color:var(--muted);
+
+  font-size:11.5px;
+  line-height:1.55;
+}
+
+
+/* =========================================================
+   DIGITAL SIGNATURE
+   ========================================================= */
+
+.signature-entry{
+  display:grid;
+  grid-template-columns:
+    minmax(0,1fr) auto;
+
+  gap:9px;
+}
+
+.signature-entry input{
+  min-width:0;
+
+  padding:11px 12px;
+
+  border:
+    1px solid var(--line);
+
+  border-radius:10px;
+
+  outline:none;
+}
+
+.signature-entry input:focus{
+  border-color:var(--teal);
+
+  box-shadow:
+    0 0 0 3px var(--teal-wash);
+}
+
+.create-signature{
+  padding:10px 15px;
+
+  border:
+    1px solid var(--teal);
+
+  border-radius:10px;
+
+  background:var(--teal);
+  color:#fff;
+
+  font-weight:800;
+}
+
+.create-signature:hover{
+  background:var(--teal-dark);
+  border-color:var(--teal-dark);
+}
+
+.signature-help{
+  margin:6px 0 12px;
+
+  color:var(--muted);
+
+  font-size:10.5px;
+}
+
+.signature-help.signature-error{
+  color:var(--danger);
+  font-weight:700;
+}
+
+.digital-signature{
+  margin-top:10px;
+  padding:13px 16px;
+
+  border:
+    1px solid #bfe2e7;
+
+  border-radius:10px;
+
+  background:var(--teal-wash);
+}
+
+.digital-signature small{
+  display:block;
+
+  color:var(--muted);
+
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+.digital-signature strong{
+  display:block;
+
+  margin-top:5px;
+
+  color:var(--teal-dark);
+
+  font-family:
+    'Segoe Script',
+    'Bradley Hand',
+    cursive;
+
+  font-size:22px;
+  font-weight:600;
+}
+
+
+/* =========================================================
+   SUBMISSION
+   ========================================================= */
+
+.actions{
+  display:grid;
+  grid-template-columns:1fr;
+
+  gap:10px;
+
+  margin-top:14px;
+}
+
+.submit{
+  width:100%;
+
+  padding:12px;
+
+  border:
+    1px solid var(--teal);
+
+  border-radius:10px;
+
+  background:var(--teal);
+  color:#fff;
+
+  font-weight:800;
+}
+
+.submit:hover:not(:disabled){
+  background:var(--teal-dark);
+  border-color:var(--teal-dark);
+}
+
+.submit:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+}
+
+.submitted-copy{
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  margin-top:12px;
+  padding:12px;
+
+  border:
+    1px solid #cfe3d3;
+
+  border-radius:10px;
+
+  background:var(--green-wash);
+}
+
+.submitted-copy span{
+  color:#39684a;
+
+  font-size:12px;
+  font-weight:800;
+}
+
+.submitted-copy button{
+  margin-left:auto;
+
+  padding:9px 13px;
+
+  border:
+    1px solid #badac1;
+
+  border-radius:9px;
+
+  background:#fff;
+  color:#39684a;
+
+  font-weight:800;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty{
+  padding:60px 25px;
+
+  text-align:center;
+
+  color:var(--muted);
+}
+
+.empty h3{
+  margin:
+    0 0 7px;
+
+  color:var(--ink);
+}
+
+.empty p{
+  margin:0;
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+.toast{
+  position:fixed;
+
+  right:22px;
+  bottom:22px;
+
+  z-index:100;
+
+  padding:13px 16px;
+
+  border-radius:11px;
+
+  background:var(--ink);
+  color:#fff;
+
+  font-size:12px;
+  font-weight:700;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transform:
+    translateY(8px);
+
+  transition:.2s;
+}
+
+.toast.show{
+  opacity:1;
+  transform:none;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width:720px){
+
+  .module-title{
+    font-size:26px;
+  }
+
+  .module-description{
+    margin-left:0;
+    margin-top:10px;
+  }
+
+  .workspace{
+    padding:14px;
+  }
+
+  .homebar{
+    display:block;
+  }
+
+  .banner{
+    padding:16px;
+  }
+
+  .signature-entry{
+    grid-template-columns:1fr;
+  }
+
+  .submitted-copy{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .submitted-copy button{
+    margin-left:0;
+  }
+
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print{
+
+  body{
+    background:#fff;
+  }
+
+  .freqs,
+  .create-signature,
+  .submit,
+  .submitted-copy button,
+  .toast{
+    display:none !important;
+  }
+
+  .panel{
+    box-shadow:none;
+  }
+
+}
+
 </style>
 </head>
+
 <body>
-<header class="topbar"><div class="brand"><img src="/hasc-logo.png" onerror="this.onerror=null;this.src='assets/hasc-center-logo.png'" alt="HASC Center"></div><div class="divider"></div><div class="dept">RESIDENTIAL</div><div class="topright"><button class="iconbtn" aria-label="Notifications">♧</button><button class="iconbtn" aria-label="Help">?</button><div class="datetime"><b id="today"></b><span id="clock"></span></div><div class="avatar" id="avatar">RM</div><div class="user"><b id="userName">Residence Manager</b><span id="userRole">RM</span></div></div></header>
-<main class="content"><div class="meta"><div><div class="workspace-title"><span class="workspace-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="m8 12 2.3 2.3L16 8.7"/></svg></span><h1>Checklists</h1></div><p>Complete, sign, and submit your assigned residence checklists.</p></div><span class="phase">RM WORKSPACE · SAMPLE DATA</span></div><section class="panel"><div class="panelhead"><span class="dot"></span><h2>MY CHECKLISTS</h2></div><div class="workspace" id="workspace"></div></section></main>
-<div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../wb-config.js"></script><script src="../wb-guard.js"></script>
+
+<main class="module">
+
+  <div class="module-header">
+
+    <div>
+
+      <div class="module-heading">
+
+        <span class="module-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+
+            <rect
+              x="4"
+              y="3"
+              width="16"
+              height="18"
+              rx="3"
+            />
+
+            <path
+              d="m8 12 2.3 2.3L16 8.7"
+            />
+
+          </svg>
+
+        </span>
+
+        <h1 class="module-title">
+          Checklists
+        </h1>
+
+      </div>
+
+      <p class="module-description">
+        Complete, sign, and submit your assigned residence checklists.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <section class="panel">
+
+    <div class="panel-head">
+
+      <span class="panel-dot"></span>
+
+      <h2>
+        MY CHECKLISTS
+      </h2>
+
+    </div>
+
+    <div
+      class="workspace"
+      id="workspace"
+    ></div>
+
+  </section>
+
+</main>
+
+
+<div
+  class="toast"
+  id="toast"
+></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="../wb-config.js"></script>
+
+<script src="../wb-guard.js"></script>
+
+
 <script>
-const TYPES=['Daily','Weekly','Weekend','Monthly','Quarterly','Annual'];
-const DEMO_LIBRARY=[['d1','Daily','MEDICATION','Medication count verified'],['d2','Daily','HOUSE','House log signed'],['d3','Daily','SAFETY','Shift safety walkthrough'],['w1','Weekly','STAFFING','Weekly staffing review'],['w2','Weekly','VEHICLE','Vehicle log reviewed'],['e1','Weekend','SAFETY','Weekend fire panel check'],['m1','Monthly','FINANCE','Resident funds audit'],['m2','Monthly','FACILITY','Monthly environmental review'],['q1','Quarterly','SAFETY','Emergency drill review'],['a1','Annual','COMPLIANCE','Annual rights review'],['a2','Annual','FACILITY','Annual equipment inventory']];
-function read(key,fallback){try{const raw=sessionStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch{return sessionStorage.getItem(key)||fallback}}
-const rawUser=read('hasc_user',{}),profile=typeof rawUser==='object'?rawUser:{name:rawUser};let role=String(sessionStorage.getItem('hasc_role')||profile.role||'rm').toLowerCase();let name=sessionStorage.getItem('hasc_user_name')||sessionStorage.getItem('hasc_name')||profile.full_name||profile.name||'Demo Residence Manager';let homes=read('hasc_homes',['Avenue I - 2802','46th Street - 1771 2nd Fl']);if(!Array.isArray(homes))homes=[];
-let library=DEMO_LIBRARY.slice(),removed=new Set(),done=new Set(),currentHome=homes[0]||'',freq='Daily',signed=false,comment='',client=window.__hascClient||(window.supabase&&window.HASC_CONFIG?window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL,window.HASC_CONFIG.SUPABASE_ANON_KEY):null);
-const workspace=document.getElementById('workspace'),toast=document.getElementById('toast');userName.textContent=name;userRole.textContent=role.toUpperCase();avatar.textContent=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'RM';
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function notify(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1900)}
-async function loadLive(){if(!client)return false;try{const [{data:lib,error:le},{data:off,error:oe},{data:checks,error:ce}]=await Promise.all([client.from('cl_library').select('id,frequency,section,task_name,sort_order').order('sort_order'),client.from('cl_home_off').select('task_id').eq('home_name',currentHome),client.from('cl_done').select('task_id').eq('home_name',currentHome).eq('done_date',nyDate())]);if(le||oe||ce)throw(le||oe||ce);library=(lib||[]).map(t=>[String(t.id),String(t.frequency||''),t.section||'GENERAL',t.task_name]);removed=new Set((off||[]).map(x=>String(x.task_id)));done=new Set((checks||[]).map(x=>`${currentHome}:${x.task_id}`));return true}catch(e){console.warn(e);return false}}
-function assignedOnly(){if(role!=='rm'){workspace.innerHTML='<div class="empty"><h3>RM access only</h3><p>This standalone page is available only to signed-in Residence Managers.</p></div>';return false}if(!homes.length){workspace.innerHTML='<div class="empty"><h3>No assigned residences</h3><p>Your account does not currently have a residence assignment.</p></div>';return false}return true}
-function render(){if(!assignedOnly())return;const tasks=library.filter(t=>String(t[1]).toLowerCase()===freq.toLowerCase()&&!removed.has(String(t[0]))),complete=tasks.filter(t=>done.has(`${currentHome}:${t[0]}`)).length,pct=tasks.length?Math.round(complete/tasks.length*100):0,groups={};tasks.forEach(t=>(groups[t[2]]||(groups[t[2]]=[])).push(t));const now=new Date();workspace.innerHTML=`<div class="homebar"><div class="control"><label>MY ASSIGNED RESIDENCE</label><select id="home">${homes.map(h=>`<option ${h===currentHome?'selected':''}>${esc(h)}</option>`).join('')}</select></div><div class="scope">Only residences assigned to this RM account are shown.</div></div><div class="banner"><div><h3>${esc(currentHome)}</h3><p>${esc(name)} · Residence Manager</p></div><div class="day"><b>${now.getDate()}</b><span>${now.toLocaleDateString('en-US',{month:'short'}).toUpperCase()}</span></div></div><div class="progress"><div class="progress-top"><b>${freq} checklist progress</b><span>${complete} of ${tasks.length} complete · ${pct}%</span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div></div><div class="freqs">${TYPES.map(f=>`<button class="freq ${f===freq?'active':''}" data-freq="${f}">${f}</button>`).join('')}</div>${Object.keys(groups).map(s=>`<section class="section"><div class="section-title">${esc(s)}</div>${groups[s].map(t=>`<button class="task ${done.has(`${currentHome}:${t[0]}`)?'checked':''}" data-task="${t[0]}"><span class="box"></span><span class="task-name">${esc(t[3])}</span></button>`).join('')}</section>`).join('')||'<div class="empty">No tasks assigned for this checklist.</div>'}<section class="signoff"><div class="signhead">Sign off this checklist</div><div class="signbody"><label for="comments">Any comments?</label><textarea id="comments" placeholder="Add any notes about this checklist…">${esc(comment)}</textarea><div class="cert">I certify that I personally reviewed the information above and checked all items applicable to my residence.</div><button class="signline ${signed?'signed':''}" id="sign">${signed?'Signed by '+esc(name):'Tap here to sign'}</button><div class="actions"><button class="preview" id="preview">Preview / Print</button><button class="submit" id="submit" ${signed&&complete?'':'disabled'}>Submit signed checklist</button></div></div></section>`;
-document.getElementById('home').onchange=async e=>{currentHome=e.target.value;signed=false;await loadLive();render()};document.querySelectorAll('[data-freq]').forEach(b=>b.onclick=()=>{freq=b.dataset.freq;signed=false;render()});document.querySelectorAll('[data-task]').forEach(b=>b.onclick=async()=>{const key=`${currentHome}:${b.dataset.task}`;done.has(key)?done.delete(key):done.add(key);render();notify(client?'Saved to checklist record.':'Demo checklist updated.')});document.getElementById('comments').oninput=e=>comment=e.target.value;document.getElementById('sign').onclick=()=>{signed=true;render()};document.getElementById('preview').onclick=()=>notify('Checklist preview ready.');document.getElementById('submit').onclick=()=>notify(client?'Signed checklist submitted.':'Demo checklist submitted.')}
-let signatureName='',signatureError='',submitted=false;
-function validFullName(value){const parts=value.trim().replace(/\s+/g,' ').split(' ').filter(Boolean);return parts.length>=2&&parts.every(p=>p.replace(/[.'’-]/g,'').length>=2&&/^[A-Za-zÀ-ÖØ-öø-ÿ.'’-]+$/.test(p))}
-function renderStandalone(){if(!assignedOnly())return;const tasks=library.filter(t=>String(t[1]).toLowerCase()===freq.toLowerCase()&&!removed.has(String(t[0]))),complete=tasks.filter(t=>done.has(`${currentHome}:${t[0]}`)).length,pct=tasks.length?Math.round(complete/tasks.length*100):0,groups={};tasks.forEach(t=>(groups[t[2]]||(groups[t[2]]=[])).push(t));const now=new Date();workspace.innerHTML=`<div class="homebar"><div class="control"><label>MY ASSIGNED RESIDENCE</label><select id="home">${homes.map(h=>`<option ${h===currentHome?'selected':''}>${esc(h)}</option>`).join('')}</select></div><div class="scope">Only residences assigned to this RM account are shown.</div></div><div class="banner"><div><h3>${esc(currentHome)}</h3><p>${esc(name)} · Residence Manager</p></div><div class="day"><b>${now.getDate()}</b><span>${now.toLocaleDateString('en-US',{month:'short'}).toUpperCase()}</span></div></div><div class="progress"><div class="progress-top"><b>${freq} checklist progress</b><span>${complete} of ${tasks.length} complete · ${pct}%</span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div></div><div class="freqs">${TYPES.map(f=>`<button class="freq ${f===freq?'active':''}" data-freq="${f}">${f}</button>`).join('')}</div>${Object.keys(groups).map(s=>`<section class="section"><div class="section-title">${esc(s)}</div>${groups[s].map(t=>`<button class="task ${done.has(`${currentHome}:${t[0]}`)?'checked':''}" data-task="${t[0]}"><span class="box"></span><span class="task-name">${esc(t[3])}</span></button>`).join('')}</section>`).join('')||'<div class="empty">No tasks assigned for this checklist.</div>'}<section class="signoff"><div class="signhead">Sign off this checklist</div><div class="signbody"><label for="comments">Any comments?</label><textarea id="comments" placeholder="Add any notes about this checklist…">${esc(comment)}</textarea><div class="cert">I certify that I personally reviewed the information above and checked all items applicable to my residence.</div><label for="signatureName">Enter your full legal name</label><div class="signature-entry"><input id="signatureName" autocomplete="name" placeholder="First name and last name" value="${esc(signatureName)}" ${submitted?'disabled':''}><button class="create-signature" id="createSignature" ${submitted?'disabled':''}>Create digital signature</button></div><div class="signature-help ${signatureError?'signature-error':''}">${signatureError||'Initials and single names are not accepted. Enter at least a complete first and last name.'}</div>${signatureName&&!signatureError?`<div class="digital-signature"><small>Digital signature</small><strong>${esc(signatureName)}</strong></div>`:''}<div class="actions"><button class="submit" id="submit" ${signatureName&&!signatureError&&complete&&!submitted?'':'disabled'}>${submitted?'✓ Checklist submitted':'Submit signed checklist'}</button></div>${submitted?'<div class="submitted-copy"><span>Submission complete. You may now keep a copy for your records.</span><button id="printCopy">Print / Save a Copy</button></div>':''}</div></section>`;document.getElementById('home').onchange=async e=>{currentHome=e.target.value;signatureName='';signatureError='';submitted=false;await loadLive();renderStandalone()};document.querySelectorAll('[data-freq]').forEach(b=>b.onclick=()=>{freq=b.dataset.freq;signatureName='';signatureError='';submitted=false;renderStandalone()});document.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{const key=`${currentHome}:${b.dataset.task}`;done.has(key)?done.delete(key):done.add(key);submitted=false;renderStandalone();notify(client?'Saved to checklist record.':'Demo checklist updated.')});document.getElementById('comments').oninput=e=>{comment=e.target.value;submitted=false};document.getElementById('signatureName').oninput=e=>{signatureName=e.target.value;signatureError='';submitted=false};document.getElementById('createSignature').onclick=()=>{signatureName=document.getElementById('signatureName').value.trim().replace(/\s+/g,' ');signatureError=validFullName(signatureName)?'':'Enter a complete first and last name. Initials such as AJ or SS cannot be used as a signature.';submitted=false;renderStandalone()};document.getElementById('submit').onclick=()=>{submitted=true;renderStandalone();notify(client?'Signed checklist submitted.':'Demo checklist submitted.')};const printCopy=document.getElementById('printCopy');if(printCopy)printCopy.onclick=()=>window.print()}
-function nyDate(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),map={};parts.forEach(p=>map[p.type]=p.value);return `${map.year}-${map.month}-${map.day}`}
-let activeNyDate=nyDate();
-function demoDoneKey(){return `hasc-rm-done:${activeNyDate}:${currentHome}`}
-function loadDemoToday(){try{done=new Set((JSON.parse(localStorage.getItem(demoDoneKey())||'[]')).map(id=>`${currentHome}:${id}`))}catch{done=new Set()}}
-function saveDemoToday(){try{localStorage.setItem(demoDoneKey(),JSON.stringify([...done].filter(key=>key.startsWith(`${currentHome}:`)).map(key=>key.slice(currentHome.length+1))))}catch{}}
-async function persistTask(taskId,checked){if(!client){saveDemoToday();return true}try{if(checked){const {error}=await client.from('cl_done').insert({home_name:currentHome,task_id:taskId,done_by:name,done_date:activeNyDate});if(error)throw error}else{const {error}=await client.from('cl_done').delete().eq('home_name',currentHome).eq('task_id',taskId).eq('done_date',activeNyDate);if(error)throw error}return true}catch(e){console.warn(e);return false}}
-const baseRenderStandalone=renderStandalone;
-renderStandalone=function(){baseRenderStandalone();const homeSelect=document.getElementById('home');if(homeSelect)homeSelect.onchange=async e=>{currentHome=e.target.value;signatureName='';signatureError='';submitted=false;if(client)await loadLive();else loadDemoToday();renderStandalone()};document.querySelectorAll('[data-task]').forEach(button=>button.onclick=async()=>{const taskId=button.dataset.task,key=`${currentHome}:${taskId}`,wasChecked=done.has(key);wasChecked?done.delete(key):done.add(key);submitted=false;renderStandalone();const saved=await persistTask(taskId,!wasChecked);if(!saved){wasChecked?done.add(key):done.delete(key);renderStandalone();notify('Could not save this check-off.')}else notify(client?'Saved for today.':'Demo check-off saved for today.')})}
-function activeSubmission(){const tasks=library.filter(t=>String(t[1]).toLowerCase()===freq.toLowerCase()&&!removed.has(String(t[0])));return{tasks,completed:tasks.filter(t=>done.has(`${currentHome}:${t[0]}`))}}
-async function submitChecklistRecord(){const record=activeSubmission();if(!client)return true;try{const {error}=await client.from('cl_submissions').insert({home_name:currentHome,submitted_by:signatureName,frequency:freq.toLowerCase(),tasks_done:record.completed.length,tasks_total:record.tasks.length,comments:comment||null,signature:signatureName,tasks_json:{frequency:freq.toLowerCase(),items:record.tasks.map(t=>({id:t[0],name:t[3],done:done.has(`${currentHome}:${t[0]}`)}))}});if(error)throw error;return true}catch(e){console.warn(e);return false}}
-const persistedRenderStandalone=renderStandalone;
-renderStandalone=function(){persistedRenderStandalone();const submitButton=document.getElementById('submit');if(submitButton&&!submitted)submitButton.onclick=async()=>{submitButton.disabled=true;submitButton.textContent='Submitting…';const saved=await submitChecklistRecord();if(!saved){submitButton.disabled=false;submitButton.textContent='Submit signed checklist';notify('Could not submit the signed checklist.');return}submitted=true;renderStandalone();notify(client?'Signed checklist submitted to Supabase.':'Demo checklist submitted.')}}
-async function resetAtNewYorkMidnight(){const nextDate=nyDate();if(nextDate===activeNyDate)return;activeNyDate=nextDate;signatureName='';signatureError='';submitted=false;comment='';if(client)await loadLive();else loadDemoToday();renderStandalone();notify('A new NYC day has started. The daily checklist was reset.')}
-async function loadAssignedHomes(){if(!client)return;try{const session=await client.auth.getSession(),email=session?.data?.session?.user?.email;if(!email)return;const [homeResult,profileResult]=await Promise.all([client.from('cl_homes').select('home_name').eq('rm_email',email).order('home_name'),client.from('profiles').select('full_name,role').eq('email',email).maybeSingle()]);if(homeResult.error)throw homeResult.error;homes=(homeResult.data||[]).map(row=>row.home_name).filter(Boolean);currentHome=homes[0]||'';if(profileResult.data?.full_name){name=profileResult.data.full_name;userName.textContent=name;avatar.textContent=name.split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase()||'RM'}if(profileResult.data?.role){role=String(profileResult.data.role).toLowerCase();userRole.textContent=role.toUpperCase()}}catch(e){console.warn(e)}}
-async function boot(){if(role==='rm'){await loadAssignedHomes();if(homes.length){if(client)await loadLive();else loadDemoToday()}}renderStandalone()}function clockNow(){const n=new Date();today.textContent=n.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});clock.textContent=n.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}clockNow();setInterval(clockNow,30000);setInterval(resetAtNewYorkMidnight,30000);boot();
+
+/* =========================================================
+   CHECKLIST CONFIG
+   ========================================================= */
+
+const TYPES = [
+  'Daily',
+  'Weekly',
+  'Weekend',
+  'Monthly',
+  'Quarterly',
+  'Annual'
+];
+
+
+const DEMO_LIBRARY = [
+
+  [
+    'd1',
+    'Daily',
+    'MEDICATION',
+    'Medication count verified'
+  ],
+
+  [
+    'd2',
+    'Daily',
+    'HOUSE',
+    'House log signed'
+  ],
+
+  [
+    'd3',
+    'Daily',
+    'SAFETY',
+    'Shift safety walkthrough'
+  ],
+
+  [
+    'w1',
+    'Weekly',
+    'STAFFING',
+    'Weekly staffing review'
+  ],
+
+  [
+    'w2',
+    'Weekly',
+    'VEHICLE',
+    'Vehicle log reviewed'
+  ],
+
+  [
+    'e1',
+    'Weekend',
+    'SAFETY',
+    'Weekend fire panel check'
+  ],
+
+  [
+    'm1',
+    'Monthly',
+    'FINANCE',
+    'Resident funds audit'
+  ],
+
+  [
+    'm2',
+    'Monthly',
+    'FACILITY',
+    'Monthly environmental review'
+  ],
+
+  [
+    'q1',
+    'Quarterly',
+    'SAFETY',
+    'Emergency drill review'
+  ],
+
+  [
+    'a1',
+    'Annual',
+    'COMPLIANCE',
+    'Annual rights review'
+  ],
+
+  [
+    'a2',
+    'Annual',
+    'FACILITY',
+    'Annual equipment inventory'
+  ]
+
+];
+
+
+/* =========================================================
+   SESSION HELPERS
+   ========================================================= */
+
+function read(key,fallback){
+
+  try{
+
+    const raw =
+      sessionStorage.getItem(key);
+
+    return raw === null
+      ? fallback
+      : JSON.parse(raw);
+
+  }catch{
+
+    return (
+      sessionStorage.getItem(key)
+      || fallback
+    );
+
+  }
+
+}
+
+
+const rawUser =
+  read(
+    'hasc_user',
+    {}
+  );
+
+
+const profile =
+  typeof rawUser === 'object'
+    ? rawUser
+    : {
+        name:rawUser
+      };
+
+
+let role = String(
+
+  sessionStorage.getItem(
+    'hasc_role'
+  )
+
+  ||
+
+  profile.role
+
+  ||
+
+  'rm'
+
+).toLowerCase();
+
+
+let name =
+
+  sessionStorage.getItem(
+    'hasc_user_name'
+  )
+
+  ||
+
+  sessionStorage.getItem(
+    'hasc_name'
+  )
+
+  ||
+
+  profile.full_name
+
+  ||
+
+  profile.name
+
+  ||
+
+  'Residence Manager';
+
+
+let homes =
+  read(
+    'hasc_homes',
+    []
+  );
+
+
+if(
+  !Array.isArray(homes)
+){
+
+  homes = [];
+
+}
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+let library =
+  DEMO_LIBRARY.slice();
+
+
+let removed =
+  new Set();
+
+
+let done =
+  new Set();
+
+
+let currentHome =
+  homes[0] || '';
+
+
+let freq =
+  'Daily';
+
+
+let comment = '';
+
+
+let signatureName = '';
+
+
+let signatureError = '';
+
+
+let submitted =
+  false;
+
+
+let activeNyDate =
+  nyDate();
+
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
+const client =
+
+  window.__hascClient
+
+  ||
+
+  (
+    window.supabase
+    &&
+    window.HASC_CONFIG
+
+      ? window.supabase.createClient(
+          window.HASC_CONFIG.SUPABASE_URL,
+          window.HASC_CONFIG.SUPABASE_ANON_KEY
+        )
+
+      : null
+  );
+
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+const workspace =
+  document.getElementById(
+    'workspace'
+  );
+
+
+const toast =
+  document.getElementById(
+    'toast'
+  );
+
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+
+function esc(value){
+
+  return String(
+    value ?? ''
+  ).replace(
+
+    /[&<>"']/g,
+
+    char => ({
+
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
+
+    }[char])
+
+  );
+
+}
+
+
+function notify(message){
+
+  toast.textContent =
+    message;
+
+  toast.classList.add(
+    'show'
+  );
+
+  setTimeout(
+    () => {
+
+      toast.classList.remove(
+        'show'
+      );
+
+    },
+    1900
+  );
+
+}
+
+
+/* =========================================================
+   NEW YORK DATE
+   ========================================================= */
+
+function nyDate(){
+
+  const parts =
+    new Intl.DateTimeFormat(
+
+      'en-CA',
+
+      {
+
+        timeZone:
+          'America/New_York',
+
+        year:
+          'numeric',
+
+        month:
+          '2-digit',
+
+        day:
+          '2-digit'
+
+      }
+
+    ).formatToParts(
+      new Date()
+    );
+
+
+  const map = {};
+
+
+  parts.forEach(
+    part => {
+
+      map[part.type] =
+        part.value;
+
+    }
+  );
+
+
+  return (
+    `${map.year}-${map.month}-${map.day}`
+  );
+
+}
+
+
+/* =========================================================
+   ACCESS
+   ========================================================= */
+
+function assignedOnly(){
+
+  if(
+    role !== 'rm'
+  ){
+
+    workspace.innerHTML = `
+
+      <div class="empty">
+
+        <h3>
+          RM access only
+        </h3>
+
+        <p>
+          This checklist workspace is currently assigned to Residence Managers.
+        </p>
+
+      </div>
+
+    `;
+
+    return false;
+
+  }
+
+
+  if(
+    !homes.length
+  ){
+
+    workspace.innerHTML = `
+
+      <div class="empty">
+
+        <h3>
+          No assigned residences
+        </h3>
+
+        <p>
+          Your account does not currently have a residence assignment.
+        </p>
+
+      </div>
+
+    `;
+
+    return false;
+
+  }
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   LOAD ASSIGNED RESIDENCES
+   ========================================================= */
+
+async function loadAssignedHomes(){
+
+  if(
+    !client
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    const sessionResult =
+      await client.auth.getSession();
+
+
+    const email =
+
+      sessionResult
+        ?.data
+        ?.session
+        ?.user
+        ?.email;
+
+
+    if(
+      !email
+    ){
+
+      return;
+
+    }
+
+
+    const [
+      homeResult,
+      profileResult
+    ] = await Promise.all([
+
+      client
+        .from('cl_homes')
+        .select('home_name')
+        .eq(
+          'rm_email',
+          email
+        )
+        .order(
+          'home_name'
+        ),
+
+      client
+        .from('profiles')
+        .select(
+          'full_name,role'
+        )
+        .eq(
+          'email',
+          email
+        )
+        .maybeSingle()
+
+    ]);
+
+
+    if(
+      homeResult.error
+    ){
+
+      throw homeResult.error;
+
+    }
+
+
+    homes = (
+      homeResult.data || []
+    )
+      .map(
+        row => row.home_name
+      )
+      .filter(Boolean);
+
+
+    currentHome =
+      homes[0] || '';
+
+
+    if(
+      profileResult
+        .data
+        ?.full_name
+    ){
+
+      name =
+        profileResult
+          .data
+          .full_name;
+
+    }
+
+
+    if(
+      profileResult
+        .data
+        ?.role
+    ){
+
+      role = String(
+        profileResult
+          .data
+          .role
+      ).toLowerCase();
+
+    }
+
+  }catch(error){
+
+    console.warn(
+      'Could not load assigned residences.',
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD CHECKLIST DATA
+   ========================================================= */
+
+async function loadLive(){
+
+  if(
+    !client
+    ||
+    !currentHome
+  ){
+
+    return false;
+
+  }
+
+
+  try{
+
+    const [
+      libraryResult,
+      disabledResult,
+      doneResult
+    ] = await Promise.all([
+
+      client
+        .from('cl_library')
+        .select(
+          'id,frequency,section,task_name,sort_order'
+        )
+        .order(
+          'sort_order'
+        ),
+
+      client
+        .from('cl_home_off')
+        .select(
+          'task_id'
+        )
+        .eq(
+          'home_name',
+          currentHome
+        ),
+
+      client
+        .from('cl_done')
+        .select(
+          'task_id'
+        )
+        .eq(
+          'home_name',
+          currentHome
+        )
+        .eq(
+          'done_date',
+          activeNyDate
+        )
+
+    ]);
+
+
+    if(
+      libraryResult.error
+      ||
+      disabledResult.error
+      ||
+      doneResult.error
+    ){
+
+      throw (
+        libraryResult.error
+        ||
+        disabledResult.error
+        ||
+        doneResult.error
+      );
+
+    }
+
+
+    library =
+      (
+        libraryResult.data
+        ||
+        []
+      ).map(
+
+        task => [
+
+          String(task.id),
+
+          String(
+            task.frequency || ''
+          ),
+
+          task.section
+            || 'GENERAL',
+
+          task.task_name
+
+        ]
+
+      );
+
+
+    removed =
+      new Set(
+
+        (
+          disabledResult.data
+          ||
+          []
+        ).map(
+
+          item =>
+            String(
+              item.task_id
+            )
+
+        )
+
+      );
+
+
+    done =
+      new Set(
+
+        (
+          doneResult.data
+          ||
+          []
+        ).map(
+
+          item =>
+            `${currentHome}:${item.task_id}`
+
+        )
+
+      );
+
+
+    return true;
+
+  }catch(error){
+
+    console.warn(
+      'Could not load live checklist data.',
+      error
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   LOCAL DEMO STORAGE
+   ========================================================= */
+
+function demoDoneKey(){
+
+  return (
+    `hasc-rm-done:${activeNyDate}:${currentHome}`
+  );
+
+}
+
+
+function loadDemoToday(){
+
+  try{
+
+    done = new Set(
+
+      (
+        JSON.parse(
+          localStorage.getItem(
+            demoDoneKey()
+          )
+          ||
+          '[]'
+        )
+      ).map(
+
+        id =>
+          `${currentHome}:${id}`
+
+      )
+
+    );
+
+  }catch{
+
+    done =
+      new Set();
+
+  }
+
+}
+
+
+function saveDemoToday(){
+
+  try{
+
+    localStorage.setItem(
+
+      demoDoneKey(),
+
+      JSON.stringify(
+
+        [
+          ...done
+        ]
+          .filter(
+
+            key =>
+              key.startsWith(
+                `${currentHome}:`
+              )
+
+          )
+          .map(
+
+            key =>
+              key.slice(
+                currentHome.length + 1
+              )
+
+          )
+
+      )
+
+    );
+
+  }catch{}
+
+}
+
+
+/* =========================================================
+   TASK PERSISTENCE
+   ========================================================= */
+
+async function persistTask(
+  taskId,
+  checked
+){
+
+  if(
+    !client
+  ){
+
+    saveDemoToday();
+
+    return true;
+
+  }
+
+
+  try{
+
+    if(
+      checked
+    ){
+
+      const {
+        error
+      } =
+        await client
+          .from('cl_done')
+          .insert({
+
+            home_name:
+              currentHome,
+
+            task_id:
+              taskId,
+
+            done_by:
+              name,
+
+            done_date:
+              activeNyDate
+
+          });
+
+
+      if(
+        error
+      ){
+
+        throw error;
+
+      }
+
+    }else{
+
+      const {
+        error
+      } =
+        await client
+          .from('cl_done')
+          .delete()
+          .eq(
+            'home_name',
+            currentHome
+          )
+          .eq(
+            'task_id',
+            taskId
+          )
+          .eq(
+            'done_date',
+            activeNyDate
+          );
+
+
+      if(
+        error
+      ){
+
+        throw error;
+
+      }
+
+    }
+
+
+    return true;
+
+  }catch(error){
+
+    console.warn(
+      'Could not save checklist task.',
+      error
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   SIGNATURE VALIDATION
+   ========================================================= */
+
+function validFullName(value){
+
+  const parts =
+    value
+      .trim()
+      .replace(
+        /\s+/g,
+        ' '
+      )
+      .split(' ')
+      .filter(Boolean);
+
+
+  return (
+
+    parts.length >= 2
+
+    &&
+
+    parts.every(
+
+      part =>
+
+        part
+          .replace(
+            /[.'’-]/g,
+            ''
+          )
+          .length >= 2
+
+        &&
+
+        /^[A-Za-zÀ-ÖØ-öø-ÿ.'’-]+$/
+          .test(part)
+
+    )
+
+  );
+
+}
+
+
+/* =========================================================
+   ACTIVE SUBMISSION
+   ========================================================= */
+
+function activeSubmission(){
+
+  const tasks =
+    library.filter(
+
+      task =>
+
+        String(
+          task[1]
+        ).toLowerCase()
+
+        ===
+
+        freq.toLowerCase()
+
+        &&
+
+        !removed.has(
+          String(
+            task[0]
+          )
+        )
+
+    );
+
+
+  return {
+
+    tasks,
+
+    completed:
+      tasks.filter(
+
+        task =>
+          done.has(
+            `${currentHome}:${task[0]}`
+          )
+
+      )
+
+  };
+
+}
+
+
+/* =========================================================
+   SUBMIT CHECKLIST
+   ========================================================= */
+
+async function submitChecklistRecord(){
+
+  const record =
+    activeSubmission();
+
+
+  if(
+    !client
+  ){
+
+    return true;
+
+  }
+
+
+  try{
+
+    const {
+      error
+    } =
+      await client
+        .from('cl_submissions')
+        .insert({
+
+          home_name:
+            currentHome,
+
+          submitted_by:
+            signatureName,
+
+          frequency:
+            freq.toLowerCase(),
+
+          tasks_done:
+            record.completed.length,
+
+          tasks_total:
+            record.tasks.length,
+
+          comments:
+            comment || null,
+
+          signature:
+            signatureName,
+
+          tasks_json:{
+
+            frequency:
+              freq.toLowerCase(),
+
+            items:
+              record.tasks.map(
+
+                task => ({
+
+                  id:
+                    task[0],
+
+                  name:
+                    task[3],
+
+                  done:
+                    done.has(
+                      `${currentHome}:${task[0]}`
+                    )
+
+                })
+
+              )
+
+          }
+
+        });
+
+
+    if(
+      error
+    ){
+
+      throw error;
+
+    }
+
+
+    return true;
+
+  }catch(error){
+
+    console.warn(
+      'Could not submit checklist.',
+      error
+    );
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function render(){
+
+  if(
+    !assignedOnly()
+  ){
+
+    return;
+
+  }
+
+
+  const tasks =
+    library.filter(
+
+      task =>
+
+        String(
+          task[1]
+        ).toLowerCase()
+
+        ===
+
+        freq.toLowerCase()
+
+        &&
+
+        !removed.has(
+          String(
+            task[0]
+          )
+        )
+
+    );
+
+
+  const complete =
+    tasks.filter(
+
+      task =>
+        done.has(
+          `${currentHome}:${task[0]}`
+        )
+
+    ).length;
+
+
+  const groups = {};
+
+
+  tasks.forEach(
+
+    task => {
+
+      const section =
+        task[2]
+        ||
+        'GENERAL';
+
+
+      if(
+        !groups[section]
+      ){
+
+        groups[section] = [];
+
+      }
+
+
+      groups[section]
+        .push(task);
+
+    }
+
+  );
+
+
+  const now =
+    new Date();
+
+
+  workspace.innerHTML = `
+
+    <div class="homebar">
+
+      <div class="control">
+
+        <label>
+          MY ASSIGNED RESIDENCE
+        </label>
+
+        <select id="homeSelect">
+
+          ${homes.map(
+
+            home => `
+
+              <option
+                value="${esc(home)}"
+                ${home === currentHome ? 'selected' : ''}
+              >
+                ${esc(home)}
+              </option>
+
+            `
+
+          ).join('')}
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="banner">
+
+      <div>
+
+        <h3>
+          ${esc(currentHome)}
+        </h3>
+
+        <p>
+          ${esc(name)} · Residence Manager
+        </p>
+
+      </div>
+
+
+      <div class="day">
+
+        <b>
+          ${now.getDate()}
+        </b>
+
+        <span>
+
+          ${now
+            .toLocaleDateString(
+              'en-US',
+              {
+                month:'short'
+              }
+            )
+            .toUpperCase()
+          }
+
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="freqs">
+
+      ${TYPES.map(
+
+        type => `
+
+          <button
+            class="freq ${type === freq ? 'active' : ''}"
+            data-frequency="${esc(type)}"
+          >
+            ${esc(type)}
+          </button>
+
+        `
+
+      ).join('')}
+
+    </div>
+
+
+    ${Object.keys(groups).map(
+
+      section => `
+
+        <section class="section">
+
+          <div class="section-title">
+            ${esc(section)}
+          </div>
+
+          ${groups[section].map(
+
+            task => {
+
+              const checked =
+                done.has(
+                  `${currentHome}:${task[0]}`
+                );
+
+
+              return `
+
+                <button
+                  class="task ${checked ? 'checked' : ''}"
+                  data-task="${esc(task[0])}"
+                >
+
+                  <span class="box"></span>
+
+                  <span class="task-name">
+                    ${esc(task[3])}
+                  </span>
+
+                </button>
+
+              `;
+
+            }
+
+          ).join('')}
+
+        </section>
+
+      `
+
+    ).join('')
+
+    ||
+
+    `
+
+      <div class="empty">
+
+        No tasks assigned for this checklist.
+
+      </div>
+
+    `}
+
+
+    <section class="signoff">
+
+      <div class="sign-head">
+        Sign off this checklist
+      </div>
+
+
+      <div class="sign-body">
+
+        <label for="comments">
+          Any comments?
+        </label>
+
+
+        <textarea
+          id="comments"
+          placeholder="Add any notes about this checklist…"
+        >${esc(comment)}</textarea>
+
+
+        <div class="cert">
+
+          I certify that I personally reviewed the information above
+          and checked all items applicable to my residence.
+
+        </div>
+
+
+        <label for="signatureName">
+          Enter your full legal name
+        </label>
+
+
+        <div class="signature-entry">
+
+          <input
+            id="signatureName"
+            autocomplete="name"
+            placeholder="First name and last name"
+            value="${esc(signatureName)}"
+            ${submitted ? 'disabled' : ''}
+          >
+
+
+          <button
+            class="create-signature"
+            id="createSignature"
+            ${submitted ? 'disabled' : ''}
+          >
+            Create digital signature
+          </button>
+
+        </div>
+
+
+        <div
+          class="signature-help ${signatureError ? 'signature-error' : ''}"
+        >
+
+          ${signatureError
+
+            ||
+
+            'Initials and single names are not accepted. Enter at least a complete first and last name.'
+
+          }
+
+        </div>
+
+
+        ${signatureName && !signatureError
+
+          ? `
+
+              <div class="digital-signature">
+
+                <small>
+                  Digital signature
+                </small>
+
+                <strong>
+                  ${esc(signatureName)}
+                </strong>
+
+              </div>
+
+            `
+
+          : ''
+
+        }
+
+
+        <div class="actions">
+
+          <button
+            class="submit"
+            id="submitChecklist"
+            ${
+              signatureName
+              &&
+              !signatureError
+              &&
+              complete
+              &&
+              !submitted
+
+                ? ''
+
+                : 'disabled'
+            }
+          >
+
+            ${
+              submitted
+
+                ? '✓ Checklist submitted'
+
+                : 'Submit signed checklist'
+            }
+
+          </button>
+
+        </div>
+
+
+        ${submitted
+
+          ? `
+
+              <div class="submitted-copy">
+
+                <span>
+                  Submission complete. You may now keep a copy for your records.
+                </span>
+
+                <button id="printCopy">
+                  Print / Save a Copy
+                </button>
+
+              </div>
+
+            `
+
+          : ''
+
+        }
+
+      </div>
+
+    </section>
+
+  `;
+
+
+  bindEvents();
+
+}
+
+
+/* =========================================================
+   EVENT BINDINGS
+   ========================================================= */
+
+function bindEvents(){
+
+  const homeSelect =
+    document.getElementById(
+      'homeSelect'
+    );
+
+
+  if(
+    homeSelect
+  ){
+
+    homeSelect.onchange =
+      async event => {
+
+        currentHome =
+          event.target.value;
+
+
+        signatureName = '';
+        signatureError = '';
+        submitted = false;
+        comment = '';
+
+
+        if(
+          client
+        ){
+
+          await loadLive();
+
+        }else{
+
+          loadDemoToday();
+
+        }
+
+
+        render();
+
+      };
+
+  }
+
+
+  document
+    .querySelectorAll(
+      '[data-frequency]'
+    )
+    .forEach(
+
+      button => {
+
+        button.onclick =
+          () => {
+
+            freq =
+              button.dataset.frequency;
+
+
+            signatureName = '';
+            signatureError = '';
+            submitted = false;
+
+
+            render();
+
+          };
+
+      }
+
+    );
+
+
+  document
+    .querySelectorAll(
+      '[data-task]'
+    )
+    .forEach(
+
+      button => {
+
+        button.onclick =
+          async () => {
+
+            const taskId =
+              button.dataset.task;
+
+
+            const key =
+              `${currentHome}:${taskId}`;
+
+
+            const wasChecked =
+              done.has(key);
+
+
+            if(
+              wasChecked
+            ){
+
+              done.delete(key);
+
+            }else{
+
+              done.add(key);
+
+            }
+
+
+            submitted = false;
+
+
+            render();
+
+
+            const saved =
+              await persistTask(
+                taskId,
+                !wasChecked
+              );
+
+
+            if(
+              !saved
+            ){
+
+              if(
+                wasChecked
+              ){
+
+                done.add(key);
+
+              }else{
+
+                done.delete(key);
+
+              }
+
+
+              render();
+
+
+              notify(
+                'Could not save this check-off.'
+              );
+
+
+              return;
+
+            }
+
+
+            notify(
+              client
+                ? 'Saved for today.'
+                : 'Demo check-off saved for today.'
+            );
+
+          };
+
+      }
+
+    );
+
+
+  const comments =
+    document.getElementById(
+      'comments'
+    );
+
+
+  if(
+    comments
+  ){
+
+    comments.oninput =
+      event => {
+
+        comment =
+          event.target.value;
+
+        submitted =
+          false;
+
+      };
+
+  }
+
+
+  const signatureInput =
+    document.getElementById(
+      'signatureName'
+    );
+
+
+  if(
+    signatureInput
+  ){
+
+    signatureInput.oninput =
+      event => {
+
+        signatureName =
+          event.target.value;
+
+        signatureError =
+          '';
+
+        submitted =
+          false;
+
+      };
+
+  }
+
+
+  const createSignature =
+    document.getElementById(
+      'createSignature'
+    );
+
+
+  if(
+    createSignature
+  ){
+
+    createSignature.onclick =
+      () => {
+
+        const input =
+          document.getElementById(
+            'signatureName'
+          );
+
+
+        signatureName =
+          input
+            .value
+            .trim()
+            .replace(
+              /\s+/g,
+              ' '
+            );
+
+
+        signatureError =
+          validFullName(
+            signatureName
+          )
+
+            ? ''
+
+            : 'Enter a complete first and last name. Initials such as AJ or SS cannot be used as a signature.';
+
+
+        submitted =
+          false;
+
+
+        render();
+
+      };
+
+  }
+
+
+  const submitButton =
+    document.getElementById(
+      'submitChecklist'
+    );
+
+
+  if(
+    submitButton
+    &&
+    !submitted
+  ){
+
+    submitButton.onclick =
+      async () => {
+
+        submitButton.disabled =
+          true;
+
+
+        submitButton.textContent =
+          'Submitting…';
+
+
+        const saved =
+          await submitChecklistRecord();
+
+
+        if(
+          !saved
+        ){
+
+          submitButton.disabled =
+            false;
+
+
+          submitButton.textContent =
+            'Submit signed checklist';
+
+
+          notify(
+            'Could not submit the signed checklist.'
+          );
+
+
+          return;
+
+        }
+
+
+        submitted =
+          true;
+
+
+        render();
+
+
+        notify(
+          client
+
+            ? 'Signed checklist submitted to Supabase.'
+
+            : 'Demo checklist submitted.'
+        );
+
+      };
+
+  }
+
+
+  const printCopy =
+    document.getElementById(
+      'printCopy'
+    );
+
+
+  if(
+    printCopy
+  ){
+
+    printCopy.onclick =
+      () => {
+
+        window.print();
+
+      };
+
+  }
+
+}
+
+
+/* =========================================================
+   MIDNIGHT RESET
+   ========================================================= */
+
+async function resetAtNewYorkMidnight(){
+
+  const nextDate =
+    nyDate();
+
+
+  if(
+    nextDate === activeNyDate
+  ){
+
+    return;
+
+  }
+
+
+  activeNyDate =
+    nextDate;
+
+
+  signatureName = '';
+  signatureError = '';
+  submitted = false;
+  comment = '';
+
+
+  if(
+    client
+  ){
+
+    await loadLive();
+
+  }else{
+
+    loadDemoToday();
+
+  }
+
+
+  render();
+
+
+  notify(
+    'A new NYC day has started. The daily checklist was reset.'
+  );
+
+}
+
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+
+async function boot(){
+
+  if(
+    role === 'rm'
+  ){
+
+    await loadAssignedHomes();
+
+
+    if(
+      homes.length
+    ){
+
+      if(
+        client
+      ){
+
+        await loadLive();
+
+      }else{
+
+        loadDemoToday();
+
+      }
+
+    }
+
+  }
+
+
+  render();
+
+}
+
+
+setInterval(
+  resetAtNewYorkMidnight,
+  30000
+);
+
+
+boot();
+
 </script>
+
 </body>
 </html>
