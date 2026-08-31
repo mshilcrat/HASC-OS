@@ -9,20 +9,26 @@ window.HASC_CONFIG = {
 
 /* HASC live updates: re-fetch + re-render whenever watched tables change */
 (function(){
-    var WATCH = ['resi_individuals','resi_ledger_accounts','resi_ledger_entries','cl_submissions','cl_tasks','cl_done','certificates','training_sessions','profiles','cl_homes'];
-    function reload(){h
-          try{ if(typeof window.sbLoadLedgers==='function'){ Promise.resolve(window.sbLoadLedgers()).then(function(){ if(typeof window.renderLedgers==='function') window.renderLedgers(); }); } }catch(e){}
-          var fns = ['loadIndividuals','renderLedgers','renderChecklists','loadChecklistSummary','renderTraining','renderDashboard','renderDayHabCounts','renderIndividuals'];
-          fns.forEach(function(n){ try{ if(typeof window[n]==='function') window[n](); }catch(e){} });
-    }
-    var t = setInterval(function(){
-          var sb = window.__hascClient;
-          if(!sb || typeof sb.channel!=='function') return;
-          clearInterval(t);
-          window.__hascLive = WATCH.map(function(tbl){
-                  return sb.channel('hasc-live-'+tbl).on('postgres_changes', { event:'*', schema:'public', table:tbl }, function(){ reload(); }).subscribe();
-          });
-    }, 300);
+var WATCH = ['resi_individuals','resi_ledger_accounts','resi_ledger_entries','cl_submissions','cl_tasks','cl_done','cl_library','cl_home_off','cl_approved_time_off','certificates','training_sessions','profiles','cl_homes'];
+function reload(){
+try{ if(typeof window.sbLoadLedgers==='function'){ Promise.resolve(window.sbLoadLedgers()).then(function(){ if(typeof window.renderLedgers==='function') window.renderLedgers(); }); } }catch(e){ console.warn('HASC live reload (ledgers) failed', e); }
+var fns = ['loadIndividuals','renderLedgers','renderChecklists','loadChecklistSummary','renderTraining','renderDashboard','renderDayHabCounts','renderIndividuals'];
+fns.forEach(function(n){ try{ if(typeof window[n]==='function') window[n](); }catch(e){ console.warn('HASC live reload ('+n+') failed', e); } });
+/* page-specific checklist refresh hook (management / RM pages provide their own) */
+try{ if(typeof window.__hascChecklistRefresh==='function') window.__hascChecklistRefresh(); }catch(e){ console.warn('HASC live checklist refresh failed', e); }
+}
+var reloadT=null;
+function reloadDebounced(){ if(reloadT) clearTimeout(reloadT); reloadT=setTimeout(function(){ reloadT=null; reload(); }, 200); }
+var t = setInterval(function(){
+var sb = window.__hascClient;
+if(!sb || typeof sb.channel!=='function') return;
+clearInterval(t);
+/* duplicate-channel protection: tear down any channels from a previous init */
+if(Array.isArray(window.__hascLive)){ window.__hascLive.forEach(function(ch){ try{ sb.removeChannel(ch); }catch(e){ console.warn('HASC live removeChannel failed', e); } }); }
+window.__hascLive = WATCH.map(function(tbl){
+return sb.channel('hasc-live-'+tbl).on('postgres_changes', { event:'*', schema:'public', table:tbl }, function(){ reloadDebounced(); }).subscribe();
+});
+}, 300);
 })();
 
 /* HASC save fix: main app Individuals drawer "Save & Send Live Update" now writes to Supabase */
