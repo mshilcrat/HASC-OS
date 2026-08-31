@@ -36,9 +36,9 @@
 
 /* =========================================================
    MARK 4 EMBEDDED MODULE OVERRIDES
-   The parent Mark 4 index owns the HASC header, app rail,
-   page title/icon, user controls, and workspace spacing.
-   Keep the management UI and its internal module navigation.
+   Parent index.html owns the global HASC header, app rail,
+   app title/icon, logged-in user, and outer workspace spacing.
+   This file owns only the Checklist management application.
    ========================================================= */
 html,body{
   margin:0;
@@ -48,8 +48,8 @@ html,body{
 }
 body{overflow-x:hidden}
 .app{
-  min-height:0 !important;
   display:block !important;
+  min-height:0 !important;
   background:transparent !important;
 }
 .sidebar,.topbar,.backdrop{display:none !important}
@@ -60,12 +60,11 @@ body{overflow-x:hidden}
   margin:0 !important;
   padding:0 !important;
 }
-/* Keep this node in the DOM because the JS updates pageSub/pageTitle,
-   but Mark 4 already renders the visible app heading. */
+/* Mark 4 already shows "Checklists" above the iframe/module. */
 .meta{display:none !important}
 .panel{
-  margin:0;
   width:100%;
+  margin:0;
 }
 @media(max-width:820px){
   .content{padding:0 !important}
@@ -113,7 +112,15 @@ const HOMEOFF_COLS={home:'home_name',task:'task_id'};
 const CLIENT=window.__hascClient||((window.supabase&&window.HASC_CONFIG)?(window.__hascClient=window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL,window.HASC_CONFIG.SUPABASE_ANON_KEY)):null);
 function sessionValue(key){try{return sessionStorage.getItem(key)}catch(e){return null}}
 function sessionJson(key,fallback){const raw=sessionValue(key);if(!raw)return fallback;try{return JSON.parse(raw)}catch(e){return raw}}
-function normalizeRole(value){const r=String(value||'').trim().toLowerCase().replace(/[\s-]+/g,'_');const aliases={administrator:'admin',area_coordinator:'ac',residence_manager:'rm'};return aliases[r]||r}
+function normalizeRole(value){
+ const r=String(value||'').trim().toLowerCase().replace(/[\s-]+/g,'_');
+ const aliases={
+   administrator:'admin',
+   area_coordinator:'ac',
+   residence_manager:'rm'
+ };
+ return aliases[r]||r;
+}
 const SESSION_PROFILE=(()=>{const raw=sessionJson('hasc_user',{})||{},profile=typeof raw==='object'?raw:{name:raw};const role=normalizeRole(sessionValue('hasc_role')||profile.role||'admin');const homesRaw=sessionJson('hasc_homes',[]);const homes=Array.isArray(homesRaw)?homesRaw:[];const name=sessionValue('hasc_user_name')||sessionValue('hasc_name')||profile.full_name||profile.display_name||profile.name||'';return{name,role,homes,allowed:['admin','ac','rm'].includes(role)}})();
 const CHECKLIST_TYPES=['Daily','Weekly','Weekend','Monthly','Quarterly','Annual'];
 let RESIDENCES=[];
