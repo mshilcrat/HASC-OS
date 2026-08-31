@@ -2995,6 +2995,50 @@ async function boot(){
    START
    ========================================================= */
 
+/* =========================================================
+REALTIME REFRESH HOOK
+
+The shared wb-config __hascLive subscription calls this whenever a
+checklist table changes. We reload live data (cl_library / cl_home_off
+/ cl_done / cl_submissions) for the CURRENT residence and re-render,
+preserving the selected residence and frequency tab.
+
+We must never wipe what the RM is typing, so if the comments box or the
+signature field is focused we defer the re-render until they blur.
+========================================================= */
+
+let __hascRefreshing = false;
+
+function __hascChecklistTyping(){
+  const el = document.activeElement;
+  return !!el && (el.id === 'comments' || el.id === 'signatureName');
+}
+
+async function __hascRunChecklistRefresh(){
+  if(!client || !currentHome) return;
+  if(__hascRefreshing) return;
+  __hascRefreshing = true;
+  try{
+    const loaded = await loadLive();
+    if(loaded && !__hascChecklistTyping()) render();
+  }catch(error){
+    console.warn('RM checklist realtime refresh failed:', error);
+  }finally{
+    __hascRefreshing = false;
+  }
+}
+
+window.__hascChecklistRefresh = function(){
+  if(__hascChecklistTyping()){
+    /* RM is mid-typing: refresh once they finish so text/caret is preserved */
+    const el = document.activeElement;
+    const onBlur = () => { el.removeEventListener('blur', onBlur); __hascRunChecklistRefresh(); };
+    el.addEventListener('blur', onBlur, { once:true });
+    return;
+  }
+  __hascRunChecklistRefresh();
+};
+
 setInterval(
   resetAtNewYorkMidnight,
   30000
