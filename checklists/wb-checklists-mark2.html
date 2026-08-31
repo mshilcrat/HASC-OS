@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="HASC Mark 4 Checklist approved leave visual proposal using sample data only.">
-<title>Checklist Insights — Approved Leave Proposal</title>
+<meta name="description" content="HASC Mark 4 Checklist management module.">
+<title>HASC — Checklist Management</title>
 <style>
 @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:500;font-display:swap;src:url('assets/plus-jakarta-500.woff2') format('woff2')}
 @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:600;font-display:swap;src:url('assets/plus-jakarta-600.woff2') format('woff2')}
@@ -33,6 +33,45 @@
 @media(max-width:1100px){.topbar{padding:0 24px}.datetime,.user{display:none}.summary{grid-template-columns:repeat(2,1fr)}.insights-grid{grid-template-columns:1fr}}
 @media(max-width:820px){.app{grid-template-columns:1fr}.sidebar{position:fixed;left:0;top:86px;width:286px;transform:translateX(-102%);transition:.2s}.sidebar.open{transform:translateX(0)}.mobile{display:grid}.backdrop.open{display:block;position:fixed;inset:86px 0 0;background:rgba(20,28,34,.28);z-index:11}.dept{font-size:12px}.workspace{padding:12px}.meta{margin-top:8px}.welcome h1{font-size:28px}}
 @media(max-width:560px){.topbar{padding:0 14px}.brand img{height:34px;max-width:120px}.divider,.topright>.iconbtn:not(.mobile){display:none}.summary{grid-template-columns:1fr 1fr}.toolbar{overflow:auto}.tab{white-space:nowrap}.pto-btn{white-space:nowrap}.daterow{grid-template-columns:1fr}.workspace{padding:8px}.panel{border-radius:14px}.minor{display:none}}
+
+/* =========================================================
+   MARK 4 EMBEDDED MODULE OVERRIDES
+   The parent Mark 4 index owns the HASC header, app rail,
+   page title/icon, user controls, and workspace spacing.
+   Keep the management UI and its internal module navigation.
+   ========================================================= */
+html,body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+  background:transparent !important;
+}
+body{overflow-x:hidden}
+.app{
+  min-height:0 !important;
+  display:block !important;
+  background:transparent !important;
+}
+.sidebar,.topbar,.backdrop{display:none !important}
+.main{min-width:0}
+.content{
+  width:100%;
+  max-width:none !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+/* Keep this node in the DOM because the JS updates pageSub/pageTitle,
+   but Mark 4 already renders the visible app heading. */
+.meta{display:none !important}
+.panel{
+  margin:0;
+  width:100%;
+}
+@media(max-width:820px){
+  .content{padding:0 !important}
+  .workspace{padding:12px}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../wb-config.js"></script>
@@ -74,7 +113,8 @@ const HOMEOFF_COLS={home:'home_name',task:'task_id'};
 const CLIENT=window.__hascClient||((window.supabase&&window.HASC_CONFIG)?(window.__hascClient=window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL,window.HASC_CONFIG.SUPABASE_ANON_KEY)):null);
 function sessionValue(key){try{return sessionStorage.getItem(key)}catch(e){return null}}
 function sessionJson(key,fallback){const raw=sessionValue(key);if(!raw)return fallback;try{return JSON.parse(raw)}catch(e){return raw}}
-const SESSION_PROFILE=(()=>{const raw=sessionJson('hasc_user',{})||{},profile=typeof raw==='object'?raw:{name:raw};const role=String(sessionValue('hasc_role')||profile.role||'admin').toLowerCase();const homesRaw=sessionJson('hasc_homes',[]);const homes=Array.isArray(homesRaw)?homesRaw:[];const name=sessionValue('hasc_user_name')||sessionValue('hasc_name')||profile.full_name||profile.display_name||profile.name||'';return{name,role,homes,allowed:['admin','ac','rm'].includes(role)}})();
+function normalizeRole(value){const r=String(value||'').trim().toLowerCase().replace(/[\s-]+/g,'_');const aliases={administrator:'admin',area_coordinator:'ac',residence_manager:'rm'};return aliases[r]||r}
+const SESSION_PROFILE=(()=>{const raw=sessionJson('hasc_user',{})||{},profile=typeof raw==='object'?raw:{name:raw};const role=normalizeRole(sessionValue('hasc_role')||profile.role||'admin');const homesRaw=sessionJson('hasc_homes',[]);const homes=Array.isArray(homesRaw)?homesRaw:[];const name=sessionValue('hasc_user_name')||sessionValue('hasc_name')||profile.full_name||profile.display_name||profile.name||'';return{name,role,homes,allowed:['admin','ac','rm'].includes(role)}})();
 const CHECKLIST_TYPES=['Daily','Weekly','Weekend','Monthly','Quarterly','Annual'];
 let RESIDENCES=[];
 const HOME_RM={},MANAGERS={},MANAGER_HOMES={};
@@ -140,8 +180,7 @@ async function loadPtoRecords(){if(!PTO_CLIENT)return;const {data,error}=await P
 renderLeaveRoster=function(){const countEl=document.getElementById('leaveRecordCount'),rowsEl=document.getElementById('leaveRows');if(!countEl||!rowsEl)return;const records=LEAVE_RECORDS.filter(r=>r.status!=='cancelled');countEl.textContent=records.length+' record'+(records.length===1?'':'s');rowsEl.innerHTML=records.map(r=>{const info=PTO_MANAGER_MAP[r.manager]||{name:MANAGERS[r.manager]||r.manager,home:MANAGER_HOMES[r.manager]||''};return `<tr><td class="leave-person"><b>${escHtml(info.name)}</b><span>${escHtml(info.home)}</span></td><td class="leave-dates">${fmt(r.start)}–${fmt(r.end)}, ${String(r.end).slice(0,4)}</td><td class="leave-reason">${escHtml(r.reason)}</td><td class="leave-status"><span class="active-pill">Approved</span></td><td class="leave-action"><button class="remove-leave" data-remove-leave="${r.id}">Remove</button></td></tr>`}).join('')||'<tr><td colspan="5">No approved time off on file.</td></tr>';rowsEl.querySelectorAll('[data-remove-leave]').forEach(button=>button.onclick=async()=>{if(PTO_CLIENT){const {error}=await PTO_CLIENT.from('cl_approved_time_off').delete().eq('id',button.dataset.removeLeave);if(error){toast.textContent='Could not remove approved time off.';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200);return}}const i=LEAVE_RECORDS.findIndex(r=>String(r.id)===String(button.dataset.removeLeave));if(i>=0)LEAVE_RECORDS.splice(i,1);render();renderLeaveRoster()})}
 ptoForm.onsubmit=async e=>{e.preventDefault();if(end.value<start.value){end.setCustomValidity('End date must be on or after the start date.');end.reportValidity();return}end.setCustomValidity('');if(PTO_CLIENT){const payload={rm_email:manager.value,start_date:start.value,end_date:end.value,reason:reason.value.trim()||'Approved leave',status:'approved',created_by_email:PTO_CREATED_BY||null,updated_at:new Date().toISOString()};const {data,error}=await PTO_CLIENT.from('cl_approved_time_off').insert(payload).select('id,rm_email,start_date,end_date,reason,status').single();if(error){toast.textContent='Could not save approved time off.';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200);return}LEAVE_RECORDS.unshift({id:data.id,manager:data.rm_email,start:data.start_date,end:data.end_date,reason:data.reason,status:data.status})}else{LEAVE_RECORDS.push({id:'l'+Date.now(),manager:manager.value,start:start.value,end:end.value,reason:reason.value,status:'approved'})}savedWho.textContent=manager.options[manager.selectedIndex]?.text||manager.value;savedDates.textContent=`${fmt(start.value)}–${fmt(end.value)}, ${end.value.slice(0,4)} · ${reason.value||'Approved leave'}`;render();renderLeaveRoster();closeDrawer();toast.textContent=PTO_CLIENT?'Approved time off saved.':'Demo approved time off saved.';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200)};
 async function initializePtoConnection(){if(!PTO_CLIENT)return;try{await loadPtoManagers();await loadPtoRecords()}catch(error){console.warn('Approved time off connection unavailable',error)}}
-if(!SESSION_PROFILE.allowed){panelTitle.textContent='Access restricted';pageSub.textContent='This area is available only to authorized Checklist users.';insightsView.innerHTML='<div class="moduleempty"><div><h3>Access restricted</h3><p>Your signed-in role does not have access to this application.</p></div></div>'}else if(SESSION_PROFILE.role==='rm'){location.replace('wb-checkoff.html')}else{loadAll().then(()=>activateModule(location.hash.slice(1)||'insights'));initializePtoConnection()}
+if(!SESSION_PROFILE.allowed){panelTitle.textContent='Access restricted';pageSub.textContent='This area is available only to authorized Checklist users.';insightsView.innerHTML='<div class="moduleempty"><div><h3>Access restricted</h3><p>Your signed-in role does not have access to this application.</p></div></div>'}else if(SESSION_PROFILE.role==='rm'){location.replace('WB-checkoff.html')}else{loadAll().then(()=>activateModule(location.hash.slice(1)||'insights'));initializePtoConnection()}
 </script>
 </body>
 </html>
- 
