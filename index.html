@@ -802,11 +802,38 @@ window.addEventListener('resize',function(){if(_fxC){_fxResize();}});
 document.addEventListener('visibilitychange',function(){if(document.hidden){if(_fxRAF){cancelAnimationFrame(_fxRAF);_fxRAF=null;}}else if(_fxOn){_fxLoop();}});
 
 function renderChecklists(){
-  var host=document.getElementById('view-checklists');if(!host)return;
+  var host=document.getElementById('view-checklists');
+  if(!host)return;
   var src='checklists/wb-checklists-mark2.html';
-  host.innerHTML='<div class="viewhead"><div><h2>Checklists</h2><p>Daily tasks and safety checks \u2014 embedded Compliance Workbook.</p></div></div>'+
-    '<iframe title="Checklists" src="'+src+'" style="width:100%;height:calc(100vh - 156px);background:#fff;display:block;border:0"></iframe>'+
-    '<p style="font-size:11.5px;color:var(--muted);margin-top:8px">Embeds <b>/checklists/wb-checklists-mark2.html</b>. Blank in this local preview \u2014 it renders once the shell is deployed alongside the checklists/ folder (wb-config.js, wb-guard.js, hasc-logo.png at the site root).</p>';
+  host.innerHTML=
+    '<iframe id="checklistsFrame" title="Checklists" src="'+src+'" '+
+    'style="width:100%;border:0;background:transparent;display:block;overflow:hidden;height:600px"></iframe>';
+  var frame=document.getElementById('checklistsFrame');
+  frame.onload=function(){
+    function resizeChecklist(){
+      try{
+        var doc=frame.contentDocument || frame.contentWindow.document;
+        doc.documentElement.style.overflow='hidden';
+        doc.body.style.overflow='hidden';
+        var h=Math.max(
+          doc.body.scrollHeight,
+          doc.documentElement.scrollHeight
+        );
+        frame.style.height=h+'px';
+      }catch(e){
+        console.error('Checklist resize failed:',e);
+      }
+    }
+    resizeChecklist();
+    try{
+      var observer=new ResizeObserver(function(){
+        resizeChecklist();
+      });
+      observer.observe(frame.contentDocument.body);
+    }catch(e){}
+    setTimeout(resizeChecklist,250);
+    setTimeout(resizeChecklist,800);
+  };
 }
 function renderTraining(){
   var host=document.getElementById('view-training');if(!host)return;
