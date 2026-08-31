@@ -594,7 +594,11 @@ async function loadWeather(home){
     set('wxTemp',(isFinite(t)?t:'--')+'\u00b0');
     set('wxCond',label||'—');
     set('wxHL','H:'+(isFinite(hi)?hi:'--')+'\u00b0  L:'+(isFinite(lo)?lo:'--')+'\u00b0');
-  }catch(e){applyScene(3,true);set('wxCond','Unavailable');}
+  }catch(e){
+  console.error('WEATHER ERROR:', e);
+  applyScene(3,true);
+  set('wxCond','Unavailable');
+}
 }
 setInterval(function(){loadWeather();},600000);
 document.addEventListener('visibilitychange',function(){if(!document.hidden)loadWeather();});
