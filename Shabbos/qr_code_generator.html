@@ -70,7 +70,7 @@
     <select id="homeSel"><option value="">Select a residence…</option></select>
     <div class="baserow" style="margin-top:14px">
       <label class="fld" for="signBase">Sign-off page link</label>
-      <input type="text" id="signBase" placeholder="https://…/shabbos-policy-signoff.html">
+      <input type="text" id="signBase" placeholder="https://…/shabbos/shabbos_signoff">
     </div>
   </div>
 
@@ -2414,7 +2414,7 @@ const HOMES=["Bedford Avenue - 3245","East 35th St - 1431","New York Avenue","Av
 HOMES.forEach(h=>{const o=document.createElement('option');o.value=h;o.textContent=h;$('homeSel').appendChild(o);});
 
 // default sign-off link (same site, standard filename) — editable
-$('signBase').value = location.origin + '/shabbos-policy-signoff.html';
+$('signBase').value = location.origin + '/shabbos/shabbos_signoff';
 
 function getSB(){
   if(window.__hascClient) return window.__hascClient;
