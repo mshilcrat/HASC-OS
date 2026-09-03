@@ -68,7 +68,7 @@
     .doc{border:0;padding:0}
     body.printqr #readView,body.printqr #recordsView,body.printqr .foot{display:none!important}
     body.printqr #qrView{display:block!important}
-    body.printqr #qrView .field,body.printqr #qrView .row,body.printqr #qrView .panel>h2,body.printqr #qrView .panel>p{display:none!important}
+    body.printqr #qrView .field,body.printqr #qrView .row,body.printqr #qrView .panel>h2,body.printqr #qrView .panel>p,body.printqr .qrcard .qurl{display:none!important}
     body.printqr .qrcard{page-break-inside:avoid}
   }
   /* ===== phone / device auto-layout ===== */
@@ -95,7 +95,7 @@
 </style>
 </head>
 <body>
-<header class="top" style="display:none">
+<header class="top">
   <div class="top-in">
     <img id="logo" alt="HASC Center">
     <h1>Shabbos Policy — Staff Sign-Off</h1>
@@ -106,7 +106,7 @@
 <div class="wrap">
   <div class="viewtoggle row" id="adminBar" style="margin:16px 0 0;display:none">
     <span class="rec" style="font-weight:700;color:var(--teal-dk)">Admin</span>
-    <button class="btn btn-ghost" id="tabRead" style="display:none">Read &amp; Sign</button>
+    <button class="btn btn-ghost" id="tabRead">Read &amp; Sign</button>
     <button class="btn btn-ghost" id="tabRecords">Sign-Off Records</button>
     <button class="btn btn-ghost" id="tabQR">QR Codes</button>
   </div>
@@ -331,7 +331,7 @@
   <div id="recordsView" style="display:none">
     <div class="records">
       <h2>Sign-Off Records</h2>
-      <p class="rec" style="margin-top:-4px">Shared register — every staff sign-off on this policy is listed here.</p><div class="row" style="margin:6px 0 14px"><input type="text" id="recSearch" placeholder="Search by name…" style="flex:1 1 220px;min-width:180px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit"><select id="recResidence" style="flex:0 1 220px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:14px;font-family:inherit;background:#fff"><option value="">All residences</option></select></div>
+      <p class="rec" style="margin-top:-4px">Shared register — every staff sign-off on this policy is listed here.</p>
       <table id="recTable">
         <thead><tr><th>Name</th><th>Residence</th><th>Signature</th><th>Signed</th></tr></thead>
         <tbody id="recBody"></tbody>
@@ -2920,5 +2920,5 @@ $('qrPrint').addEventListener('click', ()=>{
   setTimeout(()=>document.body.classList.remove('printqr'),300);
 });
 </script>
-<script>(function(){function el(id){return document.getElementById(id);}function norm(s){return (s||'').toString().toLowerCase().trim();}function populateResidences(){var sel=el('recResidence'),body=el('recBody');if(!sel||!body)return;var cur=sel.value;var set={};Array.prototype.forEach.call(body.querySelectorAll('tr'),function(tr){var c=tr.children[1];if(c){var v=c.textContent.trim();if(v)set[v]=1;}});var homes=Object.keys(set).sort();sel.innerHTML='<option value="">All residences</option>'+homes.map(function(h){return '<option value="'+h.replace(/"/g,'&quot;')+'">'+h+'</option>';}).join('');if(cur&&set[cur])sel.value=cur;}function applyFilter(){var body=el('recBody'),s=el('recSearch'),sel=el('recResidence');if(!body)return;var q=norm(s?s.value:''),res=sel?sel.value:'';Array.prototype.forEach.call(body.querySelectorAll('tr'),function(tr){var name=tr.children[0]?tr.children[0].textContent:'';var home=tr.children[1]?tr.children[1].textContent.trim():'';var okName=!q||norm(name).indexOf(q)!==-1;var okRes=!res||home===res;tr.style.display=(okName&&okRes)?'':'none';});}function refresh(){populateResidences();applyFilter();}document.addEventListener('input',function(e){if(e.target&&e.target.id==='recSearch')applyFilter();});document.addEventListener('change',function(e){if(e.target&&e.target.id==='recResidence')applyFilter();});function watch(){var body=el('recBody');if(!body){setTimeout(watch,400);return;}var mo=new MutationObserver(function(){refresh();});mo.observe(body,{childList:true});refresh();}watch();})();</script></body>
+</body>
 </html>
