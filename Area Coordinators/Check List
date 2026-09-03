@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HASC OS — AC Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/wb-config.js"></script>
+<style>
+  :root{
+    --ui:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --teal:#37C1CF; --teal-dk:#2aa3b0; --yellow:#F5CF01;
+    --ink:#1f2d33; --muted:#5c6b72; --faint:#9fb0b8; --line:#e3ebee; --card:#ffffff;
+    --red:#c0392b; --red-bg:#fdecea; --green:#1f7a45; --green-bg:#eafbf1; --teal-wash:#e8f6f8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:transparent}
+  body{font-family:var(--ui);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.01em}
+  button,select,textarea,input{font:inherit}
+  button{cursor:pointer}
+  .wrap{max-width:820px;margin:0 auto;padding:16px 16px 90px}
+
+  .gate{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:46px 30px;text-align:center}
+  .gate .ico{font-size:50px;line-height:1;color:var(--teal)}
+  .gate h2{margin:14px 0 6px;font-size:22px;color:var(--ink)}
+  .gate p{max-width:440px;margin:0 auto;color:var(--muted)}
+
+  .banner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 20px;border-radius:14px;color:#fff;background:linear-gradient(135deg,#3fd0de,var(--teal-dk));box-shadow:0 12px 25px -18px var(--teal-dk)}
+  .banner h3{margin:0 0 4px;font-size:20px;font-weight:800}
+  .banner p{margin:0;font-size:12px;opacity:.9}
+  .day{width:58px;height:58px;flex:none;border-radius:12px;background:rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+  .day b{font-size:21px}
+  .day span{margin-top:5px;font-size:10px;font-weight:800}
+
+  .freqs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 18px}
+  .freq{padding:8px 14px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--muted);font-size:13px;font-weight:800}
+  .freq.on{background:var(--teal);border-color:var(--teal);color:#fff}
+  .freq:hover:not(.on){border-color:var(--teal);color:var(--teal-dk)}
+
+  .section{margin-bottom:16px}
+  .section-title{margin:0 0 8px 3px;color:var(--faint);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  .task{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;margin-bottom:7px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);text-align:left;font-size:14px;font-weight:600}
+  .task:hover{border-color:#bfe6ea;background:#fbffff}
+  .box{width:23px;height:23px;flex:none;display:grid;place-items:center;border:2px solid #cdd8dc;border-radius:7px;color:#fff}
+  .task.on .box{background:var(--teal);border-color:var(--teal)}
+  .task.on .box::after{content:'✓';font-weight:800}
+  .task.on .tname{color:var(--muted);text-decoration:line-through}
+
+  .signoff{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:18px}
+  .signoff label{display:block;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .signoff textarea{width:100%;min-height:72px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px;resize:vertical;outline:none}
+  .sigrow{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px}
+  .sigcol{flex:1;min-width:200px}
+  .sigcol.date{flex:0 0 auto;max-width:200px}
+  .signoff input[type=text],.signoff input[type=date]{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;outline:none}
+  .signoff textarea:focus,.signoff input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-wash)}
+  .signoff input[readonly]{background:#eef6f7;font-weight:700;cursor:default}
+  .signoff input[readonly]:focus{box-shadow:none;border-color:var(--line)}
+  .fromqr{font-size:11px;font-weight:700;color:var(--green);margin-left:8px;text-transform:none;letter-spacing:0}
+  .submit-row{display:flex;justify-content:flex-end;margin-top:16px}
+
+  .btn{border:0;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:800}
+  .btn-teal{background:var(--teal);color:#fff}
+  .btn-teal:disabled{background:#c3d2d6;cursor:not-allowed}
+  .btn-teal:hover:not(:disabled){background:var(--teal-dk)}
+  .btn-ghost{background:#fff;color:var(--teal-dk);border:1px solid var(--teal)}
+  .btn-ghost:hover{background:var(--teal-wash)}
+
+  .done{background:var(--green-bg);border:1px solid #9fe0b8;border-radius:14px;padding:22px;margin-top:18px}
+  .done h2{margin:0 0 8px;color:var(--green)}
+  .done .rec{font-size:14px;color:var(--muted)}
+  .done .rec b{color:var(--ink)}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:12px}
+
+  .toast{position:fixed;right:22px;bottom:22px;z-index:100;padding:13px 16px;border-radius:11px;background:var(--ink);color:#fff;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transform:translateY(8px);transition:.2s}
+  .toast.show{opacity:1;transform:none}
+
+  @media (max-width:600px){
+    .wrap{padding:12px 12px 90px}
+    .banner{padding:16px}
+    .signoff input[type=text],.signoff input[type=date],.signoff textarea{font-size:16px}
+    .btn{padding:14px 20px;font-size:16px}
+  }
+  @media print{ .toast{display:none!important} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ===== GATE (no / wrong residence QR) ===== -->
+  <div id="gate" class="gate" style="display:none">
+    <div class="ico">▦</div>
+    <h2 id="gateHead">Scan your residence QR code</h2>
+    <p id="gatePara">To open the Area Coordinator checklist, scan the QR code posted in the residence. It opens this page with the home already set.</p>
+  </div>
+
+  <!-- ===== CHECKLIST ===== -->
+  <div id="checklistView" style="display:none">
+    <div class="banner">
+      <div><h3 id="bHome"></h3><p>Area Coordinator</p></div>
+      <div class="day"><b id="bDay"></b><span id="bMon"></span></div>
+    </div>
+
+    <div class="freqs" id="freqs"></div>
+    <div id="list"></div>
+
+    <div class="signoff" id="signoff">
+      <label for="signHome">Residence <span class="fromqr">✓ locked to this QR code</span></label>
+      <input type="text" id="signHome" readonly>
+      <label for="comments" style="margin-top:16px">Comments</label>
+      <textarea id="comments" placeholder="Anything worth flagging this cycle…"></textarea>
+      <div class="sigrow">
+        <div class="sigcol">
+          <label for="sigName">Signature (type your name)</label>
+          <input type="text" id="sigName" placeholder="Full name" autocomplete="name">
+        </div>
+        <div class="sigcol date">
+          <label for="signDate">Date</label>
+          <input type="date" id="signDate">
+        </div>
+      </div>
+      <div class="submit-row"><button class="btn btn-teal" id="submitBtn" disabled>Sign &amp; Submit</button></div>
+    </div>
+
+    <div class="done" id="done" style="display:none">
+      <h2>✓ Checklist submitted</h2>
+      <p class="rec" id="doneMsg"></p>
+      <div class="row">
+        <button class="btn btn-ghost" onclick="window.print()">Print / Save Record</button>
+        <button class="btn btn-ghost" id="againBtn">New Checklist</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   CONFIG — shares tables with the admin app (wb-ac-admin.html)
+   ========================================================= */
+const QR_TABLE  = 'ac_qr';           // per-home active token
+const LIB_TABLE = 'ac_library';      // task master list
+const OFF_TABLE = 'ac_home_off';     // per-home removed task ids
+const SUB_TABLE = 'cl_submissions';  // submissions (read by the hub)
+
+const $ = id => document.getElementById(id);
+const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function getSB(){
+  if(window.__hascClient) return window.__hascClient;
+  if(window.supabase && window.HASC_CONFIG && window.HASC_CONFIG.SUPABASE_URL){
+    try{ window.__hascClient = window.supabase.createClient(window.HASC_CONFIG.SUPABASE_URL, window.HASC_CONFIG.SUPABASE_ANON_KEY); return window.__hascClient; }
+    catch(e){ return null; }
+  }
+  return null;
+}
+const SB = getSB();
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window.__tt); window.__tt=setTimeout(()=>t.classList.remove('show'),1900); }
+const fmt = d => { try{ return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' · '+new Date(d).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }catch(e){ return ''; } };
+
+(function(){
+  const ua=navigator.userAgent||'';
+  const isIOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const isAndroid=/android/i.test(ua);
+  document.body.classList.add(isIOS?'ios':isAndroid?'android':'desktop');
+})();
+
+/* ---- built-in seed (used in preview, or until ac_library is populated) ---- */
+const SEED = [
+  ['bw1','Bi-Weekly','GENERAL REVIEW','Visited each home weekly'],
+  ['bw2','Bi-Weekly','GENERAL REVIEW','Reviewed weekly to see if there were any new Pons'],
+  ['bw3','Bi-Weekly','GENERAL REVIEW','Reviewed weekly any blue forms that were completed.'],
+  ['bw4','Bi-Weekly','GENERAL REVIEW','If any falls occurred need to ensure all forms completed correctly sent in to QA.'],
+  ['bw5','Bi-Weekly','GENERAL REVIEW','Reviewed the overtime reports with each manager'],
+  ['bw6','Bi-Weekly','GENERAL REVIEW','Reviewed any staffing issues'],
+  ['bw7','Bi-Weekly','GENERAL REVIEW','Reviewed weekly the current needs of each home'],
+  ['bw8','Bi-Weekly','GENERAL REVIEW','Reading and correcting any issues with Fire Drills'],
+  ['bw9','Bi-Weekly','GENERAL REVIEW','Checked the medication inventory forms are done and uploaded'],
+  ['bw10','Bi-Weekly','WEEKLY MANAGER MEETING','Any issues with individuals'],
+  ['bw11','Bi-Weekly','WEEKLY MANAGER MEETING','Any issues with staff'],
+  ['bw12','Bi-Weekly','WEEKLY MANAGER MEETING','Any medical appointments'],
+  ['bw13','Bi-Weekly','WEEKLY MANAGER MEETING','Any necessary medical follow up'],
+  ['bw14','Bi-Weekly','ONE DRIVE DOCUMENTATION','Sunday Activities are happening'],
+  ['bw15','Bi-Weekly','ONE DRIVE DOCUMENTATION','Sunday Activities form has been uploaded'],
+  ['bw16','Bi-Weekly','ONE DRIVE DOCUMENTATION','the Life Plan Tracker is up to date'],
+  ['bw17','Bi-Weekly','ONE DRIVE DOCUMENTATION','Up loading Life Plans'],
+  ['bw18','Bi-Weekly','ONE DRIVE DOCUMENTATION','Making sure Fire Drill documentation was up loaded'],
+  ['bm1','Bi-Monthly','GENERAL REVIEW','Bi-monthly clinical meeting'],
+  ['bm2','Bi-Monthly','GENERAL REVIEW','Conducted a follow up to the clinical meeting to make sure assignments are being done'],
+  ['bm3','Bi-Monthly','GENERAL REVIEW','Reviewed one PONS from each home to ensure it is correct and staff have been properly trained.'],
+  ['bm4','Bi-Monthly','GENERAL REVIEW','Random spot check for the medex to ensure that everything is signed.'],
+  ['bm5','Bi-Monthly','GENERAL REVIEW','Medisked notes reviewed — choose two individuals from each home'],
+  ['bm6','Bi-Monthly','GENERAL REVIEW','Reviewed staff trainings'],
+  ['bm7','Bi-Monthly','GENERAL REVIEW','Reviewed that the van logs'],
+  ['bm8','Bi-Monthly','GENERAL REVIEW','Reviewed water temperature log'],
+  ['an1','Annual','GENERAL REVIEW','Reviewed all assessments'],
+  ['an2','Annual','GENERAL REVIEW','Reviewed fire evacuation plan'],
+  ['an3','Annual','GENERAL REVIEW','Obtained Consent for psychotropic'],
+  ['an4','Annual','GENERAL REVIEW','Missing persons'],
+  ['an5','Annual','GENERAL REVIEW','Conducted a 25 % review of each homes personal allowance record']
+];
+const TYPES = ['Bi-Weekly','Bi-Monthly','Annual'];
+
+/* ---- state ---- */
+const params = new URLSearchParams(location.search);
+let HOME = (params.get('home')||params.get('res')||'').trim();
+const TOK = (params.get('t')||'').trim();
+if(!HOME && !SB) HOME = 'Demo Residence';   /* preview only */
+
+let library = SEED.map(t=>({id:t[0], freq:t[1], section:t[2], name:t[3]}));
+let off = new Set();
+let freq = 'Bi-Weekly';
+let done = new Set();
+let comment = '', sigName = '', signDate = '';
+let submitted = false, tokenOK = true;
+let gateHead = 'Scan your residence QR code';
+let gatePara = 'To open the Area Coordinator checklist, scan the QR code posted in the residence. It opens this page with the home already set.';
+
+/* ---- correct-QR gate ---- */
+async function verifyToken(){
+  if(!SB || !HOME) return;
+  try{
+    const { data, error } = await SB.from(QR_TABLE).select('token').eq('home_name', HOME).maybeSingle();
+    if(error) return;                                  /* can't verify -> fail open */
+    const active = data && data.token;
+    tokenOK = !!active && !!TOK && TOK === active;     /* must be the current code for THIS residence */
+    if(!tokenOK){
+      gateHead = 'This QR code isn\u2019t valid here';
+      gatePara = 'You can only fill the checklist for ' + HOME + ' by scanning the current QR code posted in that residence.';
+    }
+  }catch(e){}
+}
+
+/* ---- load tasks (ac_library minus this home's ac_home_off) ---- */
+async function loadTasks(){
+  if(!SB || !HOME) return;
+  try{
+    const [lib, offRows] = await Promise.all([
+      SB.from(LIB_TABLE).select('id,frequency,section,task_name,sort_order').order('sort_order'),
+      SB.from(OFF_TABLE).select('task_id').eq('home_name', HOME)
+    ]);
+    if(lib.data && lib.data.length) library = lib.data.map(r=>({id:String(r.id), freq:r.frequency, section:r.section||'GENERAL', name:r.task_name}));
+    (offRows.data||[]).forEach(r=>off.add(String(r.task_id)));
+  }catch(e){}
+}
+
+/* ---- render ---- */
+function showGate(){ $('gate').querySelector('h2').textContent=gateHead; $('gate').querySelector('p').textContent=gatePara; $('gate').style.display='block'; $('checklistView').style.display='none'; }
+function showChecklist(){ $('gate').style.display='none'; $('checklistView').style.display='block'; renderChecklist(); }
+
+function renderChecklist(){
+  const now=new Date();
+  $('bHome').textContent=HOME; $('bDay').textContent=now.getDate(); $('bMon').textContent=now.toLocaleDateString('en-US',{month:'short'}).toUpperCase();
+
+  $('freqs').innerHTML = TYPES.map(t=>'<button class="freq'+(t===freq?' on':'')+'" data-freq="'+esc(t)+'">'+esc(t)+'</button>').join('');
+  Array.prototype.forEach.call($('freqs').querySelectorAll('.freq'), b=>b.addEventListener('click', ()=>{ freq=b.dataset.freq; submitted=false; $('done').style.display='none'; $('signoff').style.display='block'; renderChecklist(); }));
+
+  const tasks = library.filter(t=>t.freq===freq && !off.has(t.id));
+  const groups={}, order=[];
+  tasks.forEach(t=>{ const s=t.section||'GENERAL'; if(!groups[s]){groups[s]=[];order.push(s);} groups[s].push(t); });
+  let h='';
+  order.forEach(sec=>{
+    h+='<section class="section"><div class="section-title">'+esc(sec)+'</div>';
+    groups[sec].forEach(t=>{ const on=done.has(t.id); h+='<button class="task'+(on?' on':'')+'" data-task="'+esc(t.id)+'"><span class="box"></span><span class="tname">'+esc(t.name)+'</span></button>'; });
+    h+='</section>';
+  });
+  $('list').innerHTML=h;
+  Array.prototype.forEach.call($('list').querySelectorAll('.task'), b=>b.addEventListener('click', ()=>{ const id=b.dataset.task; if(done.has(id))done.delete(id); else done.add(id); submitted=false; renderChecklist(); }));
+
+  const complete = tasks.filter(t=>done.has(t.id)).length;
+  $('signHome').value=HOME; $('comments').value=comment; $('sigName').value=sigName;
+  if(!$('signDate').value) $('signDate').valueAsDate=new Date();
+  $('submitBtn').disabled = !(sigName.trim() && complete>0 && !submitted);
+  $('submitBtn').textContent = submitted ? '✓ Submitted' : 'Sign & Submit';
+}
+
+$('comments').addEventListener('input', e=>{ comment=e.target.value; submitted=false; });
+$('sigName').addEventListener('input', e=>{ sigName=e.target.value; submitted=false; $('submitBtn').disabled = !(sigName.trim() && done.size>0); });
+$('signDate').addEventListener('change', e=>{ signDate=e.target.value; });
+
+$('submitBtn').addEventListener('click', async ()=>{
+  const tasks = library.filter(t=>t.freq===freq && !off.has(t.id));
+  const items = tasks.map(t=>({id:t.id, name:t.name, done:done.has(t.id)}));
+  const doneCount = items.filter(i=>i.done).length;
+  const rec = { home_name:HOME, submitted_by:sigName.trim(), frequency:freq.toLowerCase(), tasks_done:doneCount, tasks_total:tasks.length, comments:comment||null, signature:sigName.trim(), tasks_json:{frequency:freq.toLowerCase(), items} };
+  $('submitBtn').disabled=true; $('submitBtn').textContent='Saving…';
+  if(SB){
+    try{ const { error } = await SB.from(SUB_TABLE).insert(rec); if(error){ $('submitBtn').disabled=false; $('submitBtn').textContent='Sign & Submit'; toast('Could not save — '+(error.message||'try again')); return; } }
+    catch(e){ $('submitBtn').disabled=false; $('submitBtn').textContent='Sign & Submit'; toast('Could not save — check connection'); return; }
+  }
+  submitted=true; $('signoff').style.display='none';
+  $('doneMsg').innerHTML = '<b>'+esc(rec.submitted_by)+'</b> — '+esc(HOME)+' · '+esc(freq)+'<br>'+doneCount+' / '+tasks.length+' items · '+fmt(new Date()) + (SB?'':'<br><span style="color:#b5651d">Preview only — saves to Supabase once published on the HASC site.</span>');
+  $('done').style.display='block'; $('done').scrollIntoView({behavior:'smooth', block:'center'});
+});
+$('againBtn').addEventListener('click', ()=>{ done=new Set(); comment=''; sigName=''; submitted=false; $('done').style.display='none'; $('signoff').style.display='block'; renderChecklist(); window.scrollTo({top:0,behavior:'smooth'}); });
+
+/* ---- boot ---- */
+(async function boot(){
+  await verifyToken();
+  if(HOME && tokenOK){ await loadTasks(); showChecklist(); }
+  else { showGate(); }
+})();
+</script>
+</body>
+</html>
