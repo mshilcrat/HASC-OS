@@ -50,7 +50,7 @@
   .confirm b{color:var(--red)}
   .confirm .row{margin-top:12px}
   @media print{
-    header.top,.controls,.actions,.note,.toast,.confirm,.baserow{display:none!important}
+    header.top,.controls,.actions,.note,.toast,.confirm,.baserow,.qurl{display:none!important}
     .panel{border:0;margin:0}
   }
 </style>
@@ -103,7 +103,8 @@
 
 <div class="toast" id="toast">Saved</div>
 
-<script>//---------------------------------------------------------------------
+<script>
+//---------------------------------------------------------------------
 //
 // QR Code Generator for JavaScript
 //
@@ -2410,10 +2411,8 @@ const $=id=>document.getElementById(id);
 
 const HOMES=["Bedford Avenue - 3245","East 35th St - 1431","New York Avenue","Avenue I - 2802","1503 East 14th Street","Avenue H - 824","East 7th Street (Ave N)","46th Street - 1771 1st Fl","46th Street - 1771 2nd Fl","1068 East 14th Street","50th Street - 918","East 9th - 1367","Avenue K - 1010","Crown Heights - 580","Montgomery St (fmr Kingston Ave)","Coney Island Ave - 2173","Avenue L - 1122","East 21 - 2102 Ave I","East 36th Street - 3521","Kings Highway - 2416","53rd Street - 1038","19th Avenue - 4801","46th Street - 1327","48th Street - 1268","Avenue J - 1010","Avenue J - 1014 6B","Avenue J - 1014 6F","Ditmas Avenue - 804","Webster Avenue - 373","East 8th Street - 536","Avenue S","Mill Basin","Staten Island","East 13th Street - 1857"];
 
-// populate dropdown
 HOMES.forEach(h=>{const o=document.createElement('option');o.value=h;o.textContent=h;$('homeSel').appendChild(o);});
 
-// default sign-off link (same site, standard filename) — editable
 $('signBase').value = location.origin + '/shabbos/shabbos_signoff';
 
 function getSB(){
@@ -2454,7 +2453,6 @@ async function loadHome(home){
   $('qStatus').textContent='';
   const sb=getSB();
   if(!sb){
-    // preview / not logged in — show a code but don't persist
     const tok=newToken();
     current={home,token:tok,saved:false};
     renderQR(home,tok);
@@ -2471,7 +2469,6 @@ async function loadHome(home){
       $('qSince').innerHTML='Active code · issued <b>'+esc(fmt(data.updated_at))+'</b>';
       $('qStatus').className='status saved'; $('qStatus').textContent='Active & saved';
     }else{
-      // no code yet → create one
       const tok=newToken();
       const up=await sb.from(TABLE).upsert({home_name:home,token:tok,updated_at:new Date().toISOString()},{onConflict:'home_name'});
       if(up.error) throw up.error;
@@ -2522,22 +2519,11 @@ $('resetBtn').addEventListener('click', ()=>{ $('confirmBox').style.display='blo
 $('resetNo').addEventListener('click', ()=>{ $('confirmBox').style.display='none'; });
 $('resetYes').addEventListener('click', resetHome);
 
-// ---- print (opens a clean print window; if popups are blocked, prints in place) ----
+// ---- print: print the page directly; @media print hides everything except the name + QR ----
 function printCode(){
   if(!current.home) return;
-  const svg=$('qBox').innerHTML;
-  let win=null; try{ win=window.open('','_blank'); }catch(e){}
-  if(!win){ window.print(); return; }
-  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>'+esc(current.home)+'</title>'+
-    '<style>body{font-family:-apple-system,Segoe UI,Arial,sans-serif;text-align:center;padding:48px 24px;color:#1f2d33}'+
-    'h1{font-size:28px;margin:0 0 4px}.sub{color:#5c6b72;font-size:14px;margin-top:8px}'+
-    'svg{width:340px;height:340px}.u{color:#9fb0b8;font-size:10px;word-break:break-all;max-width:460px;margin:16px auto 0}'+
-    '@page{margin:16mm}</style></head><body>'+
-    '<h1>'+esc(current.home)+'</h1>'+svg+
-    '<div class="sub">Scan to sign the Shabbos Policy</div>'+
-  '</body></html>');
-  win.document.close(); win.focus();
-  setTimeout(()=>{ try{ win.print(); }catch(e){} }, 350);
+  window.print();
+}
 $('printBtn').addEventListener('click', printCode);
 </script>
 </body>
