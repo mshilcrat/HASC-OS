@@ -2535,11 +2535,9 @@ function printCode(){
     '@page{margin:16mm}</style></head><body>'+
     '<h1>'+esc(current.home)+'</h1>'+svg+
     '<div class="sub">Scan to sign the Shabbos Policy</div>'+
-    '<div class="u">'+esc($('qUrl').textContent)+'</div>'+
-    '</body></html>');
+  '</body></html>');
   win.document.close(); win.focus();
   setTimeout(()=>{ try{ win.print(); }catch(e){} }, 350);
-}
 $('printBtn').addEventListener('click', printCode);
 </script>
 </body>
