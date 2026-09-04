@@ -500,3 +500,13 @@
   setTimeout(wire,500);
   setTimeout(wire,1500);
 })();
+
+/* Final Mark 4 organization/persistence patch. */
+(function(){
+  if(window.__hascFinishLoader) return;
+  window.__hascFinishLoader=true;
+  var s=document.createElement('script');
+  s.src='/mark4-finish.js?v=20260904-1';
+  s.defer=true;
+  (document.head||document.documentElement).appendChild(s);
+})();
