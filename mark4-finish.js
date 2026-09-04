@@ -153,6 +153,27 @@
     patchShabbosFrame();
   }
 
+  /* Staff app sits directly in the Mark 4 iframe, so remove the extra nested whitespace. */
+  function patchStaffFrame(){
+    var f=document.getElementById('staffFrame');
+    if(!f) return;
+    f.style.height='calc(100vh - 90px)';
+    f.style.borderRadius='0';
+    try{
+      var d=f.contentDocument;
+      if(!d||!d.body) return;
+      var wrap=d.querySelector('.wrap');
+      if(wrap) wrap.style.padding='14px 18px 24px';
+      var rail=d.querySelector('.rail');
+      if(rail) rail.style.padding='10px 8px';
+    }catch(e){console.warn('HASC Staff iframe fit failed',e);}
+  }
+  function wireStaff(){
+    var f=document.getElementById('staffFrame');
+    if(f && !f.__hascFit){f.__hascFit=true;f.addEventListener('load',function(){setTimeout(patchStaffFrame,50);});}
+    patchStaffFrame();
+  }
+
   function tick(){
     getProfile();
     if(profile){
@@ -161,13 +182,14 @@
       syncMenu();
     }
     wireShabbos();
+    wireStaff();
   }
 
   document.addEventListener('click',function(e){
-    var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],#sbCodes,#sbRecords'):null;
+    var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],button[data-view="staff"],#sbCodes,#sbRecords'):null;
     if(!t) return;
-    setTimeout(function(){syncMenu();wireShabbos();},80);
-    setTimeout(function(){syncMenu();wireShabbos();},400);
+    setTimeout(function(){syncMenu();wireShabbos();wireStaff();},80);
+    setTimeout(function(){syncMenu();wireShabbos();wireStaff();},400);
   },true);
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tick); else tick();
