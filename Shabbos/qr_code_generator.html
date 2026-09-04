@@ -84,6 +84,8 @@
       <div><span class="status" id="qStatus"></span></div>
       <div class="row actions">
         <button class="btn btn-teal" id="printBtn">Print this code</button>
+        <button class="btn btn-ghost" id="hascPrintPolicy">Print Shabbos Policy</button>
+        <button class="btn btn-ghost" id="hascPrintSheets">Print Sign-off Sheets</button>
         <button class="btn btn-danger" id="resetBtn">Reset code (security)</button>
       </div>
       <div class="confirm" id="confirmBox" style="display:none">
@@ -2525,6 +2527,34 @@ function printCode(){
   window.print();
 }
 $('printBtn').addEventListener('click', printCode);
+
+$('hascPrintPolicy').addEventListener('click', ()=>{
+  const w=window.open('/Shabbos/shabbos_signoff.html#admin','_blank');
+  if(!w){ showToast('Allow pop-ups to print the policy'); return; }
+  let tries=0;
+  const timer=setInterval(()=>{
+    tries++;
+    try{
+      if(w.document && w.document.readyState==='complete'){
+        clearInterval(timer);
+        const hide=['header.top','#adminBar','#signbox','#progWrap','#recordsView','#gate','#qrView','.foot'];
+        hide.forEach(selector=>{const el=w.document.querySelector(selector);if(el)el.style.display='none';});
+        const read=w.document.getElementById('readView');if(read)read.style.display='block';
+        w.focus();w.print();
+      }
+    }catch(e){}
+    if(tries>40)clearInterval(timer);
+  },150);
+});
+
+$('hascPrintSheets').addEventListener('click', ()=>{
+  if(!current.home){showToast('Select a residence first');return;}
+  const rows=Array.from({length:18},()=>'<tr><td></td><td></td><td></td></tr>').join('');
+  const w=window.open('','_blank');
+  if(!w){showToast('Allow pop-ups to print sign-off sheets');return;}
+  w.document.write('<!doctype html><html><head><title>Shabbos Sign-off Sheet</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1f2d33;margin:36px}h1{font-size:22px;margin:0 0 4px}p{margin:0 0 20px;color:#5c6b72}table{width:100%;border-collapse:collapse}th,td{border:1px solid #9aa8ae;padding:9px;text-align:left;height:34px}th{background:#f4f8f9;font-size:13px}.foot{margin-top:16px;font-size:11px;color:#5c6b72}@media print{body{margin:18px}}</style></head><body><h1>Shabbos Policy Sign-off Sheet</h1><p>Residence: <b>'+esc(current.home)+'</b></p><table><thead><tr><th>Staff name</th><th>Signature</th><th>Signed</th></tr></thead><tbody>'+rows+'</tbody></table><div class="foot">HASC Center · Residential Program</div></body></html>');
+  w.document.close();w.focus();w.print();
+});
 </script>
 </body>
 </html>
