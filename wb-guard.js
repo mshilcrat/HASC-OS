@@ -476,3 +476,27 @@
   }
 
 })();
+
+/* HASC Mark 4 Staff iframe loader — additive only. */
+(function(){
+  function frameCss(){
+    return 'width:100%;height:calc(100vh - 156px);border:0;border-radius:12px;outline:none;display:block;background:rgb(241,239,233)';
+  }
+  function embedStaff(){
+    var v=document.getElementById('view-staff');
+    if(!v || v.querySelector('#staffFrame')) return;
+    v.innerHTML='<iframe id="staffFrame" title="Staff" src="/Staffing/staff.html" style="'+frameCss()+'"></iframe>';
+  }
+  function wire(){
+    var btn=document.querySelector('button[data-view="staff"]');
+    if(btn && !btn.__hascStaffWired){
+      btn.__hascStaffWired=true;
+      btn.addEventListener('click',function(){setTimeout(embedStaff,0);});
+    }
+    var v=document.getElementById('view-staff');
+    if(v && v.classList.contains('active')) embedStaff();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire); else wire();
+  setTimeout(wire,500);
+  setTimeout(wire,1500);
+})();
