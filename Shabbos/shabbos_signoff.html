@@ -52,6 +52,19 @@
   .rec b{color:var(--ink)}
   .records{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:22px 0}
   .records h2{font-size:18px;margin:0 0 10px;color:var(--teal-dk)}
+  .record-folder{background:#fff;border:1px solid #eef1f4;border-radius:12px;box-shadow:0 1px 3px rgba(35,48,56,.06);margin-bottom:12px;overflow:hidden}
+  .record-folder-head,.record-year-head{width:100%;border:0;display:flex;align-items:center;gap:11px;text-align:left;color:var(--ink);cursor:pointer}
+  .record-folder-head{background:#fff;padding:15px 20px}
+  .record-folder-head:hover,.record-year-head:hover{background:#e8f6f8}
+  .record-folder-name{font-size:15.5px;font-weight:600}
+  .record-folder-count,.record-year-count{margin-left:auto;color:#9fb0b8;font-size:13px}
+  .record-folder-caret,.record-year-caret{color:#9fb0b8;font-size:12px;transition:transform .15s}
+  .record-folder.open>.record-folder-head>.record-folder-caret,.record-year.open>.record-year-head>.record-year-caret{transform:rotate(180deg);color:var(--teal)}
+  .record-year{border-top:1px solid #eef1f4}
+  .record-year-head{padding:12px 20px 12px 38px;background:#fbfaf8;font-size:13px;font-weight:700}
+  .record-list{overflow:auto;border-top:1px solid #eef1f4}
+  .record-list table{margin:0}
+  .record-list th:first-child,.record-list td:first-child{padding-left:54px}
   table{width:100%;border-collapse:collapse;font-size:14px}
   th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
   th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.4px}
@@ -331,11 +344,8 @@
   <div id="recordsView" style="display:none">
     <div class="records">
       <h2>Sign-Off Records</h2>
-      <p class="rec" style="margin-top:-4px">Shared register — every staff sign-off on this policy is listed here.</p>
-      <table id="recTable">
-        <thead><tr><th>Name</th><th>Residence</th><th>Signature</th><th>Signed</th></tr></thead>
-        <tbody id="recBody"></tbody>
-      </table>
+      <p class="rec" style="margin-top:-4px">Open a residence, then a year, to view its sign-off records.</p>
+      <div id="recFolders"></div>
       <div class="empty" id="recEmpty" style="display:none">No sign-offs recorded yet.</div>
     </div>
   </div>
@@ -2872,21 +2882,53 @@ $('tabQR').addEventListener('click', ()=>{
 });
 $('tabRecords').addEventListener('click', async ()=>{
   hideAll(); $('recordsView').style.display='block'; $('progWrap').style.display='none';
-  const body = $('recBody'); body.innerHTML=''; $('recEmpty').style.display='none';
+  const folders = $('recFolders'); folders.innerHTML=''; $('recEmpty').style.display='none';
   const sb = getSB();
-  if(!sb){
-    $('recEmpty').textContent = 'Records load once the app is published on the HASC site.';
-    $('recEmpty').style.display='block'; return;
-  }
+  if(!sb){ $('recEmpty').textContent='No data connection. Records will appear after publishing with Supabase configured.'; $('recEmpty').style.display='block'; return; }
   try{
     const { data, error } = await sb.from(TABLE).select('*').order('signed_at',{ascending:false}).limit(1000);
     if(error){ $('recEmpty').textContent='Could not load records — '+error.message; $('recEmpty').style.display='block'; return; }
     const list = data||[];
     if(!list.length){ $('recEmpty').textContent='No sign-offs recorded yet.'; $('recEmpty').style.display='block'; return; }
-    list.forEach(r=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML = '<td>'+esc(r.name)+'</td><td>'+esc(r.home)+'</td><td style="font-family:cursive">'+esc(r.signature)+'</td><td>'+(r.signed_at?fmt(new Date(r.signed_at)):'')+'</td>';
-      body.appendChild(tr);
+
+    const byResidence={};
+    list.forEach(record=>{
+      const residence=(record.home||'Unassigned residence').trim()||'Unassigned residence';
+      const date=record.signed_at?new Date(record.signed_at):null;
+      const year=date&&!isNaN(date.getTime())?String(date.getFullYear()):'Undated';
+      if(!byResidence[residence]) byResidence[residence]={};
+      if(!byResidence[residence][year]) byResidence[residence][year]=[];
+      byResidence[residence][year].push(record);
+    });
+
+    Object.keys(byResidence).sort((a,b)=>a.localeCompare(b)).forEach(residence=>{
+      const years=byResidence[residence];
+      const count=Object.values(years).reduce((sum,records)=>sum+records.length,0);
+      const folder=document.createElement('section');
+      folder.className='record-folder';
+      folder.innerHTML='<button class="record-folder-head" type="button"><span>📁</span><span class="record-folder-name">'+esc(residence)+'</span><span class="record-folder-count">'+count+' record'+(count===1?'':'s')+'</span><span class="record-folder-caret">▾</span></button><div class="record-years" hidden></div>';
+      const yearWrap=folder.querySelector('.record-years');
+      Object.keys(years).sort((a,b)=>a==='Undated'?1:b==='Undated'?-1:Number(b)-Number(a)).forEach(year=>{
+        const records=years[year].slice().sort((a,b)=>new Date(b.signed_at||0)-new Date(a.signed_at||0));
+        const yearSection=document.createElement('section');
+        yearSection.className='record-year';
+        yearSection.innerHTML='<button class="record-year-head" type="button"><span>📂</span><span>'+esc(year)+'</span><span class="record-year-count">'+records.length+' record'+(records.length===1?'':'s')+'</span><span class="record-year-caret">▾</span></button><div class="record-list" hidden><table><thead><tr><th>Name</th><th>Residence</th><th>Signature</th><th>Signed</th></tr></thead><tbody></tbody></table></div>';
+        const tbody=yearSection.querySelector('tbody');
+        records.forEach(record=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML='<td>'+esc(record.name)+'</td><td>'+esc(record.home)+'</td><td style="font-family:cursive">'+esc(record.signature)+'</td><td>'+(record.signed_at?fmt(new Date(record.signed_at)):'')+'</td>';
+          tbody.appendChild(tr);
+        });
+        yearSection.querySelector('.record-year-head').addEventListener('click',()=>{
+          const body=yearSection.querySelector('.record-list');
+          const open=body.hidden; body.hidden=!open; yearSection.classList.toggle('open',open);
+        });
+        yearWrap.appendChild(yearSection);
+      });
+      folder.querySelector('.record-folder-head').addEventListener('click',()=>{
+        const open=yearWrap.hidden; yearWrap.hidden=!open; folder.classList.toggle('open',open);
+      });
+      folders.appendChild(folder);
     });
   }catch(e){ $('recEmpty').textContent='Could not load records — check connection.'; $('recEmpty').style.display='block'; }
 });
