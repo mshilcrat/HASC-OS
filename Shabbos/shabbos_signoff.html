@@ -121,7 +121,6 @@
     <span class="rec" style="font-weight:700;color:var(--teal-dk)">Admin</span>
     <button class="btn btn-ghost" id="tabRead">Read &amp; Sign</button>
     <button class="btn btn-ghost" id="tabRecords">Sign-Off Records</button>
-    <button class="btn btn-ghost" id="tabQR">QR Codes</button>
   </div>
 
   <!-- ============ QR-REQUIRED GATE ============ -->
@@ -347,60 +346,6 @@
       <p class="rec" style="margin-top:-4px">Open a residence, then a year, to view its sign-off records.</p>
       <div id="recFolders"></div>
       <div class="empty" id="recEmpty" style="display:none">No sign-offs recorded yet.</div>
-    </div>
-  </div>
-
-  <!-- ============ QR CODES VIEW (admin) ============ -->
-  <div id="qrView" style="display:none">
-    <div class="panel">
-      <h2>Residence QR Codes</h2>
-      <p class="rec" style="margin-top:-4px">One QR per residence. Staff scan it to open this page with the residence already filled in — they just sign their name.</p>
-      <div class="field">
-        <label>Site link (where this page is published)</label>
-        <input type="text" id="qrBase" placeholder="https://…netlify.app">
-      </div>
-      <div class="field">
-        <label>Residences — one per line <span class="rec" style="color:#1f7a45;font-weight:700">34 preloaded</span></label>
-        <textarea id="qrHomes" style="width:100%;min-height:160px;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:15px;font-family:inherit" placeholder="One residence per line">Bedford Avenue - 3245
-East 35th St - 1431
-New York Avenue
-Avenue I - 2802
-1503 East 14th Street
-Avenue H - 824
-East 7th Street (Ave N)
-46th Street - 1771 1st Fl
-46th Street - 1771 2nd Fl
-1068 East 14th Street
-50th Street - 918
-East 9th - 1367
-Avenue K - 1010
-Crown Heights - 580
-Montgomery St (fmr Kingston Ave)
-Coney Island Ave - 2173
-Avenue L - 1122
-East 21 - 2102 Ave I
-East 36th Street - 3521
-Kings Highway - 2416
-53rd Street - 1038
-19th Avenue - 4801
-46th Street - 1327
-48th Street - 1268
-Avenue J - 1010
-Avenue J - 1014 6B
-Avenue J - 1014 6F
-Ditmas Avenue - 804
-Webster Avenue - 373
-East 8th Street - 536
-Avenue S
-Mill Basin
-Staten Island
-East 13th Street - 1857</textarea>
-      </div>
-      <div class="row">
-        <button class="btn btn-primary" id="qrGen">Generate QR codes</button>
-        <button class="btn btn-ghost" id="qrPrint" style="display:none">Print all</button>
-      </div>
-      <div id="qrOut" style="display:flex;flex-wrap:wrap;gap:18px;margin-top:20px"></div>
     </div>
   </div>
 
@@ -2874,12 +2819,8 @@ $('againBtn').addEventListener('click', ()=>{
 });
 
 // ---- views ----
-function hideAll(){ $('gate').style.display='none'; $('readView').style.display='none'; $('recordsView').style.display='none'; $('qrView').style.display='none'; }
+function hideAll(){ $('gate').style.display='none'; $('readView').style.display='none'; $('recordsView').style.display='none'; }
 $('tabRead').addEventListener('click', ()=>{ hideAll(); applyGate(); });
-$('tabQR').addEventListener('click', ()=>{
-  hideAll(); $('qrView').style.display='block'; $('progWrap').style.display='none';
-  if(!$('qrBase').value) $('qrBase').value = location.origin + location.pathname;
-});
 $('tabRecords').addEventListener('click', async ()=>{
   hideAll(); $('recordsView').style.display='block'; $('progWrap').style.display='none';
   const folders = $('recFolders'); folders.innerHTML=''; $('recEmpty').style.display='none';
@@ -2934,33 +2875,6 @@ $('tabRecords').addEventListener('click', async ()=>{
 });
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
-// ---- QR generation ----
-function cleanBase(b){
-  b = (b||'').trim().replace(/[?#].*$/,'').replace(/\/+$/,'');
-  return b;
-}
-$('qrGen').addEventListener('click', ()=>{
-  const base = cleanBase($('qrBase').value);
-  const out = $('qrOut'); out.innerHTML='';
-  const homes = $('qrHomes').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!base){ alert('Enter the site link first.'); return; }
-  if(!homes.length){ alert('Enter at least one residence.'); return; }
-  homes.forEach(name=>{
-    const url = base + '/?home=' + encodeURIComponent(name);
-    const qr = qrcode(0,'M'); qr.addData(url); qr.make();
-    const card = document.createElement('div');
-    card.className='qrcard';
-    card.innerHTML = '<div class="qname">'+esc(name)+'</div>' + qr.createSvgTag(6,0) +
-                     '<div class="qurl">'+esc(url)+'</div>';
-    out.appendChild(card);
-  });
-  $('qrPrint').style.display = homes.length ? 'inline-flex' : 'none';
-});
-$('qrPrint').addEventListener('click', ()=>{
-  document.body.classList.add('printqr');
-  window.print();
-  setTimeout(()=>document.body.classList.remove('printqr'),300);
-});
 </script>
 </body>
 </html>
