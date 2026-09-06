@@ -28,7 +28,7 @@
   }
   function shouldManageRail(){
     var p=getProfile();
-    return !!p && String(p.role||'').toLowerCase()!=='admin';
+    return !!p;
   }
   function applyRail(){
     if(!shouldManageRail()) return;
@@ -38,7 +38,8 @@
       b.style.display=(CORE_ALWAYS.indexOf(key)>=0 || prefs.indexOf(key)>=0)?'':'none';
     });
     var sys=document.querySelector('#navRail .navbtn[data-view="system"]');
-    if(sys) sys.style.display='none';
+    var p=getProfile();
+    if(sys && p && String(p.role||'').toLowerCase()!=='admin') sys.style.display='none';
   }
   function syncMenu(){
     if(!shouldManageRail()) return;
