@@ -30,6 +30,10 @@
     var p=getProfile();
     return !!p;
   }
+  function isResidenceManager(){
+    var p=getProfile();
+    return !!(p && String(p.role||'').toLowerCase()==='residence_manager');
+  }
   function applyRail(){
     if(!shouldManageRail()) return;
     prefs=prefs||currentPrefs();
@@ -90,6 +94,18 @@
   }
 
   function getShabbosFrame(){return document.getElementById('shabbosFrame');}
+  function enforceRMShabbosView(){
+    if(!isResidenceManager()) return;
+    var f=getShabbosFrame();
+    if(!f) return;
+    var codes=document.getElementById('sbCodes');
+    var records=document.getElementById('sbRecords');
+    if(codes){codes.style.display='none';codes.classList.remove('primary');}
+    if(records) records.classList.add('primary');
+    var head=document.querySelector('#view-shabbos .viewhead p');
+    if(head) head.textContent='Review signed Shabbos policy documents for your residence.';
+    if(!/shabbos_signoff\.html/i.test(f.src)) f.src='Shabbos/shabbos_signoff.html#admin';
+  }
   function patchShabbosFrame(){
     var f=getShabbosFrame();
     if(!f) return;
@@ -151,8 +167,9 @@
     }catch(e){console.warn('HASC Shabbos iframe patch failed',e);}
   }
   function wireShabbos(){
+    enforceRMShabbosView();
     var f=getShabbosFrame();
-    if(f && !f.__hascLoad){f.__hascLoad=true;f.addEventListener('load',function(){setTimeout(patchShabbosFrame,50);});}
+    if(f && !f.__hascLoad){f.__hascLoad=true;f.addEventListener('load',function(){setTimeout(function(){enforceRMShabbosView();patchShabbosFrame();},50);});}
     patchShabbosFrame();
   }
 
