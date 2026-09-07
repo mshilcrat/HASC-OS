@@ -95,6 +95,26 @@
     }finally{saving=false;}
   }
 
+  /* Keep Houses at a Glance in normal document flow so following dashboard panels can never overlap it. */
+  function fixDashboardOverlap(){
+    var houses=document.getElementById('houses');
+    if(!houses) return;
+    var panel=houses.closest('.panel');
+    if(!panel) return;
+    houses.style.height='auto';
+    houses.style.minHeight='0';
+    houses.style.position='relative';
+    houses.style.overflow='visible';
+    houses.style.alignContent='start';
+    panel.style.height='auto';
+    panel.style.overflow='visible';
+    panel.style.position='relative';
+    panel.style.flex='0 0 auto';
+    var ph=panel.querySelector('.ph');
+    var needed=(houses.scrollHeight||0)+(ph?ph.offsetHeight:0)+22;
+    if(needed>0) panel.style.minHeight=needed+'px';
+  }
+
   function getShabbosFrame(){return document.getElementById('shabbosFrame');}
   function enforceRMShabbosView(){
     if(!isResidenceManager()) return;
@@ -216,6 +236,7 @@
       applyRail();
       syncMenu();
     }
+    fixDashboardOverlap();
     wireShabbos();
     wireStaff();
     wireOvertime();
