@@ -1,244 +1,68 @@
 <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>HASC Residential OS — System Settings</title>
-  </head>
-  <body style="margin:0">
-  <div id="hasc-sys" class="hs-root">
-    <style>
-      #hasc-sys{--paper:#f1efe9;--card:#fff;--ink:#233038;--ink2:#3a4a54;--muted:#6a7a84;--faint:#9fb0b8;--line:#e7e2d9;--line2:#eef1f4;--teal:#17a2b8;--teal-ink:#0f7d8f;--teal-wash:#e8f6f8;--green:#568E62;--green-wash:#eef4ef;--blue:#3E9EB3;--blue-wash:#e9f4f6;--plum:#AC659D;--plum-wash:#f6eff4;--gold:#D9B93B;--gold-wash:#fbf6e4;--coral:#C96A44;--coral-wash:#f9ede7;--slate:#5b7a99;--indigo:#5E6FB2;--jade:#3E9E86;--rose:#C67BA0;--violet:#7C5192;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f1efe9;color:var(--ink);padding:22px;min-height:100vh;border-radius:0}
-      #hasc-sys *{box-sizing:border-box}.hs-shell{max-width:1100px;margin:auto}.hs-head{display:flex;gap:14px;align-items:center;margin-bottom:18px;flex-wrap:wrap}.hs-gear{width:48px;height:48px;border-radius:12px;background:linear-gradient(180deg,#b9bcc2,#8e9198);display:grid;place-items:center;box-shadow:0 10px 22px -12px rgba(60,50,35,.5)}.hs-gear svg{width:34px;height:34px;display:block}.hs-title h2{margin:0;font-size:27px;letter-spacing:-.025em}.hs-title p{margin:3px 0 0;color:var(--muted);font-size:14px}.hs-status{margin-left:auto;background:var(--green-wash);color:#39684a;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}.hs-toolbar{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin-bottom:14px;box-shadow:0 1px 2px rgba(60,50,35,.04)}.hs-field{display:flex;flex-direction:column;gap:5px}.hs-field label{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.05em}.hs-field select{min-width:250px;border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:9px 11px;font-size:14px;font-weight:750}.hs-scope{font-size:13px;color:var(--muted);padding-bottom:9px}.hs-usercard{margin-left:auto;display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--line);border-radius:12px;background:#fbfcfc}.hs-useravatar{width:34px;height:34px;border-radius:9px;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:900}.hs-usermeta b{display:block;font-size:13px}.hs-usermeta span{display:block;font-size:11px;color:var(--muted);margin-top:2px}.hs-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hs-panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(60,50,35,.04),0 10px 24px -18px rgba(60,50,35,.18)}.hs-ph{display:flex;align-items:center;gap:9px;margin-bottom:11px}.hs-ph h3{margin:0;font-size:14px;text-transform:uppercase;letter-spacing:.05em}.hs-count{margin-left:auto;font-size:11px;background:var(--paper);color:var(--muted);border-radius:99px;padding:4px 7px;font-weight:800}.hs-list{display:flex;flex-direction:column}.hs-item,.hs-widget{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line2)}.hs-item:last-child,.hs-widget:last-child{border-bottom:0}.hs-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--acc);color:white;font-size:17px;box-shadow:0 8px 18px -10px var(--acc);flex:none}.hs-item-main,.hs-widget-main{min-width:0;flex:1}.hs-name,.hs-widget b{font-size:14px;font-weight:850}.hs-desc,.hs-widget small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.35}.hs-switch{position:relative;width:40px;height:23px;display:inline-block;flex:none}.hs-switch input{position:absolute;opacity:0}.hs-slider{position:absolute;inset:0;background:#d8dde0;border-radius:99px;transition:.15s}.hs-slider:before{content:'';position:absolute;width:17px;height:17px;left:3px;top:3px;border-radius:50%;background:white;box-shadow:0 1px 2px rgba(0,0,0,.18);transition:.15s}.hs-switch input:checked+.hs-slider{background:var(--teal)}.hs-switch input:checked+.hs-slider:before{transform:translateX(17px)}.hs-savebar{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.hs-savebar span{font-size:12.5px;color:var(--muted)}.hs-save{margin-left:auto;border:0;background:var(--teal);color:white;border-radius:9px;padding:9px 14px;font-weight:850;cursor:pointer}.hs-reset{border:1px solid var(--line);background:white;color:var(--ink2);border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}.hs-toast{font-size:12px;color:#39684a;font-weight:800;min-width:100px;text-align:right}.hs-db{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:#fbfcfc;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}.hs-dbicon{width:32px;height:32px;border-radius:9px;background:var(--blue-wash);color:var(--blue);display:grid;place-items:center;flex:none;font-weight:900}.hs-db b{display:block;font-size:12.5px}.hs-db small{display:block;color:var(--muted);font-size:11.5px;line-height:1.4;margin-top:2px}@media(max-width:760px){.hs-grid{grid-template-columns:1fr}.hs-usercard{margin-left:0}}@media(max-width:520px){#hasc-sys{padding:14px}.hs-status{margin-left:0}.hs-field,.hs-field select{width:100%}.hs-save{margin-left:0;width:100%}}
-    </style>
-
-    <div class="hs-shell">
-      <div class="hs-head">
-                <button type="button" onclick="if(window.parent&&window.parent!==window){var d=window.parent.document.querySelector('button[data-view=&quot;dashboard&quot;]');if(d)d.click();}else{location.href='index.html';}" style="display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px;cursor:pointer">← Dashboard</button>
-        <div class="hs-gear" aria-label="System Settings">
-          <svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.32 1.5a1.6 1.6 0 0 0-1.55 1.2l-.24.92a8.7 8.7 0 0 0-1.5.87l-.9-.32a1.6 1.6 0 0 0-1.93.72l-1.68 2.9a1.6 1.6 0 0 0 .38 2.02l.73.6a8.8 8.8 0 0 0 0 1.74l-.73.6a1.6 1.6 0 0 0-.38 2.02l1.68 2.9c.4.7 1.24 1 1.93.72l.9-.32c.47.35.97.64 1.5.87l.24.92c.18.7.81 1.2 1.55 1.2h3.36c.74 0 1.37-.5 1.55-1.2l.24-.92c.53-.23 1.03-.52 1.5-.87l.9.32c.69.28 1.53-.02 1.93-.72l1.68-2.9a1.6 1.6 0 0 0-.38-2.02l-.73-.6c.06-.58.06-1.16 0-1.74l.73-.6a1.6 1.6 0 0 0 .38-2.02l-1.68-2.9a1.6 1.6 0 0 0-1.93-.72l-.9.32a8.7 8.7 0 0 0-1.5-.87l-.24-.92a1.6 1.6 0 0 0-1.55-1.2h-3.36ZM12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2Z"/></svg>
-        </div>
-        <div class="hs-title">
-          <h2>System Settings</h2>
-          <p>Choose what each individual user sees in the OS.</p>
-        </div>
-        <div class="hs-status">ADMIN ONLY</div>
-      </div>
-
-      <div class="hs-toolbar">
-        <div class="hs-field">
-          <label>Select User</label>
-          <select id="hs-user">
-            <option value="">Loading users from Supabase…</option>
-        </select>
-      </div>
-
-      <div class="hs-scope" id="hs-scope">User scope loads from the profile table</div>
-
-      <div class="hs-usercard">
-        <div class="hs-useravatar" id="hs-useravatar">—</div>
-        <div class="hs-usermeta">
-          <b id="hs-username">Select a user</b>
-          <span id="hs-userrole">Supabase profile</span>
-        </div>
-        </div>
-      </div>
-
-      <div class="hs-grid">
-        <section class="hs-panel">
-          <div class="hs-ph">
-            <div class="hs-ico" style="--acc:var(--violet)">▦</div>
-            <h3>Apps</h3>
-            <span class="hs-count" id="hs-app-count"></span>
-          </div>
-          <div class="hs-list" id="hs-apps"></div>
-        </section>
-
-        <section class="hs-panel">
-          <div class="hs-ph">
-            <div class="hs-ico" style="--acc:var(--blue)">▤</div>
-            <h3>Dashboard Widgets</h3>
-            <span class="hs-count" id="hs-widget-count"></span>
-          </div>
-          <div class="hs-list" id="hs-widgets"></div>
-        </section>
-      </div>
-
-      <div class="hs-savebar">
-        <span>Turn items on or off for this user.</span>
-        <button type="button" class="hs-reset" id="hs-reset">Reset User</button>
-        <button type="button" class="hs-save" id="hs-save">Save to User</button>
-        <div class="hs-toast" id="hs-toast" aria-live="polite"></div>
-      </div>
-
-      <div class="hs-db">
-        <div class="hs-dbicon">DB</div>
-        <div>
-          <b>Supabase user profile</b>
-        <small>This screen is meant to save the selected apps and widgets directly to that user's profile/config row. guard.js still decides which residences and records the user is actually allowed to access.</small>
-        </div>
-      </div>
-    </div>
-
-    <script>
-    (function(){
-      const root=document.getElementById('hasc-sys');
-    if(!root||root.dataset.ready)return;
-    root.dataset.ready='1';
-
-    const apps=[
-{k:'checklists',n:'Checklists',d:'Daily tasks and safety checks',i:'✓',c:'var(--green)'},
-{k:'ledgers',n:'Ledgers',d:'Resident funds and monthly sheets',i:'▤',c:'var(--blue)'},
-{k:'planner',n:'Residential Day Planner',d:'Weekly activities and staffing',i:'▣',c:'var(--plum)'},
-{k:'training',n:'Training',d:'Residential PONS and certifications',i:'◆',c:'var(--gold)'},
-{k:'ot',n:'OT Dashboard',d:'Overtime and staffing by residence',i:'▥',c:'var(--coral)'},
-{k:'lifeplan',n:'Life Plan Tracker',d:'Life plans, goals and progress',i:'♡',c:'var(--slate)'},
-{k:'staff',n:'Staff',d:'Staff roster, credentials and assignments',i:'♟',c:'var(--jade)'},
-{k:'orgtraining',n:'Org Training',d:'Organization-wide training programs',i:'◆',c:'var(--rose)'},
-{k:'system',n:'System Settings',d:'Role, app and widget administration',i:'⚙',c:'var(--violet)'}
-    ];
-
-    const widgets=[
-{k:'houses',n:'Houses at a Glance',d:'Residence cards and individual overview'},
-{k:'activity',n:'Recent Activity',d:'Recent certifications and OS activity'},
-{k:'focus',n:'Focus Board',d:'Live exceptions requiring attention'},
-{k:'moves',n:'Departures & Returns',d:'Movement events for individuals'},
-{k:'announcements',n:'Announcements',d:'Department and residence messages'},
-{k:'checkprogress',n:"Today's Checklist Progress",d:'Daily completion snapshot'},
-{k:'dayhab',n:'Residential ↔ Day Hab',d:'Shared attendance and handoff counts'}
-    ];
-
-    const defaults={};
-    const state={};
-    const users={};
-
-    const user=document.getElementById('hs-user');
-    const appHost=document.getElementById('hs-apps');
-    const widgetHost=document.getElementById('hs-widgets');
-
-    function sw(checked,key,type,disabled){
-            return `<label class="hs-switch">
-                      <input type="checkbox" data-${type}="${key}" ${checked?'checked':''} ${disabled?'disabled':''}>
-                      <span class="hs-slider"></span>
-                    </label>`;
-    }
-
-    function render(){
-            const r=user.value;
-      const cfg=state[r];
-      const u=users[r];
-      const ready=!!(r&&cfg&&u);
-
-      if(ready){
-        document.getElementById('hs-scope').textContent=u.scope||'Profile-controlled scope';
-        document.getElementById('hs-username').textContent=u.name||'User';
-        document.getElementById('hs-userrole').textContent=(u.role||'USER')+' · Supabase profile';
-        document.getElementById('hs-useravatar').textContent=u.initials||'—';
-      }else{
-        document.getElementById('hs-scope').textContent='Select a Supabase user to configure';
-        document.getElementById('hs-username').textContent='Select a user';
-        document.getElementById('hs-userrole').textContent='Loaded from Supabase';
-        document.getElementById('hs-useravatar').textContent='—';
-      }
-
-      appHost.innerHTML=apps.map(a=>`
-                <div class="hs-item">
-                  <div class="hs-ico" style="--acc:${a.c}">${a.i}</div>
-                  <div class="hs-item-main">
-                    <div class="hs-name">${a.n}</div>
-                    <div class="hs-desc">${a.d}</div>
-                  </div>
-                  ${sw(ready&&cfg.apps.includes(a.k),a.k,'app',!ready)}
-        </div>
-              `).join('');
-
-      widgetHost.innerHTML=widgets.map(w=>`
-                <div class="hs-widget">
-                  <div class="hs-widget-main">
-                    <b>${w.n}</b>
-                    <small>${w.d}</small>
-                  </div>
-                  ${sw(ready&&cfg.widgets.includes(w.k),w.k,'widget',!ready)}
-        </div>
-              `).join('');
-
-      document.getElementById('hs-app-count').textContent=ready?cfg.apps.length+' enabled':'Select user';
-      document.getElementById('hs-widget-count').textContent=ready?cfg.widgets.length+' visible':'Select user';
-
-      root.querySelectorAll('[data-app]').forEach(cb=>{
-                cb.addEventListener('change',()=>toggle('apps',cb.dataset.app,cb.checked));
-    });
-
-      root.querySelectorAll('[data-widget]').forEach(cb=>{
-                cb.addEventListener('change',()=>toggle('widgets',cb.dataset.widget,cb.checked));
-});
-}
-
-    function toggle(type,key,on){
-            const r=user.value;
-      if(!r||!state[r])return;
-
-      const a=state[r][type];
-
-      if(on&&!a.includes(key))a.push(key);
-      if(!on)state[r][type]=a.filter(x=>x!==key);
-
-      render();
-    }
-
-    user.addEventListener('change',render);
-
-    document.getElementById('hs-reset').addEventListener('click',()=>{
-            if(!user.value||!defaults[user.value])return;
-      state[user.value]=JSON.parse(JSON.stringify(defaults[user.value]));
-      render();
-      document.getElementById('hs-toast').textContent='User reset';
-});
-
-    document.getElementById('hs-save').addEventListener('click',()=>{
-            const t=document.getElementById('hs-toast');
-
-      if(!user.value||!users[user.value]){
-        t.textContent='Select a Supabase user';
-        return;
-      }
-
-      t.textContent='✓ Ready to save to '+users[user.value].name;
-      setTimeout(()=>t.textContent='',1800);
-        });
-
-    render();
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HASC Residential OS — System Settings</title>
+<style>
+:root{--paper:#f1efe9;--card:#fff;--ink:#233038;--ink2:#3a4a54;--muted:#6a7a84;--line:#e7e2d9;--line2:#eef1f4;--teal:#17a2b8;--green:#568E62;--green-wash:#eef4ef;--violet:#7C5192}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--paper);color:var(--ink)}
+#hasc-sys{padding:22px;min-height:100vh}.hs-shell{max-width:1100px;margin:auto}.hs-head{display:flex;gap:14px;align-items:center;margin-bottom:18px;flex-wrap:wrap}.hs-back{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink2);border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px;cursor:pointer}.hs-gear{width:48px;height:48px;border-radius:12px;background:linear-gradient(180deg,#b9bcc2,#8e9198);display:grid;place-items:center;box-shadow:0 10px 22px -12px rgba(60,50,35,.5);font-size:24px;color:#fff}.hs-title h2{margin:0;font-size:27px;letter-spacing:-.025em}.hs-title p{margin:3px 0 0;color:var(--muted);font-size:14px}.hs-status{margin-left:auto;background:var(--green-wash);color:#39684a;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}.hs-toolbar{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin-bottom:14px;box-shadow:0 1px 2px rgba(60,50,35,.04)}.hs-field{display:flex;flex-direction:column;gap:5px}.hs-field label{font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.05em}.hs-field select{min-width:280px;border:1px solid var(--line);background:white;color:var(--ink);border-radius:9px;padding:9px 11px;font-size:14px;font-weight:750}.hs-scope{font-size:13px;color:var(--muted);padding-bottom:9px}.hs-usercard{margin-left:auto;display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--line);border-radius:12px;background:#fbfcfc}.hs-useravatar{width:34px;height:34px;border-radius:9px;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:900}.hs-usermeta b{display:block;font-size:13px}.hs-usermeta span{display:block;font-size:11px;color:var(--muted);margin-top:2px}.hs-panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 1px 2px rgba(60,50,35,.04),0 10px 24px -18px rgba(60,50,35,.18)}.hs-ph{display:flex;align-items:center;gap:9px;margin-bottom:11px}.hs-ph h3{margin:0;font-size:14px;text-transform:uppercase;letter-spacing:.05em}.hs-count{margin-left:auto;font-size:11px;background:var(--paper);color:var(--muted);border-radius:99px;padding:4px 7px;font-weight:800}.hs-list{display:flex;flex-direction:column}.hs-item{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--line2)}.hs-item:last-child{border-bottom:0}.hs-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--violet);color:white;font-size:15px;font-weight:900;flex:none}.hs-item-main{min-width:0;flex:1}.hs-name{font-size:14px;font-weight:850}.hs-desc{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.35}.hs-switch{position:relative;width:40px;height:23px;display:inline-block;flex:none}.hs-switch input{position:absolute;opacity:0}.hs-slider{position:absolute;inset:0;background:#d8dde0;border-radius:99px;transition:.15s;cursor:pointer}.hs-slider:before{content:'';position:absolute;width:17px;height:17px;left:3px;top:3px;border-radius:50%;background:white;box-shadow:0 1px 2px rgba(0,0,0,.18);transition:.15s}.hs-switch input:checked+.hs-slider{background:var(--teal)}.hs-switch input:checked+.hs-slider:before{transform:translateX(17px)}.hs-savebar{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.hs-savebar span{font-size:12.5px;color:var(--muted)}.hs-save{margin-left:auto;border:0;background:var(--teal);color:white;border-radius:9px;padding:9px 14px;font-weight:850;cursor:pointer}.hs-reset{border:1px solid var(--line);background:white;color:var(--ink2);border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer}.hs-toast{font-size:12px;color:#39684a;font-weight:800;min-width:120px;text-align:right}.hs-db{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:#fbfcfc;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}.hs-dbicon{width:32px;height:32px;border-radius:9px;background:#e9f4f6;color:#3E9EB3;display:grid;place-items:center;flex:none;font-weight:900}.hs-db b{display:block;font-size:12.5px}.hs-db small{display:block;color:var(--muted);font-size:11.5px;line-height:1.4;margin-top:2px}.hs-empty{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:760px){.hs-usercard{margin-left:0}}@media(max-width:520px){#hasc-sys{padding:14px}.hs-status{margin-left:0}.hs-field,.hs-field select{width:100%;min-width:0}.hs-save{margin-left:0;width:100%}}
+</style>
+</head>
+<body>
+<div id="hasc-sys">
+<div class="hs-shell">
+<div class="hs-head">
+<button class="hs-back" id="hs-back" type="button">← Dashboard</button>
+<div class="hs-gear">⚙</div>
+<div class="hs-title"><h2>System Settings</h2><p>Choose which HASC OS apps each individual user can see.</p></div>
+<div class="hs-status">ADMIN ONLY</div>
+</div>
+<div class="hs-toolbar">
+<div class="hs-field"><label>Select User</label><select id="hs-user"><option value="">Loading users from Supabase…</option></select></div>
+<div class="hs-scope" id="hs-scope">User scope loads from the profile table</div>
+<div class="hs-usercard"><div class="hs-useravatar" id="hs-useravatar">—</div><div class="hs-usermeta"><b id="hs-username">Select a user</b><span id="hs-userrole">Supabase profile</span></div></div>
+</div>
+<section class="hs-panel">
+<div class="hs-ph"><div class="hs-ico">▦</div><h3>Apps</h3><span class="hs-count" id="hs-app-count">0 apps</span></div>
+<div class="hs-list" id="hs-apps"><div class="hs-empty">Loading HASC OS app registry…</div></div>
+</section>
+<div class="hs-savebar"><span>Unchecked apps are hidden from that user's HASC OS rail.</span><button type="button" class="hs-reset" id="hs-reset">Reset User</button><button type="button" class="hs-save" id="hs-save">Save to User</button><div class="hs-toast" id="hs-toast" aria-live="polite"></div></div>
+<div class="hs-db"><div class="hs-dbicon">DB</div><div><b>Supabase user profile</b><small>App visibility is stored in <code>profiles.apps</code>. The app list itself is discovered from the live HASC OS rail, so future apps automatically appear here when they are added to the shell.</small></div></div>
+</div>
+</div>
+<script>
+(function(){
+'use strict';
+const userEl=document.getElementById('hs-user');
+const appsEl=document.getElementById('hs-apps');
+const countEl=document.getElementById('hs-app-count');
+const toastEl=document.getElementById('hs-toast');
+const users={};
+let apps=[];
+let sb=null;
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function parentDoc(){try{return window.parent&&window.parent!==window?window.parent.document:null}catch(e){return null}}
+function parentProfile(){try{return window.parent&&window.parent.__hascProfile?window.parent.__hascProfile:null}catch(e){return null}}
+function getClient(){try{if(window.parent&&window.parent.__hascClient)return window.parent.__hascClient}catch(e){}return window.__hascClient||null}
+function toast(msg,bad){toastEl.textContent=msg||'';toastEl.style.color=bad?'#9a4d37':'#39684a';if(msg)setTimeout(()=>{if(toastEl.textContent===msg)toastEl.textContent=''},2200)}
+function initials(name,email){const s=String(name||email||'').trim();if(!s)return'—';const p=s.split(/\s+/).filter(Boolean);return p.slice(0,2).map(x=>x[0].toUpperCase()).join('')||'—'}
+function labelFor(btn,key){const lab=btn.querySelector('.label');let t=(lab?lab.textContent:btn.textContent||'').replace(/\s+/g,' ').trim();return t||key.replace(/[-_]/g,' ').replace(/\b\w/g,m=>m.toUpperCase())}
+function discoverApps(){const d=parentDoc();if(!d)return[];const seen=new Set();const out=[];d.querySelectorAll('#navRail .navbtn[data-view]').forEach(btn=>{const key=String(btn.getAttribute('data-view')||'').trim();if(!key||key==='dashboard'||seen.has(key))return;seen.add(key);out.push({k:key,n:labelFor(btn,key)});});return out}
+function refreshRegistry(){const found=discoverApps();if(found.length)apps=found;renderApps()}
+function selectedUser(){return users[userEl.value]||null}
+function renderUser(){const u=selectedUser();document.getElementById('hs-username').textContent=u?(u.full_name||u.email):'Select a user';document.getElementById('hs-userrole').textContent=u?String(u.role||'USER').toUpperCase()+' · Supabase profile':'Supabase profile';document.getElementById('hs-useravatar').textContent=u?initials(u.full_name,u.email):'—';document.getElementById('hs-scope').textContent=u?(Array.isArray(u.residences)&&u.residences.length?u.residences.join(', '):'Profile-controlled scope'):'Select a user to manage app visibility';renderApps()}
+function renderApps(){const u=selectedUser();const enabled=u&&Array.isArray(u.apps)?u.apps:[];countEl.textContent=apps.length+' app'+(apps.length===1?'':'s');if(!apps.length){appsEl.innerHTML='<div class="hs-empty">No HASC OS apps were found in the shell.</div>';return}appsEl.innerHTML=apps.map(a=>`<div class="hs-item"><div class="hs-ico">${esc(a.n.slice(0,1).toUpperCase())}</div><div class="hs-item-main"><div class="hs-name">${esc(a.n)}</div><span class="hs-desc">HASC OS app · ${esc(a.k)}</span></div><label class="hs-switch"><input type="checkbox" data-app="${esc(a.k)}" ${u&&enabled.includes(a.k)?'checked':''} ${u?'':'disabled'}><span class="hs-slider"></span></label></div>`).join('')}
+async function loadUsers(){sb=getClient();if(!sb){userEl.innerHTML='<option value="">Supabase client unavailable</option>';toast('Supabase unavailable',true);return}const p=parentProfile();if(p&&String(p.role||'').toLowerCase()!=='admin'){document.body.innerHTML='<div style="padding:30px;font-family:sans-serif">System Settings is admin only.</div>';return}const r=await sb.from('profiles').select('email,full_name,role,residences,apps').order('full_name',{ascending:true});if(r.error){userEl.innerHTML='<option value="">Could not load users</option>';toast(r.error.message,true);return}(r.data||[]).forEach(row=>users[row.email]=row);const rows=Object.values(users);userEl.innerHTML='<option value="">Select a user…</option>'+rows.map(u=>`<option value="${esc(u.email)}">${esc(u.full_name||u.email)}${u.role?' · '+esc(String(u.role).toUpperCase()):''}</option>`).join('');renderUser()}
+function chosenApps(){return Array.from(appsEl.querySelectorAll('input[data-app]:checked')).map(x=>x.getAttribute('data-app'))}
+function applyToCurrentRail(email,chosen){try{const p=parentProfile();if(!p||String(p.email||'').toLowerCase()!==String(email||'').toLowerCase())return;const d=parentDoc();if(!d)return;d.querySelectorAll('#navRail .navbtn[data-view]').forEach(btn=>{const key=btn.getAttribute('data-view');if(key==='dashboard')return;let show=chosen.includes(key);if(key==='system'&&String(p.role||'').toLowerCase()!=='admin')show=false;btn.style.display=show?'':'none'});p.apps=chosen.slice();window.parent.__hascProfile=p;try{window.parent.sessionStorage.setItem('hasc_apps',JSON.stringify(chosen))}catch(e){}}catch(e){console.warn('Could not refresh parent rail',e)}}
+async function save(){const u=selectedUser();if(!u)return toast('Select a user',true);const chosen=chosenApps();const r=await sb.from('profiles').update({apps:chosen}).eq('email',u.email).select('email,apps').single();if(r.error)return toast(r.error.message,true);u.apps=chosen.slice();applyToCurrentRail(u.email,chosen);toast('Saved')}
+function reset(){const u=selectedUser();if(!u)return toast('Select a user',true);u.apps=[];renderApps();toast('All apps unchecked — click Save')}
+userEl.addEventListener('change',renderUser);document.getElementById('hs-save').addEventListener('click',save);document.getElementById('hs-reset').addEventListener('click',reset);document.getElementById('hs-back').addEventListener('click',()=>{const d=parentDoc();const b=d&&d.querySelector('button[data-view="dashboard"]');if(b)b.click();else location.href='/index.html'});
+refreshRegistry();setInterval(refreshRegistry,2000);loadUsers();
 })();
-  </script>
-    </div>
-    </body>
-    </html>
-      <script>
-        (function(){
-          var ICON={
-            checklists:['var(--green)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>'],
-            ledgers:['var(--blue)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4a2 2 0 0 1 2-2h11l3 3v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"></path><path d="M9 7h6M9 11h6M9 15h4"></path></svg>'],
-            planner:['var(--plum)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"></rect><path d="M3 9h18M8 2v4M16 2v4"></path></svg>'],
-            training:['var(--gold)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"></path><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"></path></svg>'],
-            ot:['var(--coral)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="11" width="3" height="6"></rect><rect x="12" y="7" width="3" height="10"></rect><rect x="17" y="13" width="3" height="4"></rect></svg>'],
-            lifeplan:['var(--slate)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path><path d="M3 20a6 6 0 0 1 12 0"></path><path d="M15.5 7.5c1-1.2 3-1 3 .6 0 1.3-1.6 2.2-3 3.4-1.4-1.2-3-2.1-3-3.4 0-1.6 2-1.8 3-.6z"></path></svg>'],
-            staff:['var(--jade)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'],
-            orgtraining:['var(--rose)','<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"></path><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"></path></svg>'],
-            system:['var(--slate)','<svg viewBox="0 0 24 24" fill="#fff"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.32 1.5a1.6 1.6 0 0 0-1.55 1.2l-.24.92a8.7 8.7 0 0 0-1.5.87l-.9-.32a1.6 1.6 0 0 0-1.93.72l-1.68 2.9a1.6 1.6 0 0 0 .38 2.02l.73.6a8.8 8.8 0 0 0 0 1.74l-.73.6a1.6 1.6 0 0 0-.38 2.02l1.68 2.9c.4.7 1.24 1 1.93.72l.9-.32c.47.35.97.64 1.5.87l.24.92c.18.7.81 1.2 1.55 1.2h3.36c.74 0 1.37-.5 1.55-1.2l.24-.92c.53-.23 1.03-.52 1.5-.87l.9.32c.69.28 1.53-.02 1.93-.72l1.68-2.9a1.6 1.6 0 0 0-.38-2.02l-.73-.6c.06-.58.06-1.16 0-1.74l.73-.6a1.6 1.6 0 0 0 .38-2.02l-1.68-2.9a1.6 1.6 0 0 0-1.93-.72l-.9.32a8.7 8.7 0 0 0-1.5-.87l-.24-.92a1.6 1.6 0 0 0-1.55-1.2h-3.36ZM12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2Z"></path></svg>']
-          };
-          var NOTOGGLE={system:1};
-          function fix(){
-            var items=document.querySelectorAll('#hasc-sys .hs-item');
-            items.forEach(function(it){
-              var inp=it.querySelector('input[data-app]');var key=inp?inp.getAttribute('data-app'):null;
-              if(!key)return;
-              var ico=it.querySelector('.hs-ico');
-              if(ico&&ICON[key]){ico.style.setProperty('--acc',ICON[key][0]);ico.innerHTML=ICON[key][1];var s=ico.querySelector('svg');if(s){s.style.width='19px';s.style.height='19px';}}
-              if(NOTOGGLE[key]){var sw=it.querySelector('.hs-switch');if(sw)sw.remove();}
-            });
-          }
-          if(document.readyState!=='loading')setTimeout(fix,60);else document.addEventListener('DOMContentLoaded',function(){setTimeout(fix,60);});
-          var mo=new MutationObserver(function(){mo.disconnect();fix();mo.observe(document.getElementById('hasc-sys'),{childList:true,subtree:true});});mo.observe(document.getElementById('hasc-sys'),{childList:true,subtree:true});
-        })();
-      </script>
 </script>
+</body>
+</html>
