@@ -26,7 +26,7 @@ function closeDrawer(){scrim.classList.remove('on');drawer.classList.remove('on'
 function staffById(id){return STAFF.find(s=>s.id===id)}
 function staffForRes(res){return RES.filter(r=>r.residence===res).map(r=>({r,s:staffById(r.staff_id)})).filter(x=>x.s).sort((a,b)=>a.s.name.localeCompare(b.s.name))}
 function certsFor(s,res){return CERTS.filter(c=>!c.is_archived&&c.residence===res&&norm(c.dsp_name)===norm(s.name)).sort((a,b)=>new Date(b.completed_at)-new Date(a.completed_at))}
-function signsFor(s,res){return SIGNS.filter(x=>x.home===res&&x.matched_staff_id===s.id).sort((a,b)=>new Date(b.signed_at)-new Date(a.signed_at))}
+function signsFor(s,res){return SIGNS.filter(x=>x.home===res&&(x.matched_staff_id===s.id||(!x.matched_staff_id&&norm(x.name)===norm(s.name)))).sort((a,b)=>new Date(b.signed_at)-new Date(a.signed_at))}
 function assignmentFor(res,type){return SHIFTS.find(x=>x.residence===res&&x.shift_type===type)}
 function residenceNames(){return [...new Set(RES.map(r=>r.residence))].sort()}
 function nav(){rail.innerHTML=`<div class="rail-label">Staff</div><div class="nav"><button class="navbtn" data-v="homes"><span class="nav-ic" style="--tile:var(--blue)"><svg><use href="#i-grid"/></svg></span><span class="label">By Residence</span></button><button class="navbtn" data-v="manage"><span class="nav-ic" style="--tile:#C96A44"><svg><use href="#i-people"/></svg></span><span class="label">Manage Staff</span></button></div>`;rail.querySelectorAll('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.v));}
