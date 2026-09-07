@@ -175,6 +175,19 @@
     patchStaffFrame();
   }
 
+  /* Overtime should open directly in the Mark 4 content area, not the legacy launch card. */
+  function wireOvertime(){
+    var v=document.getElementById('view-ot');
+    if(!v) return;
+    var f=v.querySelector('#otFrame');
+    if(!f){
+      v.innerHTML='<iframe id="otFrame" src="/Overtime/overtime.html" style="display:block;width:100%;height:calc(100vh - 90px);border:0;border-radius:0;background:#f0f2f5"></iframe>';
+    }else{
+      f.style.height='calc(100vh - 90px)';
+      f.style.borderRadius='0';
+    }
+  }
+
   function tick(){
     getProfile();
     if(profile){
@@ -184,13 +197,14 @@
     }
     wireShabbos();
     wireStaff();
+    wireOvertime();
   }
 
   document.addEventListener('click',function(e){
-    var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],button[data-view="staff"],#sbCodes,#sbRecords'):null;
+    var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],button[data-view="staff"],button[data-view="ot"],#sbCodes,#sbRecords'):null;
     if(!t) return;
-    setTimeout(function(){syncMenu();wireShabbos();wireStaff();},80);
-    setTimeout(function(){syncMenu();wireShabbos();wireStaff();},400);
+    setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},80);
+    setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},400);
   },true);
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tick); else tick();
