@@ -46,6 +46,8 @@
     });
     var sys=document.querySelector('#navRail .navbtn[data-view="system"]');
     if(sys && !isAdmin) sys.style.display='none';
+    var appsLauncher=document.getElementById('appsLauncher');
+    if(appsLauncher) appsLauncher.style.display=isAdmin?'':'none';
   }
   function syncMenu(){
     if(!shouldManageRail()) return;
