@@ -33,13 +33,15 @@
   function applyRail(){
     if(!shouldManageRail()) return;
     prefs=prefs||currentPrefs();
+    var p=getProfile();
+    var isAdmin=!!(p && String(p.role||'').toLowerCase()==='admin');
     document.querySelectorAll('#navRail .navbtn[data-view]').forEach(function(b){
       var key=b.getAttribute('data-view');
-      b.style.display=(CORE_ALWAYS.indexOf(key)>=0 || prefs.indexOf(key)>=0)?'':'none';
+      var show=(CORE_ALWAYS.indexOf(key)>=0 || prefs.indexOf(key)>=0 || (key==='system' && isAdmin));
+      b.style.display=show?'':'none';
     });
     var sys=document.querySelector('#navRail .navbtn[data-view="system"]');
-    var p=getProfile();
-    if(sys && p && String(p.role||'').toLowerCase()!=='admin') sys.style.display='none';
+    if(sys && !isAdmin) sys.style.display='none';
   }
   function syncMenu(){
     if(!shouldManageRail()) return;
