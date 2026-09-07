@@ -15,242 +15,27 @@
   var prefs=null;
   var saving=false;
 
-  function getProfile(){
-    profile=window.__hascProfile||profile;
-    sb=window.__hascClient||sb;
-    return profile;
-  }
-  function currentPrefs(){
-    var p=getProfile();
-    if(!p) return DEFAULT_APPS.slice();
-    if(Array.isArray(p.apps)) return p.apps.slice();
-    return DEFAULT_APPS.slice();
-  }
-  function shouldManageRail(){
-    var p=getProfile();
-    return !!p;
-  }
-  function isResidenceManager(){
-    var p=getProfile();
-    return !!(p && String(p.role||'').toLowerCase()==='residence_manager');
-  }
-  function applyRail(){
-    if(!shouldManageRail()) return;
-    prefs=prefs||currentPrefs();
-    var p=getProfile();
-    var isAdmin=!!(p && String(p.role||'').toLowerCase()==='admin');
-    document.querySelectorAll('#navRail .navbtn[data-view]').forEach(function(b){
-      var key=b.getAttribute('data-view');
-      var show=(CORE_ALWAYS.indexOf(key)>=0 || prefs.indexOf(key)>=0 || (key==='system' && isAdmin));
-      b.style.display=show?'':'none';
-    });
-    var sys=document.querySelector('#navRail .navbtn[data-view="system"]');
-    if(sys && !isAdmin) sys.style.display='none';
-    var appsLauncher=document.getElementById('appsLauncher');
-    if(appsLauncher) appsLauncher.style.display=isAdmin?'':'none';
-  }
-  function syncMenu(){
-    if(!shouldManageRail()) return;
-    prefs=prefs||currentPrefs();
-    var pin=document.getElementById('appsPin');
-    if(!pin) return;
+  function getProfile(){profile=window.__hascProfile||profile;sb=window.__hascClient||sb;return profile;}
+  function currentPrefs(){var p=getProfile();if(!p)return DEFAULT_APPS.slice();if(Array.isArray(p.apps))return p.apps.slice();return DEFAULT_APPS.slice();}
+  function shouldManageRail(){return !!getProfile();}
+  function isResidenceManager(){var p=getProfile();return !!(p&&String(p.role||'').toLowerCase()==='residence_manager');}
+  function applyRail(){if(!shouldManageRail())return;prefs=prefs||currentPrefs();var p=getProfile(),isAdmin=!!(p&&String(p.role||'').toLowerCase()==='admin');document.querySelectorAll('#navRail .navbtn[data-view]').forEach(function(b){var key=b.getAttribute('data-view');var show=(CORE_ALWAYS.indexOf(key)>=0||prefs.indexOf(key)>=0||(key==='system'&&isAdmin));b.style.display=show?'':'none';});var sys=document.querySelector('#navRail .navbtn[data-view="system"]');if(sys&&!isAdmin)sys.style.display='none';var appsLauncher=document.getElementById('appsLauncher');if(appsLauncher)appsLauncher.style.display=isAdmin?'':'none';}
+  function syncMenu(){if(!shouldManageRail())return;prefs=prefs||currentPrefs();var pin=document.getElementById('appsPin');if(!pin)return;if(!pin.querySelector('input[data-app="individuals"]')){var row=document.createElement('label');row.className='approw';row.innerHTML='<span class="approw-l"><span class="cfgp" style="--acc:var(--indigo)">👤</span>Individuals</span><input type="checkbox" data-app="individuals">';pin.insertBefore(row,pin.firstChild);}pin.querySelectorAll('input[data-app]').forEach(function(cb){cb.checked=prefs.indexOf(cb.getAttribute('data-app'))>=0;if(!cb.__hascPersist){cb.__hascPersist=true;cb.addEventListener('change',function(){setTimeout(function(){var chosen=[];pin.querySelectorAll('input[data-app]:checked').forEach(function(x){chosen.push(x.getAttribute('data-app'));});prefs=chosen;savePrefs();applyRail();},0);});}});}
+  async function savePrefs(){if(saving)return;var p=getProfile();if(!p||!sb||!p.email)return;saving=true;try{var r=await sb.from('profiles').update({apps:prefs}).eq('email',p.email);if(r.error)throw r.error;p.apps=prefs.slice();window.__hascProfile=p;try{sessionStorage.setItem('hasc_apps',JSON.stringify(prefs));}catch(e){}}catch(e){console.error('HASC rail preference save failed',e);}finally{saving=false;}}
 
-    /* Individuals is a real rail app but is missing from the original app catalog. */
-    if(!pin.querySelector('input[data-app="individuals"]')){
-      var row=document.createElement('label');
-      row.className='approw';
-      row.innerHTML='<span class="approw-l"><span class="cfgp" style="--acc:var(--indigo)">👤</span>Individuals</span><input type="checkbox" data-app="individuals">';
-      pin.insertBefore(row,pin.firstChild);
-    }
+  /* Department switching is not part of the Residential Mark 4 user experience. */
+  function hideDepartmentSelector(){var sel=document.querySelector('.myres-picks select:not(#heroHomeFilter)');if(sel)sel.style.display='none';}
 
-    pin.querySelectorAll('input[data-app]').forEach(function(cb){
-      cb.checked=prefs.indexOf(cb.getAttribute('data-app'))>=0;
-      if(!cb.__hascPersist){
-        cb.__hascPersist=true;
-        cb.addEventListener('change',function(){
-          setTimeout(function(){
-            var chosen=[];
-            pin.querySelectorAll('input[data-app]:checked').forEach(function(x){chosen.push(x.getAttribute('data-app'));});
-            prefs=chosen;
-            savePrefs();
-            applyRail();
-          },0);
-        });
-      }
-    });
-  }
-  async function savePrefs(){
-    if(saving) return;
-    var p=getProfile();
-    if(!p||!sb||!p.email) return;
-    saving=true;
-    try{
-      var r=await sb.from('profiles').update({apps:prefs}).eq('email',p.email);
-      if(r.error) throw r.error;
-      p.apps=prefs.slice();
-      window.__hascProfile=p;
-      try{sessionStorage.setItem('hasc_apps',JSON.stringify(prefs));}catch(e){}
-    }catch(e){
-      console.error('HASC rail preference save failed',e);
-    }finally{saving=false;}
-  }
-
-  /* Keep Houses at a Glance in normal document flow so following dashboard panels can never overlap it. */
-  function fixDashboardOverlap(){
-    var houses=document.getElementById('houses');
-    if(!houses) return;
-    var panel=houses.closest('.panel');
-    if(!panel) return;
-    houses.style.height='auto';
-    houses.style.minHeight='0';
-    houses.style.position='relative';
-    houses.style.overflow='visible';
-    houses.style.alignContent='start';
-    panel.style.height='auto';
-    panel.style.overflow='visible';
-    panel.style.position='relative';
-    panel.style.flex='0 0 auto';
-    var ph=panel.querySelector('.ph');
-    var needed=(houses.scrollHeight||0)+(ph?ph.offsetHeight:0)+22;
-    if(needed>0) panel.style.minHeight=needed+'px';
-  }
+  function fixDashboardOverlap(){var houses=document.getElementById('houses');if(!houses)return;var panel=houses.closest('.panel');if(!panel)return;houses.style.height='auto';houses.style.minHeight='0';houses.style.position='relative';houses.style.overflow='visible';houses.style.alignContent='start';panel.style.height='auto';panel.style.overflow='visible';panel.style.position='relative';panel.style.flex='0 0 auto';var ph=panel.querySelector('.ph');var needed=(houses.scrollHeight||0)+(ph?ph.offsetHeight:0)+22;if(needed>0)panel.style.minHeight=needed+'px';}
 
   function getShabbosFrame(){return document.getElementById('shabbosFrame');}
-  function enforceRMShabbosView(){
-    if(!isResidenceManager()) return;
-    var f=getShabbosFrame();
-    if(!f) return;
-    var codes=document.getElementById('sbCodes');
-    var records=document.getElementById('sbRecords');
-    if(codes){codes.style.display='none';codes.classList.remove('primary');}
-    if(records) records.classList.add('primary');
-    var head=document.querySelector('#view-shabbos .viewhead p');
-    if(head) head.textContent='Review signed Shabbos policy documents for your residence.';
-    if(!/shabbos_signoff\.html/i.test(f.src)) f.src='Shabbos/shabbos_signoff.html#admin';
-  }
-  function patchShabbosFrame(){
-    var f=getShabbosFrame();
-    if(!f) return;
-    try{
-      var d=f.contentDocument;
-      if(!d||!d.body) return;
-      if(d.__hascPatched) return;
-      d.__hascPatched=true;
-
-      /* The Mark 4 shell already supplies the header. */
-      var hdr=d.querySelector('header.top');
-      if(hdr) hdr.style.display='none';
-      var wrap=d.querySelector('.wrap');
-      if(wrap){wrap.style.maxWidth='1100px';wrap.style.paddingTop='1px';}
-
-      /* Management view does not need a Read & Sign tab. The staff sign-off flow remains untouched. */
-      var read=d.getElementById('tabRead');
-      if(read) read.style.display='none';
-
-      /* Residence QR generator: keep one-residence-at-a-time organization and place policy printing beneath it. */
-      if(/qr_code_generator\.html/i.test(f.src)){
-        var actions=d.querySelector('.row.actions');
-        if(actions && !d.getElementById('hascPrintPolicy')){
-          var btn=d.createElement('button');
-          btn.id='hascPrintPolicy';
-          btn.className='btn btn-ghost';
-          btn.textContent='Print Shabbos Policy';
-          btn.onclick=function(){
-            var w=window.open('/Shabbos/shabbos_signoff.html#admin','_blank');
-            if(!w) return;
-            var tries=0;
-            var t=setInterval(function(){
-              tries++;
-              try{
-                if(w.document && w.document.readyState==='complete'){
-                  clearInterval(t);
-                  var h=w.document.querySelector('header.top'); if(h)h.style.display='none';
-                  var bar=w.document.getElementById('adminBar'); if(bar)bar.style.display='none';
-                  var sign=w.document.getElementById('signbox'); if(sign)sign.style.display='none';
-                  var prog=w.document.getElementById('progWrap'); if(prog)prog.style.display='none';
-                  var records=w.document.getElementById('recordsView'); if(records)records.style.display='none';
-                  var gate=w.document.getElementById('gate'); if(gate)gate.style.display='none';
-                  var readView=w.document.getElementById('readView'); if(readView)readView.style.display='block';
-                  w.focus(); w.print();
-                }
-              }catch(e){}
-              if(tries>40) clearInterval(t);
-            },150);
-          };
-          actions.appendChild(btn);
-        }
-      }
-
-      /* Sign-off record visibility is enforced by Supabase RLS; label the view clearly for RMs. */
-      if(/shabbos_signoff\.html/i.test(f.src)){
-        var rec=d.querySelector('#recordsView .records .rec');
-        if(rec && shouldManageRail()) rec.textContent='Your residence sign-off records.';
-      }
-    }catch(e){console.warn('HASC Shabbos iframe patch failed',e);}
-  }
-  function wireShabbos(){
-    enforceRMShabbosView();
-    var f=getShabbosFrame();
-    if(f && !f.__hascLoad){f.__hascLoad=true;f.addEventListener('load',function(){setTimeout(function(){enforceRMShabbosView();patchShabbosFrame();},50);});}
-    patchShabbosFrame();
-  }
-
-  /* Staff app sits directly in the Mark 4 iframe, so remove the extra nested whitespace. */
-  function patchStaffFrame(){
-    var f=document.getElementById('staffFrame');
-    if(!f) return;
-    f.style.height='calc(100vh - 90px)';
-    f.style.borderRadius='0';
-    try{
-      var d=f.contentDocument;
-      if(!d||!d.body) return;
-      var wrap=d.querySelector('.wrap');
-      if(wrap) wrap.style.padding='14px 18px 24px';
-      var rail=d.querySelector('.rail');
-      if(rail) rail.style.padding='10px 8px';
-    }catch(e){console.warn('HASC Staff iframe fit failed',e);}
-  }
-  function wireStaff(){
-    var f=document.getElementById('staffFrame');
-    if(f && !f.__hascFit){f.__hascFit=true;f.addEventListener('load',function(){setTimeout(patchStaffFrame,50);});}
-    patchStaffFrame();
-  }
-
-  /* Overtime should open directly in the Mark 4 content area, not the legacy launch card. */
-  function wireOvertime(){
-    var v=document.getElementById('view-ot');
-    if(!v) return;
-    var f=v.querySelector('#otFrame');
-    if(!f){
-      v.innerHTML='<iframe id="otFrame" src="/Overtime/overtime.html" style="display:block;width:100%;height:calc(100vh - 90px);border:0;border-radius:0;background:#f0f2f5"></iframe>';
-    }else{
-      f.style.height='calc(100vh - 90px)';
-      f.style.borderRadius='0';
-    }
-  }
-
-  function tick(){
-    getProfile();
-    if(profile){
-      if(!prefs) prefs=currentPrefs();
-      applyRail();
-      syncMenu();
-    }
-    fixDashboardOverlap();
-    wireShabbos();
-    wireStaff();
-    wireOvertime();
-  }
-
-  document.addEventListener('click',function(e){
-    var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],button[data-view="staff"],button[data-view="ot"],#sbCodes,#sbRecords'):null;
-    if(!t) return;
-    setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},80);
-    setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},400);
-  },true);
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tick); else tick();
-  setTimeout(tick,400);
-  setTimeout(tick,1200);
-  setInterval(tick,2000);
+  function enforceRMShabbosView(){if(!isResidenceManager())return;var f=getShabbosFrame();if(!f)return;var codes=document.getElementById('sbCodes'),records=document.getElementById('sbRecords');if(codes){codes.style.display='none';codes.classList.remove('primary');}if(records)records.classList.add('primary');var head=document.querySelector('#view-shabbos .viewhead p');if(head)head.textContent='Review signed Shabbos policy documents for your residence.';if(!/shabbos_signoff\.html/i.test(f.src))f.src='Shabbos/shabbos_signoff.html#admin';}
+  function patchShabbosFrame(){var f=getShabbosFrame();if(!f)return;try{var d=f.contentDocument;if(!d||!d.body)return;if(d.__hascPatched)return;d.__hascPatched=true;var hdr=d.querySelector('header.top');if(hdr)hdr.style.display='none';var wrap=d.querySelector('.wrap');if(wrap){wrap.style.maxWidth='1100px';wrap.style.paddingTop='1px';}var read=d.getElementById('tabRead');if(read)read.style.display='none';if(/qr_code_generator\.html/i.test(f.src)){var actions=d.querySelector('.row.actions');if(actions&&!d.getElementById('hascPrintPolicy')){var btn=d.createElement('button');btn.id='hascPrintPolicy';btn.className='btn btn-ghost';btn.textContent='Print Shabbos Policy';btn.onclick=function(){var w=window.open('/Shabbos/shabbos_signoff.html#admin','_blank');if(!w)return;var tries=0;var t=setInterval(function(){tries++;try{if(w.document&&w.document.readyState==='complete'){clearInterval(t);var h=w.document.querySelector('header.top');if(h)h.style.display='none';var bar=w.document.getElementById('adminBar');if(bar)bar.style.display='none';var sign=w.document.getElementById('signbox');if(sign)sign.style.display='none';var prog=w.document.getElementById('progWrap');if(prog)prog.style.display='none';var records=w.document.getElementById('recordsView');if(records)records.style.display='none';var gate=w.document.getElementById('gate');if(gate)gate.style.display='none';var readView=w.document.getElementById('readView');if(readView)readView.style.display='block';w.focus();w.print();}}catch(e){}if(tries>40)clearInterval(t);},150);};actions.appendChild(btn);}}if(/shabbos_signoff\.html/i.test(f.src)){var rec=d.querySelector('#recordsView .records .rec');if(rec&&shouldManageRail())rec.textContent='Your residence sign-off records.';}}catch(e){console.warn('HASC Shabbos iframe patch failed',e);}}
+  function wireShabbos(){enforceRMShabbosView();var f=getShabbosFrame();if(f&&!f.__hascLoad){f.__hascLoad=true;f.addEventListener('load',function(){setTimeout(function(){enforceRMShabbosView();patchShabbosFrame();},50);});}patchShabbosFrame();}
+  function patchStaffFrame(){var f=document.getElementById('staffFrame');if(!f)return;f.style.height='calc(100vh - 90px)';f.style.borderRadius='0';try{var d=f.contentDocument;if(!d||!d.body)return;var wrap=d.querySelector('.wrap');if(wrap)wrap.style.padding='14px 18px 24px';var rail=d.querySelector('.rail');if(rail)rail.style.padding='10px 8px';}catch(e){console.warn('HASC Staff iframe fit failed',e);}}
+  function wireStaff(){var f=document.getElementById('staffFrame');if(f&&!f.__hascFit){f.__hascFit=true;f.addEventListener('load',function(){setTimeout(patchStaffFrame,50);});}patchStaffFrame();}
+  function wireOvertime(){var v=document.getElementById('view-ot');if(!v)return;var f=v.querySelector('#otFrame');if(!f){v.innerHTML='<iframe id="otFrame" src="/Overtime/overtime.html" style="display:block;width:100%;height:calc(100vh - 90px);border:0;border-radius:0;background:#f0f2f5"></iframe>';}else{f.style.height='calc(100vh - 90px)';f.style.borderRadius='0';}}
+  function tick(){getProfile();if(profile){if(!prefs)prefs=currentPrefs();applyRail();syncMenu();}hideDepartmentSelector();fixDashboardOverlap();wireShabbos();wireStaff();wireOvertime();}
+  document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],button[data-view="staff"],button[data-view="ot"],#sbCodes,#sbRecords'):null;if(!t)return;setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},80);setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},400);},true);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',tick);else tick();setTimeout(tick,400);setTimeout(tick,1200);setInterval(tick,2000);
 })();
