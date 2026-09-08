@@ -28,6 +28,7 @@
   .nav button{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:9px;padding:9px 15px;font-size:14px;font-weight:800}
   .nav button.on{background:var(--teal);border-color:var(--teal);color:#fff}
   .nav button:hover:not(.on){border-color:var(--teal);color:var(--teal-dk)}
+  .nav button[data-view="qr"]{display:none!important}
 
   .btn{border:0;border-radius:10px;padding:12px 22px;font-size:15px;font-weight:800}
   .btn-teal{background:var(--teal);color:#fff}
