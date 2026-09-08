@@ -13,7 +13,7 @@
   const p=new URLSearchParams(location.search);
   const home=(p.get('home')||p.get('res')||'').trim();
   const hash=location.hash||'';
-  const target='/Shabbos/shabbos_signoff.html';
+  const target='/Shabbos/shabbos_signoff';
 
   if(!home){ location.replace(target+hash); return; }
 
