@@ -13,13 +13,13 @@
   const p=new URLSearchParams(location.search);
   const home=(p.get('home')||p.get('res')||'').trim();
   const hash=location.hash||'';
-  const live='/Shabbos/shabbos-signoff-live';
+  const target='/Shabbos/shabbos_signoff.html';
 
-  if(!home){ location.replace(live+hash); return; }
+  if(!home){ location.replace(target+hash); return; }
 
   const existing=(p.get('t')||'').trim();
   if(existing){
-    location.replace(live+'?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(existing)+hash);
+    location.replace(target+'?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(existing)+hash);
     return;
   }
 
@@ -30,13 +30,13 @@
       window.__hascClient=sb;
       const r=await sb.from('shabbos_qr').select('token').eq('home_name',home).maybeSingle();
       if(!r.error&&r.data&&r.data.token){
-        location.replace(live+'?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(r.data.token)+hash);
+        location.replace(target+'?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(r.data.token)+hash);
         return;
       }
     }
   }catch(e){}
 
-  location.replace(live+'?home='+encodeURIComponent(home)+hash);
+  location.replace(target+'?home='+encodeURIComponent(home)+hash);
 })();
 </script>
 </body>
