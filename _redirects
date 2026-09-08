@@ -1,5 +1,1 @@
-/Shabbos/shabbos-signoff-live  /Shabbos/shabbos_signoff.html  200!
-/Shabbos/shabbos_signoff.html home=:home t=:t  /Shabbos/shabbos-signoff-live  302!
-/Shabbos/shabbos_signoff.html/ home=:home t=:t  /Shabbos/shabbos-signoff-live  302!
-/Shabbos/shabbos_signoff.html home=:home  /Shabbos/token-resolver.html  302!
-/Shabbos/shabbos_signoff.html/ home=:home  /Shabbos/token-resolver.html  302!
+/Shabbos/shabbos_signoff.html/  /Shabbos/token-resolver.html  302!
