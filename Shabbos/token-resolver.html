@@ -12,11 +12,14 @@
 (async function(){
   const p=new URLSearchParams(location.search);
   const home=(p.get('home')||p.get('res')||'').trim();
-  if(!home){ location.replace('/Shabbos/shabbos_signoff.html'); return; }
+  const hash=location.hash||'';
+  const live='/Shabbos/shabbos-signoff-live';
+
+  if(!home){ location.replace(live+hash); return; }
 
   const existing=(p.get('t')||'').trim();
   if(existing){
-    location.replace('/Shabbos/shabbos_signoff.html?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(existing));
+    location.replace(live+'?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(existing)+hash);
     return;
   }
 
@@ -27,13 +30,13 @@
       window.__hascClient=sb;
       const r=await sb.from('shabbos_qr').select('token').eq('home_name',home).maybeSingle();
       if(!r.error&&r.data&&r.data.token){
-        location.replace('/Shabbos/shabbos_signoff.html?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(r.data.token));
+        location.replace(live+'?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(r.data.token)+hash);
         return;
       }
     }
   }catch(e){}
 
-  location.replace('/Shabbos/shabbos_signoff.html?home='+encodeURIComponent(home));
+  location.replace(live+'?home='+encodeURIComponent(home)+hash);
 })();
 </script>
 </body>
