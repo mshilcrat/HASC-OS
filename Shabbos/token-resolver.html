@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HASC Shabbos QR</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/wb-config.js"></script>
+</head>
+<body>
+<script>
+(async function(){
+  const p=new URLSearchParams(location.search);
+  const home=(p.get('home')||p.get('res')||'').trim();
+  if(!home){ location.replace('/Shabbos/shabbos_signoff.html'); return; }
+
+  const existing=(p.get('t')||'').trim();
+  if(existing){
+    location.replace('/Shabbos/shabbos_signoff.html?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(existing));
+    return;
+  }
+
+  try{
+    const cfg=window.HASC_CONFIG;
+    if(window.supabase&&cfg&&cfg.SUPABASE_URL&&cfg.SUPABASE_ANON_KEY){
+      const sb=window.__hascClient||window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+      window.__hascClient=sb;
+      const r=await sb.from('shabbos_qr').select('token').eq('home_name',home).maybeSingle();
+      if(!r.error&&r.data&&r.data.token){
+        location.replace('/Shabbos/shabbos_signoff.html?home='+encodeURIComponent(home)+'&t='+encodeURIComponent(r.data.token));
+        return;
+      }
+    }
+  }catch(e){}
+
+  location.replace('/Shabbos/shabbos_signoff.html?home='+encodeURIComponent(home));
+})();
+</script>
+</body>
+</html>
