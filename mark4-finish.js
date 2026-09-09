@@ -28,6 +28,19 @@
   function hideDepartmentSelector(){var sel=document.querySelector('.myres-picks select:not(#heroHomeFilter)');if(sel)sel.style.display='none';}
   function fixDashboardOverlap(){var houses=document.getElementById('houses');if(!houses)return;var panel=houses.closest('.panel');if(!panel)return;houses.style.height='auto';houses.style.minHeight='0';houses.style.position='relative';houses.style.overflow='visible';houses.style.alignContent='start';panel.style.height='auto';panel.style.overflow='visible';panel.style.position='relative';panel.style.flex='0 0 auto';var ph=panel.querySelector('.ph');var needed=(houses.scrollHeight||0)+(ph?ph.offsetHeight:0)+22;if(needed>0)panel.style.minHeight=needed+'px';}
 
+  function patchChecklistRealtimeRender(){
+    if(typeof window.renderChecklists!=='function'||window.renderChecklists.__hascNoIframeReload)return;
+    var original=window.renderChecklists;
+    function safeRenderChecklists(){
+      var host=document.getElementById('view-checklists');
+      if(host&&host.querySelector('#checklistsFrame'))return;
+      return original.apply(this,arguments);
+    }
+    safeRenderChecklists.__hascNoIframeReload=true;
+    safeRenderChecklists.__hascOriginal=original;
+    window.renderChecklists=safeRenderChecklists;
+  }
+
   function getShabbosFrame(){return document.getElementById('shabbosFrame');}
   function enforceRestrictedShabbosView(){if(!isResidenceManager()&&!isAreaCoordinator())return;var f=getShabbosFrame();if(!f)return;var codes=document.getElementById('sbCodes'),records=document.getElementById('sbRecords');if(codes){codes.style.display='none';codes.classList.remove('primary');}if(records)records.classList.add('primary');var head=document.querySelector('#view-shabbos .viewhead p');if(head)head.textContent=isResidenceManager()?'Review signed Shabbos policy documents for your residence.':'Review staff Shabbos policy sign-off records.';if(!/shabbos_signoff\.html/i.test(f.src))f.src='Shabbos/shabbos_signoff.html#admin';}
 
@@ -52,7 +65,7 @@
   function patchStaffFrame(){var f=document.getElementById('staffFrame');if(!f)return;f.style.height='calc(100vh - 90px)';f.style.borderRadius='0';try{var d=f.contentDocument;if(!d||!d.body)return;var wrap=d.querySelector('.wrap');if(wrap)wrap.style.padding='14px 18px 24px';var rail=d.querySelector('.rail');if(rail)rail.style.padding='10px 8px';}catch(e){console.warn('HASC Staff iframe fit failed',e);}}
   function wireStaff(){var f=document.getElementById('staffFrame');if(f&&!f.__hascFit){f.__hascFit=true;f.addEventListener('load',function(){setTimeout(patchStaffFrame,50);});}patchStaffFrame();}
   function wireOvertime(){var v=document.getElementById('view-ot');if(!v)return;var f=v.querySelector('#otFrame');if(!f){v.innerHTML='<iframe id="otFrame" src="/Overtime/overtime.html" style="display:block;width:100%;height:calc(100vh - 90px);border:0;border-radius:0;background:#f0f2f5"></iframe>';}else{f.style.height='calc(100vh - 90px)';f.style.borderRadius='0';}}
-  function tick(){getProfile();if(profile){if(!prefs)prefs=currentPrefs();applyRail();syncMenu();}hideDepartmentSelector();fixDashboardOverlap();wireShabbos();wireStaff();wireOvertime();}
+  function tick(){getProfile();patchChecklistRealtimeRender();if(profile){if(!prefs)prefs=currentPrefs();applyRail();syncMenu();}hideDepartmentSelector();fixDashboardOverlap();wireShabbos();wireStaff();wireOvertime();}
   document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],button[data-view="staff"],button[data-view="ot"],#sbCodes,#sbRecords'):null;if(!t)return;setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},80);setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},400);},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',tick);else tick();setTimeout(tick,400);setTimeout(tick,1200);setInterval(tick,2000);
 })();
