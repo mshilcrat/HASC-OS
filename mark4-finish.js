@@ -69,3 +69,30 @@
   document.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target.closest('#appsLauncher,button[data-view="shabbos"],button[data-view="staff"],button[data-view="ot"],#sbCodes,#sbRecords'):null;if(!t)return;setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},80);setTimeout(function(){syncMenu();wireShabbos();wireStaff();wireOvertime();},400);},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',tick);else tick();setTimeout(tick,400);setTimeout(tick,1200);setInterval(tick,2000);
 })();
+
+/* Keep the active checklist management module after realtime writes such as task deletion. */
+(function(){
+  'use strict';
+  function patch(){
+    var f=document.getElementById('checklistsFrame');
+    if(!f)return;
+    try{
+      var w=f.contentWindow,d=f.contentDocument;
+      if(!w||!d||typeof w.__hascChecklistRefresh!=='function'||w.__hascChecklistRefresh.__hascPreserveModule)return;
+      var original=w.__hascChecklistRefresh;
+      var wrapped=async function(){
+        var active=d.querySelector('.modulebtn[data-module].active');
+        var moduleId=(active&&active.dataset&&active.dataset.module)||((w.location.hash||'').replace(/^#/,'')||'insights');
+        try{return await original.apply(this,arguments);}
+        finally{
+          if(typeof w.activateModule==='function')w.activateModule(moduleId);
+          try{if(moduleId&&w.location.hash.slice(1)!==moduleId)w.history.replaceState(null,'','#'+moduleId);}catch(e){}
+        }
+      };
+      wrapped.__hascPreserveModule=true;
+      wrapped.__hascOriginal=original;
+      w.__hascChecklistRefresh=wrapped;
+    }catch(e){console.warn('HASC checklist module-state patch failed',e);}
+  }
+  setInterval(patch,500);
+})();
