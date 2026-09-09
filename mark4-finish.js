@@ -81,12 +81,14 @@
       if(!w||!d||typeof w.__hascChecklistRefresh!=='function'||w.__hascChecklistRefresh.__hascPreserveModule)return;
       var original=w.__hascChecklistRefresh;
       var wrapped=async function(){
+        var shellWasChecklists=!!document.querySelector('#view-checklists.view.active');
         var active=d.querySelector('.modulebtn[data-module].active');
         var moduleId=(active&&active.dataset&&active.dataset.module)||((w.location.hash||'').replace(/^#/,'')||'insights');
         try{return await original.apply(this,arguments);}
         finally{
           if(typeof w.activateModule==='function')w.activateModule(moduleId);
           try{if(moduleId&&w.location.hash.slice(1)!==moduleId)w.history.replaceState(null,'','#'+moduleId);}catch(e){}
+          if(shellWasChecklists&&typeof window.switchView==='function')window.switchView('checklists');
         }
       };
       wrapped.__hascPreserveModule=true;
