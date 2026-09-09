@@ -98,3 +98,37 @@
   }
   setInterval(patch,500);
 })();
+
+/* Add Task must create a task only for the residence selected in the checklist builder. */
+(function(){
+  'use strict';
+  function toast(d,msg){var t=d.querySelector('.toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2600);}
+  function patch(){
+    var f=document.getElementById('checklistsFrame');
+    if(!f)return;
+    try{
+      var w=f.contentWindow,d=f.contentDocument,btn=d&&d.getElementById('addTask');
+      var client=w&&w.__hascClient;
+      if(!btn||!client||btn.__hascScopedAdd)return;
+      btn.__hascScopedAdd=true;
+      btn.onclick=async function(e){
+        if(e)e.preventDefault();
+        var homeEl=d.getElementById('builderHome'),nameEl=d.getElementById('newTask'),freqEl=d.getElementById('newFreq');
+        var home=homeEl&&homeEl.value,name=nameEl&&nameEl.value?nameEl.value.trim():'',freq=freqEl&&freqEl.value;
+        if(!home||!name||!freq)return;
+        btn.disabled=true;
+        try{
+          var r=await client.rpc('create_scoped_checklist_task',{p_home:home,p_frequency:freq,p_task_name:name});
+          if(r.error)throw r.error;
+          if(nameEl)nameEl.value='';
+          if(typeof w.__hascChecklistRefresh==='function')await w.__hascChecklistRefresh();
+          toast(d,'Task added to '+home+' only.');
+        }catch(err){
+          console.error('Scoped checklist task add failed',err);
+          toast(d,'Could not add the task. No residence changes were saved.');
+        }finally{btn.disabled=false;}
+      };
+    }catch(e){console.warn('HASC scoped checklist add patch failed',e);}
+  }
+  setInterval(patch,400);
+})();
