@@ -100,8 +100,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;color:#1a202c;mi
 <select id="dsp-title">
 <option value="">-- Select your role --</option>
 <option value="DSP">DSP (Direct Support Professional)</option>
-<option value="Senior DSP">Senior DSP</option>
-<option value="House Manager">House Manager</option>
+<option value="Residence Manager">Residence Manager</option>
 <option value="Supervisor">Supervisor</option>
 <option value="Other">Other</option>
 </select>
@@ -266,7 +265,7 @@ function getVideoEmbed(url){
   if(url.includes('screenpal.com')||url.includes('screencast-o-matic.com')){
     const vid=url.split('/watch/')[1]||url.split('/player/')[1];const embedUrl='https://go.screenpal.com/player/'+vid+'?ff=1&ahc=1&dcc=1&tl=1&bg=transparent&embed=1';
     return `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
-}
+  }
   // YouTube
   const ytMatch=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([a-zA-Z0-9_-]{11})/);
   if(ytMatch) return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe>`;
