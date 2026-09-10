@@ -18,8 +18,7 @@
   const b64=parts.join('');
   const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
   const ds=new DecompressionStream('gzip');
-  let html=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
-  html=html.replace(/<\/body>/i,'<script src="/Overtime/ot-friday.js?v=1"><\/script></body>');
+  const html=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
   document.open();
   document.write(html);
   document.close();
