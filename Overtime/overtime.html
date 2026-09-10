@@ -18,51 +18,7 @@
   const b64=parts.join('');
   const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
   const ds=new DecompressionStream('gzip');
-  let html=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
-
-  // FRIDAY ONLY: once the payroll CSV has been parsed and staged successfully,
-  // activate the app's existing apply/update action so the dashboard receives it.
-  const fridayWire=`<script>
-  (()=>{
-    let lastReady='';
-    const textOf=el=>(el&&el.textContent||'').replace(/\\s+/g,' ').trim();
-    const isReady=()=>/Payroll file ready/i.test(document.body.innerText||'') && /Dashboard data has not been changed yet/i.test(document.body.innerText||'');
-    const candidateText=/^(apply|update|import|commit|use|load|save).*?(dashboard|payroll|data)|^(apply|update)\\s*$/i;
-    function tryApply(){
-      if(!isReady()) return false;
-      const readyText=(document.body.innerText||'').match(/Payroll file ready[^\\n]*/i)?.[0]||'ready';
-      if(readyText===lastReady) return false;
-      const fileInput=document.querySelector('input[type=file]');
-      let scope=fileInput;
-      for(let i=0;i<6&&scope;i++,scope=scope.parentElement){
-        const t=textOf(scope);
-        if(/Payroll file ready/i.test(t)||/Dashboard data has not been changed yet/i.test(t)) break;
-      }
-      const roots=[scope,document].filter(Boolean);
-      for(const root of roots){
-        const buttons=[...root.querySelectorAll('button,input[type=button],input[type=submit]')];
-        const btn=buttons.find(b=>!b.disabled && candidateText.test((b.innerText||b.value||'').trim()));
-        if(btn){
-          lastReady=readyText;
-          btn.click();
-          return true;
-        }
-      }
-      return false;
-    }
-    const obs=new MutationObserver(()=>{setTimeout(tryApply,0)});
-    obs.observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['disabled','class','style']});
-    document.addEventListener('change',e=>{
-      if(e.target&&e.target.matches&&e.target.matches('input[type=file]')){
-        lastReady='';
-        [100,300,700,1200,2000].forEach(ms=>setTimeout(tryApply,ms));
-      }
-    },true);
-    setTimeout(tryApply,500);
-  })();
-  <\/script>`;
-  html=html.replace(/<\\/body>/i,fridayWire+'</body>');
-
+  const html=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
   document.open();
   document.write(html);
   document.close();
