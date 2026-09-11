@@ -1,3 +1,106 @@
+/* Residential Day Planner admin residence selector repair. */
+(function(){
+  'use strict';
+  var path=(location.pathname||'').toLowerCase();
+  if(!/\/residential-day-planner\.html$/.test(path))return;
+
+  var homes=[];
+  var selected='';
+  var loading=false;
+
+  function isAdmin(){
+    var p=window.__hascProfile;
+    return !!(p&&String(p.role||'').toLowerCase()==='admin');
+  }
+
+  function rowToEvent(r){
+    var st=String(r.start_time||'00:00:00').split(':');
+    return {
+      id:r.id,
+      title:r.title||'',
+      date:r.event_date,
+      hour:parseInt(st[0],10)||0,
+      min:parseInt(st[1],10)||0,
+      who:r.assigned_to||'',
+      type:r.activity_type||'',
+      customLabel:r.custom_label||'',
+      customColor:r.color||'',
+      customIcon:r.icon||'',
+      individual_id:r.individual_id||null,
+      individual_name:r.individual_name||null
+    };
+  }
+
+  async function loadHome(home){
+    var sb=window.__hascClient,rdp=window.__RDP;
+    if(!sb||!rdp||!home)return;
+    selected=home;
+    try{
+      var res=await sb.from('resi_day_planner_events').select('*').eq('home_name',home);
+      if(res.error)throw res.error;
+      if(typeof rdp.setStore==='function')rdp.setStore((res.data||[]).map(rowToEvent));
+      if(typeof rdp.paint==='function')rdp.paint();
+    }catch(e){console.error('Admin planner residence load failed',e);}
+  }
+
+  function ensureSelector(){
+    if(!isAdmin()||!homes.length)return;
+    var top=document.querySelector('.planner-top');
+    if(!top)return;
+    var old=document.getElementById('wpResidence');
+    if(old){
+      if(old.value!==selected&&selected)old.value=selected;
+      return;
+    }
+    var wrap=document.createElement('div');
+    wrap.className='rdp-res-wrap';
+    wrap.style.cssText='display:inline-flex;align-items:center;gap:6px;';
+    var label=document.createElement('span');
+    label.textContent='Residence:';
+    label.style.cssText='font-weight:800;font-size:12px;color:var(--muted);';
+    var sel=document.createElement('select');
+    sel.id='wpResidence';
+    sel.style.cssText='min-height:38px;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-weight:700;font-size:13px;background:#fff;color:var(--ink);max-width:260px;';
+    homes.forEach(function(h){
+      var o=document.createElement('option');
+      o.value=h;
+      o.textContent=h;
+      if(h===selected)o.selected=true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener('change',function(){loadHome(sel.value);});
+    wrap.appendChild(label);
+    wrap.appendChild(sel);
+    top.appendChild(wrap);
+  }
+
+  async function repair(){
+    if(loading||!window.__hascClient||!window.__hascProfile||!window.__RDP||!isAdmin())return;
+    loading=true;
+    try{
+      var res=await window.__hascClient.from('cl_homes').select('home_name').order('home_name');
+      if(res.error)throw res.error;
+      homes=(res.data||[]).map(function(x){return x.home_name;}).filter(Boolean);
+      if(!homes.length)return;
+      window.__hascProfile.residences=homes.slice();
+      try{sessionStorage.setItem('hasc_homes',JSON.stringify(homes));}catch(e){}
+      var existing=document.getElementById('wpResidence');
+      selected=(existing&&existing.value&&homes.indexOf(existing.value)>=0)?existing.value:(selected&&homes.indexOf(selected)>=0?selected:homes[0]);
+      window.__RDP.afterPaint=ensureSelector;
+      ensureSelector();
+      await loadHome(selected);
+    }catch(e){
+      console.error('Admin planner residence repair failed',e);
+    }finally{
+      loading=false;
+    }
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',repair);else repair();
+  setTimeout(repair,400);
+  setTimeout(repair,1200);
+})();
+
 /* HASC Mark 4 finishing patch: Shabbos iframe organization + persistent rail apps. */
 (function(){
   'use strict';
